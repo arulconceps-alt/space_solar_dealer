@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/otp/view/otp_screen.dart';
+import 'package:space_solar_dealer/src/login/widgets/blur_circle.dart';
+import 'package:space_solar_dealer/src/login/widgets/field_label.dart';
+import 'package:space_solar_dealer/src/login/widgets/glass_field.dart';
+import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
+import 'package:space_solar_dealer/src/login/widgets/primary_button.dart';
+import 'package:space_solar_dealer/src/login/widgets/social_button.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,253 +19,288 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool isLoading = false;
-  bool isCertified = true;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  final TextEditingController phoneController = TextEditingController();
-  final String iconPhone = "assets/images/auth/icon_phone.svg";
+  bool _obscurePassword = true;
 
   @override
-  void initState() {
-    super.initState();
-    phoneController.text = "1234567890"; // testing number
-    isCertified = true;
-  }
-
-  void _validateAndRegister() async {
-    String pattern = r'^(?:[+0]91)?[0-9]{10}$';
-    RegExp regExp = RegExp(pattern);
-    String value = phoneController.text.trim();
-
-    if (value.isEmpty) {
-      _showError("Please enter your mobile number");
-    } else if (!regExp.hasMatch(value.replaceAll(' ', ''))) {
-      _showError("Please enter a valid 10-digit number");
-    } else if (!isCertified) {
-      _showError("You must certify that you are 18+ years old");
-    } else {
-      setState(() => isLoading = true);
-
-      await Future.delayed(const Duration(seconds: 1));
-
-      setState(() => isLoading = false);
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const OtpScreen()),
-      );
-    }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: ColorPalette.error),
-    );
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth / 440;
+
+    double s(double v) => v * scale;
+
     return Scaffold(
-      backgroundColor: ColorPalette.background,
       body: Stack(
         children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: ColorPalette.scaffoldGradient,
+            ),
+          ),
+
+          /// Blur circles
+          BlurCircle(
+            left: s(-146),
+            top: s(-201),
+            size: s(383),
+            opacity: 1,
+          ),
+
+          BlurCircle(
+            left: s(399),
+            top: s(44),
+            size: s(383),
+            opacity: 1,
+          ),
+
+          BlurCircle(
+            left: s(-241),
+            top: s(580),
+            size: s(383),
+            opacity: .4,
+          ),
+
           SafeArea(
-            child: SingleChildScrollView(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: s(86),
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: LogoWidget(scale: scale),
+                  ),
+                ),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: s(20)),
+                  child: SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.18,
-                        ),
-
-                        /// Phone Icon
-                        SvgPicture.asset(
-                          iconPhone,
-                          width: 110,
-                          height: 110,
-                          colorFilter: const ColorFilter.mode(
-                            ColorPalette.primary,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-
-                        const SizedBox(height: 32),
+                        SizedBox(height: s(86 + 20.5644 + 55)),
 
                         /// Title
-                        const Text(
-                          "Just Verify & Play",
-                          style: TextStyle(
-                            color: ColorPalette.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
+                        Text(
+                          'Welcome Back!',
+                          style: GoogleFonts.poppins(
+                            fontSize: s(32),
+                            fontWeight: FontWeight.w600,
+                            color: ColorPalette.bottomtext,
+                            height: 1.19,
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        SizedBox(height: s(4)),
 
-                        /// Description
-                        const Text(
-                          "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: ColorPalette.textSecondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            height: 1.43,
+                        /// Subtitle
+                        Text(
+                          'Enter your Login Information',
+                          style: GoogleFonts.lato(
+                            fontSize: s(16),
+                            fontWeight: FontWeight.w400,
+                            color: ColorPalette.textfiledin,
+                            height: 1.40,
                           ),
                         ),
 
-                        const SizedBox(height: 48),
+                        SizedBox(height: s(31)),
 
-                        /// Mobile Input
-                        _buildRefinedTextField(),
+                        /// Email
+                        FieldLabel(
+                          text: "Email Address",
+                          scale: scale,
+                        ),
 
-                        const SizedBox(height: 16),
+                        SizedBox(height: s(9)),
 
-                        /// OTP text
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "You will receive an OTP for Verification",
-                            style: TextStyle(
-                              color: ColorPalette.textPrimary,
-                              fontSize: 14,
+                        SizedBox(
+                          height: s(50),
+                          child: GlassField(
+                            controller: _emailController,
+                            hint: "Email Address",
+                            scale: scale,
+                          ),
+                        ),
+
+                        SizedBox(height: s(24)),
+
+                        /// Password
+                        FieldLabel(
+                          text: "Password",
+                          scale: scale,
+                        ),
+
+                        SizedBox(height: s(9)),
+
+                        SizedBox(
+                          height: s(50),
+                          child: GlassField(
+                            controller: _passwordController,
+                            hint: "Password",
+                            scale: scale,
+                            obscure: _obscurePassword,
+                          ),
+                        ),
+                        SizedBox(height:12),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.only(
+                                top: s(12),
+                                bottom: s(4),
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () {},
+                            child: Text(
+                              'Forget Password?',
+                              style: GoogleFonts.lato(
+                                fontSize: s(16),
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF26A7DF),
+                                height: 1.40,
+                              ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 32),
+                        SizedBox(height: s(30)),
 
-                        /// Checkbox
+                        /// Login button
+                        PrimaryButton(
+                          text: "Login",
+                          scale: scale,
+                          onTap: () {
+                            context.push('/home');
+                          },
+                        ),
+
+                        SizedBox(height: s(44)),
+
+                        /// OR
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: Checkbox(
-                                value: isCertified,
-                                onChanged: (v) =>
-                                    setState(() => isCertified = v!),
-                                checkColor: ColorPalette.textPrimary,
-                                fillColor:
-                                    WidgetStateProperty.resolveWith<Color>((
-                                      states,
-                                    ) {
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return ColorPalette.primary;
-                                      }
-                                      return Colors.transparent;
-                                    }),
-                                side: const BorderSide(
-                                  color: ColorPalette.outline,
-                                  width: 1.5,
+                            Container(
+                              width: s(58),
+                              height: 1,
+                              color: const Color(0x331E1E1E),
+                            ),
+                            Padding(
+                              padding:
+                              EdgeInsets.symmetric(horizontal: s(10)),
+                              child: Text(
+                                'Or Continue with',
+                                style: GoogleFonts.lato(
+                                  fontSize: s(12),
+                                  fontWeight: FontWeight.w400,
+                                  color: const Color(0xFF1E1E1E),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            Container(
+                              width: s(58),
+                              height: 1,
+                              color: const Color(0x331E1E1E),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: s(40)),
+
+                        /// Social
+                        Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+                          children: [
+                            SocialButton(
+                              scale: scale,
+                              child: SizedBox(
+                                width: scale * 192.7461,
+                                height: s(24),
+                                child: SvgPicture.asset(
+                                  "assets/images/login/google.svg",
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                             ),
 
-                            const SizedBox(width: 12),
+                            SizedBox(width: s(40)),
 
-                            const Text(
-                              "I certify that I am 18 years old",
-                              style: TextStyle(
-                                color: ColorPalette.textPrimary,
-                                fontSize: 14,
+                            SocialButton(
+                              scale: scale,
+                              child: SizedBox(
+                                width: scale * 192.7461,
+                                height: s(30),
+                                child: SvgPicture.asset(
+                                  "assets/images/login/apple.svg",
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ],
                         ),
 
-                        const SizedBox(height: 32),
-
-                        /// Register Button
-                        _buildGradientButton(),
-
-                        const SizedBox(height: 40),
+                        SizedBox(height: s(80)),
                       ],
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
 
-          /// Loader Overlay
-          if (isLoading)
-            Container(
-              color: Colors.black.withValues(alpha: 0.6),
-              child: const Center(
-                child: CircularProgressIndicator(color: ColorPalette.primary),
-              ),
+          /// bottom signup
+          Positioned(
+            bottom: s(35),
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Don't have an account yet? ",
+                  style: GoogleFonts.lato(
+                    fontSize: s(14),
+                    color: ColorPalette.bottomtext,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    context.push('/signup');
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize:
+                    MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    "Sign Up",
+                    style: GoogleFonts.lato(
+                      fontSize: s(14),
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF26A7DF),
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  /// Input Field
-  Widget _buildRefinedTextField() {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: const ColorScheme.dark(primary: ColorPalette.primary),
-      ),
-      child: TextField(
-        controller: phoneController,
-        keyboardType: TextInputType.phone,
-        style: const TextStyle(color: ColorPalette.textPrimary, fontSize: 16),
-        decoration: InputDecoration(
-          labelText: "Mobile Number",
-          labelStyle: const TextStyle(color: ColorPalette.textPrimary),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 20,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: ColorPalette.outline, width: 1),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: ColorPalette.primary,
-              width: 1.5,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Gradient Button
-  Widget _buildGradientButton() {
-    return GestureDetector(
-      onTap: isLoading ? null : _validateAndRegister,
-      child: Container(
-        width: double.infinity,
-        height: 56,
-        decoration: BoxDecoration(
-          gradient: ColorPalette.primaryGradient,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.center,
-        child: const Text(
-          "Register",
-          style: TextStyle(
-            color: ColorPalette.textPrimary,
-            fontSize: 16.7,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
       ),
     );
   }
