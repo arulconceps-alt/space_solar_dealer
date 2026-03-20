@@ -1,38 +1,22 @@
 import 'package:flutter/material.dart';
 
 class ColorPalette {
-  // Backgrounds - Figma dark theme
-  static const Color background = Color(0xFF1C1B20); // splash Screen Fill
+  static const Color background = Color(0xFF26A7DF); // splash Screen Fill
   static const Color surface = Color(0xFF313038); // Rectangle 39515 Fill
-  static const Color surfaceVariant = Color(0xFF413E3D); // BG Color Fill
-  static const Color surfaceDark = Color(0xFF333236); // Ellipse 6065 Fill
-  static const Color surfaceLight = Color(0xFF333236);
-  static const Color backgroundDark = Color(0xFF24232A);
-
-
+  static const Color button1 = Color(0xFF4E4E4E); // onboardscreen button1
+  static const Color button2 = Color(0xFFFFFFFF); // onboardscreen button2
   static const Color snackbar = Color(0xFF37B158);
+  static const Color whitetext = Color(0xFFFFFFFF);
+  static const Color bottomtext = Color(0xFF282828);
+  static const Color textfiledin = Color(0xFF484848);
+  static const Color bordertextbox = Color(0xFFE2E2E2);
+  static const Color active = Color(0xFF00C951);
+  static const Color alert = Color(0xFFFF6900);
+  static const Color pending = Color(0xFFEA1F27);
+
 
   // Brand - Gold accent (buttons, active dot)
   static const Color primary = Color(0xFFDFC55C); // Vector Fill gold
-  static const Color accent = Color(0xFFDFC55C);
-  static const Color accentGold = Color(0xFFDFC55C);
-  static const Color secondary = Color(0xFF00ABE4); // Vector Fill blue
-
-  // Glows
-  static Color primaryGlow = primary.withValues(alpha: 0.15);
-  static Color secondaryGlow = secondary.withValues(alpha: 0.15);
-  static Color accentGlow = accent.withValues(alpha: 0.15);
-
-  // Typography - on dark
-  static const Color textPrimary = Color(0xFFFFFFFF); // Battery Fill
-  static const Color textSecondary = Color(
-    0xCCFFFFFF,
-  ); // Description 0.8 opacity
-  static const Color textTertiary = Color(0x99FFFFFF); // Home Indicator 0.6
-
-  // Borders / outline
-  static const Color outline = Color(0xFF6D6B94); // Rectangle 39513 Stroke
-  static const Color borderSubtle = Color(0x1AFFFFFF); // BG Color Stroke 0.1
 
   // Status - from Figma
   static const Color success = Color(0xFF10B981);
@@ -45,23 +29,23 @@ class ColorPalette {
     end: Alignment.bottomRight,
   );
 
+  static const LinearGradient scaffoldGradient = LinearGradient(
+    colors: [Color(0xFFB5E2F4), Color(0xFFD8F0FA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primary, Color(0xFFE8D88A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient bgGradient = LinearGradient(
-    colors: [background, surfaceVariant],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-
   static Widget buildLuxGlow(
-    Alignment alignment,
-    Color color, {
-    double size = 400,
-  }) {
+      Alignment alignment,
+      Color color, {
+        double size = 400,
+      }) {
     return Align(
       alignment: alignment,
       child: Container(

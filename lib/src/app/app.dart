@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:space_solar_dealer/src/app/routes.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:space_solar_dealer/src/app/routes.dart';
 
 class App extends StatefulWidget {
   const App({super.key});

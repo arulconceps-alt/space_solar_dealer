@@ -1,6 +1,7 @@
+
 import 'package:flutter/material.dart';
-import 'package:space_solar_dealer/src/app/app.dart';
+import 'src/app/app.dart';
 
 Future<void> main() async {
-  runApp(App());
+  runApp(App() as Widget);
 }
