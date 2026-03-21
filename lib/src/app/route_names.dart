@@ -8,5 +8,8 @@ mixin RouteName {
   static const home = "home";
   static const customer_register = "customer_register";
   static const registration_success = "registration_success";
+  static const customer_list = "customer_list";
+  static const customer_detail = "customer_detail";
+  static const ticket_list = "ticket_list";
 
 }

@@ -1,12 +1,15 @@
 import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
+import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
+import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
 import 'package:space_solar_dealer/src/home/view/home_screen.dart';
 import 'package:space_solar_dealer/src/login/view/login_screen.dart';
 import 'package:space_solar_dealer/src/onboarding/view/onboarding_screen.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/register_customer_screen.dart';
 import 'package:space_solar_dealer/src/registration_success_screen/view/registration_success_screen.dart';
 import 'package:space_solar_dealer/src/signup/view/signup_screen.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 
 
 
@@ -57,6 +60,27 @@ class Routes {
         name: RouteName.registration_success,
         path: "/registration_success",
         builder: (context, state) => const RegistrationSuccessScreen(),
+      ),
+      /// customer list
+      GoRoute(
+        name: RouteName.customer_list,
+        path: "/customer_list",
+        builder: (context, state) => const CustomerList(),
+      ),
+      /// customer details
+      GoRoute(
+        name: RouteName.customer_detail,
+        path: "/customer_detail",
+        builder: (context, state) {
+          final name = state.extra as String; // ✅ GET DATA
+          return CustomerDetailsScreen(name: name);
+        },
+      ),
+      ///ticket list details
+      GoRoute(
+        name: RouteName.ticket_list,
+        path: "/ticket_list",
+        builder: (context, state) => const TicketsListDetails(),
       ),
     ],
   );

@@ -6,6 +6,7 @@ import 'package:dotted_border/dotted_border.dart'; // Import this
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
+import 'package:space_solar_dealer/src/register_new_customer/widgets/register_blur_circle.dart';
 
 class RegisterCustomerScreen extends StatefulWidget {
   const RegisterCustomerScreen({super.key});
@@ -26,13 +27,33 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       backgroundColor: const Color(0xFFB5E2F4),
       body: Stack(
         children: [
-          _buildBlurredCircle(-146, -201, 383, Colors.white, scale, 60),
-          _buildBlurredCircle(209, 94, 383, Colors.white.withOpacity(0.3), scale, 40),
-          _buildBlurredCircle(-153, 575, 383, Colors.white.withOpacity(0.6), scale, 50),
+          RegisterBlurCircle(
+            left: -146,
+            top: -201,
+            size: 383,
+            color: Colors.white,
+            scale: scale,
+            blur: 60,
+          ),
+          RegisterBlurCircle(
+            left: 209,
+            top: 94,
+            size: 383,
+            color: Colors.white.withOpacity(0.3),
+            scale: scale,
+            blur: 40,
+          ),
+          RegisterBlurCircle(
+            left: -153,
+            top: 575,
+            size: 383,
+            color: Colors.white.withOpacity(0.6),
+            scale: scale,
+            blur: 50,
+          ),
 
           SafeArea(
-            child: ListView( // Changed from Column to ListView
-              padding: EdgeInsets.zero, // Keep zero here so the header touches the top
+            child: Column(
               children: [
                 // 1. Header is now the first item in the list
                 TopHeaderCard(
@@ -44,111 +65,110 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 ),
 
                 // 2. Form content follows
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 20 * scale,
-                      vertical: 20 * scale
-                  ),
-                  child: Column( // Use a Column here for the rest of your items
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Register Customer & Panel IDs',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFF282828),
-                          fontSize: 20 * scale,
-                          fontWeight: FontWeight.w600,
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20 * scale,
+                  vertical: 20 * scale,
+                ),
+                      children: [
+                        Text(
+                          'Register Customer & Panel IDs',
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF282828),
+                            fontSize: 20 * scale,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 20 * scale),
+                        SizedBox(height: 20 * scale),
 
-                      // Section 1: Customer Details
-                      _buildSectionCard(
-                        scale: scale,
-                        title: "Customer Details",
-                        child: Column(
-                          children: [
-                            _buildTextField("Customer Name*", "Customer Name", scale),
-                            _buildTextField("Phone Number*", "Phone Number", scale),
-                            _buildTextField("Email*", "Email", scale),
-                            _buildTextField("Address*", "Enter full installation address", scale, isMultiline: true),
-                          ],
+                        // Section 1: Customer Details
+                        _buildSectionCard(
+                          scale: scale,
+                          title: "Customer Details",
+                          child: Column(
+                            children: [
+                              _buildTextField("Customer Name*", "Customer Name", scale),
+                              _buildTextField("Phone Number*", "Phone Number", scale),
+                              _buildTextField("Email*", "Email", scale),
+                              _buildTextField("Address*", "Enter full installation address", scale, isMultiline: true),
+                            ],
+                          ),
                         ),
-                      ),
 
-                      SizedBox(height: 20 * scale),
+                        SizedBox(height: 20 * scale),
 
-                      // Section 2: Register Panel (QR)
-                      _buildSectionCard(
-                        scale: scale,
-                        title: "Register Panel",
-                        child: Column(
-                          children: [
-                            DottedBorder(
-                              options: RoundedRectDottedBorderOptions(
-                                color: const Color(0xFF26A7DF),
-                                strokeWidth: 2,
-                                dashPattern: const [6, 4],
-                                radius: Radius.circular(10 * scale),
-                              ),
-                              child: Container(
-                                width: 180 * scale,
-                                height: 180 * scale,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(10 * scale),
+                        // Section 2: Register Panel (QR)
+                        _buildSectionCard(
+                          scale: scale,
+                          title: "Register Panel",
+                          child: Column(
+                            children: [
+                              DottedBorder(
+                                options: RoundedRectDottedBorderOptions(
+                                  color: const Color(0xFF26A7DF),
+                                  strokeWidth: 2,
+                                  dashPattern: const [6, 4],
+                                  radius: Radius.circular(10 * scale),
                                 ),
-                                child: Center(
-                                  child: Image.asset(
-                                    "assets/images/new_register/qr_scan.png",
-                                    width: 90 * scale,
-                                    height: 90 * scale,
-                                    fit: BoxFit.contain,
+                                child: Container(
+                                  width: 180 * scale,
+                                  height: 180 * scale,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10 * scale),
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      "assets/images/new_register/qr_scan.png",
+                                      width: 90 * scale,
+                                      height: 90 * scale,
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 15 * scale),
-                            Text(
-                              "Position QR code within the frame",
-                              style: GoogleFonts.lato(fontSize: 14 * scale, color: Colors.black54),
-                            ),
-                            SizedBox(height: 20 * scale),
-                            _buildPrimaryButton("Scan", ColorPalette.background, scale),
-                          ],
+                              SizedBox(height: 15 * scale),
+                              Text(
+                                "Position QR code within the frame",
+                                style: GoogleFonts.lato(fontSize: 14 * scale, color: Colors.black54),
+                              ),
+                              SizedBox(height: 20 * scale),
+                              _buildPrimaryButton("Scan", ColorPalette.background, scale),
+                            ],
+                          ),
                         ),
-                      ),
 
-                      SizedBox(height: 20 * scale),
-                      _buildDivider(scale),
-                      SizedBox(height: 20 * scale),
+                        SizedBox(height: 20 * scale),
+                        _buildDivider(scale),
+                        SizedBox(height: 20 * scale),
 
-                      // Section 3: Manual Entry
-                      _buildSectionCard(
-                        scale: scale,
-                        title: "Enter Panel ID Manual",
-                        child: Row(
-                          children: [
-                            Expanded(child: _buildSimpleInput("Enter Panel ID", scale)),
-                            SizedBox(width: 10 * scale),
-                            _buildSmallButton("Add", scale),
-                          ],
+                        // Section 3: Manual Entry
+                        _buildSectionCard(
+                          scale: scale,
+                          title: "Enter Panel ID Manual",
+                          child: Row(
+                            children: [
+                              Expanded(child: _buildSimpleInput("Enter Panel ID", scale)),
+                              SizedBox(width: 10 * scale),
+                              _buildSmallButton("Add", scale),
+                            ],
+                          ),
                         ),
-                      ),
 
-                      SizedBox(height: 20 * scale),
+                        SizedBox(height: 20 * scale),
 
-                      // Section 4: Added Panels List
-                      ..._addedPanels.map((id) => _buildAddedPanelTile(id, scale)).toList(),
+                        // Section 4: Added Panels List
+                        ..._addedPanels.map((id) => _buildAddedPanelTile(id, scale)).toList(),
 
-                      SizedBox(height: 30 * scale),
-                      _buildPrimaryButton("Submit", ColorPalette.background, scale,onTap: () {
-                        context.pushNamed(RouteName.registration_success);
-                      },),
-                      SizedBox(height: 40 * scale),
-                    ],
+                        SizedBox(height: 30 * scale),
+                        _buildPrimaryButton("Submit", ColorPalette.background, scale,onTap: () {
+                          context.pushNamed(RouteName.registration_success);
+                        },),
+                        SizedBox(height: 44 * scale),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -289,18 +309,5 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     );
   }
 
-  Widget _buildBlurredCircle(double left, double top, double size, Color color, double scale, double blur) {
-    return Positioned(
-      left: left * scale,
-      top: top * scale,
-      child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          width: size * scale,
-          height: size * scale,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-      ),
-    );
-  }
+
 }

@@ -94,6 +94,7 @@ flutter:
     - assets/images/bottom_navigation/
     - assets/images/new_register/
     - assets/images/success/
+    - assets/images/customer/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
