@@ -13,6 +13,8 @@ class ColorPalette {
   static const Color active = Color(0xFF00C951);
   static const Color alert = Color(0xFFFF6900);
   static const Color pending = Color(0xFFEA1F27);
+  static const Color cardBorder = Color(0x4D000000); // 30% black
+  static const Color hintText = Color(0x80484848);   // 50%
 
 
   // Brand - Gold accent (buttons, active dot)

@@ -3,9 +3,12 @@ import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
+import 'package:space_solar_dealer/src/edit_profile/view/edit_profile_screen.dart';
 import 'package:space_solar_dealer/src/home/view/home_screen.dart';
 import 'package:space_solar_dealer/src/login/view/login_screen.dart';
+import 'package:space_solar_dealer/src/notifications/view/notification_screen.dart';
 import 'package:space_solar_dealer/src/onboarding/view/onboarding_screen.dart';
+import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/register_customer_screen.dart';
 import 'package:space_solar_dealer/src/registration_success_screen/view/registration_success_screen.dart';
 import 'package:space_solar_dealer/src/signup/view/signup_screen.dart';
@@ -81,6 +84,24 @@ class Routes {
         name: RouteName.ticket_list,
         path: "/ticket_list",
         builder: (context, state) => const TicketsListDetails(),
+      ),
+      ///profile screen
+      GoRoute(
+        name: RouteName.profile_screen,
+        path: "/profile_screen",
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      ///Edit profile screen
+      GoRoute(
+        name: RouteName.edit_profile_screen,
+        path: "/edit_profile_screen",
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      ///notification screen
+      GoRoute(
+        name: RouteName.notification_screen,
+        path: "/notification_screen",
+        builder: (context, state) => const NotificationScreen(),
       ),
     ],
   );

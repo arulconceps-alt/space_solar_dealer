@@ -28,7 +28,12 @@ class RegistrationSuccessScreen extends StatelessWidget {
                 // 2. Header (No back arrow passed)
                 TopHeaderCard(
                   scale: scale,
-                  notificationCount: "16",
+                  notificationCount: "5",
+                onBackTap: null,
+                  onNotificationTap: () {
+                    context.push('/notification_screen');
+                  },
+                  showNotification: true,
                 ),
 
                 Expanded(

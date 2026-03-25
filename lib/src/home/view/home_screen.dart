@@ -10,10 +10,9 @@ import 'package:space_solar_dealer/src/home/widgets/action_card.dart';
 import 'package:space_solar_dealer/src/home/widgets/activity_tile.dart';
 import 'package:space_solar_dealer/src/home/widgets/dashboard_card.dart';
 import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
+import 'package:space_solar_dealer/src/notifications/view/notification_screen.dart';
+import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
-
-
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,17 +37,19 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildDashboardView(w, scale),
           const CustomerList(),
           const TicketsListDetails(),
-          const Center(child: Text("Profile Screen")),
+          const ProfileScreen(),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _selectedIndex,
-        scale: scale,
-        onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-        },
+      bottomNavigationBar: SafeArea(
+        child: CustomBottomNavBar(
+          currentIndex: _selectedIndex,
+          scale: scale,
+          onTap: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+          },
+        ),
       ),
     );
   }
@@ -65,7 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildBlurredCircle(154, 108, 383, Colors.white.withOpacity(0.50), scale, 40),
               _buildBlurredCircle(-146, -201, 383, Colors.white, scale, 60),
 
-              TopHeaderCard(scale: scale),
+              TopHeaderCard(
+                scale: scale,
+                onBackTap: null,
+                onNotificationTap: () {
+                  context.push('/notification_screen');
+                },
+                showNotification: true,
+              ),
 
               Positioned(
                 left: 20 * scale,
@@ -135,12 +143,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 /// Quick Actions
                 Container(
-                    width: 440,
-                    height: 208,
+                  width: double.infinity,
                     decoration: ShapeDecoration(
                       color: Colors.white.withValues(alpha: 0.50),
                       shape: RoundedRectangleBorder(
                         side: BorderSide(width: 1, color: Colors.white),
+                        borderRadius: BorderRadius.circular(20 * scale),
                       ),
                     ),
                   child: Padding(
@@ -175,7 +183,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: ColorPalette.alert,
                                 imagePath: "assets/images/dashboard/raise_tickets_icon.png",
                                 scale: scale,
-                                onTap: () {},
+                                onTap: () {
+                                  setState(() {
+                                    _selectedIndex = 2; // Tickets tab index
+                                  });
+                                },
                               ),
                             ),
                           ],
@@ -243,10 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Helper to keep the Stack clean
-  Widget _positionedCard(double left, double top, double scale, Widget child) {
-    return Positioned(left: left * scale, top: top * scale, child: child);
-  }
+ 
 
   Widget _buildBlurredCircle(double left, double top, double size, Color color, double scale, double blurAmount) {
     return Positioned(

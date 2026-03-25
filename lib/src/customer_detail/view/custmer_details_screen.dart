@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
+import 'package:space_solar_dealer/src/notifications/view/notification_screen.dart';
 import 'package:space_solar_dealer/src/register_new_customer/widgets/register_blur_circle.dart';
 
 class CustomerDetailsScreen extends StatelessWidget {
@@ -49,14 +51,15 @@ class CustomerDetailsScreen extends StatelessWidget {
           SafeArea(
             child: Column(
               children: [
-                // 1. Fixed Top Header
                 TopHeaderCard(
                   scale: scale,
-                  notificationCount: "16",
-                  onBackTap: () => Navigator.pop(context),
+                  onBackTap: () => context.pop(),
+                  onNotificationTap: () {
+                    context.push('/notification_screen');
+                  },
+                  showNotification: true,
                 ),
 
-                // 2. Scrollable Body
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.symmetric(horizontal: 20 * scale),
@@ -64,12 +67,12 @@ class CustomerDetailsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 24 * scale),
+
                         Text(
                           'Customer Detail',
                           style: TextStyle(
                             color: const Color(0xFF282828),
                             fontSize: 20 * scale,
-                            fontFamily: 'Poppins',
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -86,37 +89,21 @@ class CustomerDetailsScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.5),
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.white, width: 1.5),
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
                                   name.isNotEmpty ? name[0].toUpperCase() : 'B',
-                                  style: TextStyle(
-                                    fontSize: 48 * scale,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
+                                  style: TextStyle(fontSize: 48 * scale),
                                 ),
                               ),
                               SizedBox(height: 11 * scale),
-                              Text(
-                                name,
-                                style: TextStyle(
-                                  color: const Color(0xFF282828),
-                                  fontSize: 18 * scale,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              Text(name),
                             ],
                           ),
                         ),
 
                         SizedBox(height: 26 * scale),
 
-                        /// INPUT FIELDS
                         _buildField("Panel ID", "SS-001 to SS-024", scale),
                         _buildField("Phone Number", "9876543212", scale),
                         _buildField("Email", "${name.toLowerCase()}123@gmail.com", scale),

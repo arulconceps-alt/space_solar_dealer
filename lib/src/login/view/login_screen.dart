@@ -265,39 +265,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
           /// bottom signup
           Positioned(
-            bottom: s(35),
+            bottom: 0,
             left: 0,
             right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Don't have an account yet? ",
-                  style: GoogleFonts.lato(
-                    fontSize: s(14),
-                    color: ColorPalette.bottomtext,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    context.push('/signup');
-                  },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize:
-                    MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    "Sign Up",
+            child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: s(10)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account yet? ",
                     style: GoogleFonts.lato(
                       fontSize: s(14),
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF26A7DF),
+                      color: ColorPalette.bottomtext,
                     ),
                   ),
-                ),
-              ],
+                  TextButton(
+                    onPressed: () {
+                      context.push('/signup');
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize:
+                      MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      "Sign Up",
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF26A7DF),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
@@ -44,10 +45,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TopHeaderCard(scale: scale),
-
+                  TopHeaderCard(
+                    scale: scale,
+                    notificationCount: "5",
+                  onBackTap: null,
+                    onNotificationTap: () {
+                      context.push('/notification_screen');
+                    },
+                    showNotification: true,
+                  ),
                   SizedBox(height: s(24)),
-
                   SizedBox(
                     width: s(226),
                     height: s(30),

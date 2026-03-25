@@ -30,165 +30,161 @@ class _SignupScreenState extends State<SignupScreen> {
     final scale = (w / 440).clamp(0.85, 1.2);
     double s(double v) => v * scale;
 
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(
-          children: [
-            /// 🔹 Background Gradient
-            Container(
-              decoration: const BoxDecoration(
-                gradient: ColorPalette.scaffoldGradient,
-              ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          /// 🔹 Background Gradient
+          Container(
+            decoration: const BoxDecoration(
+              gradient: ColorPalette.scaffoldGradient,
             ),
-      
-            /// 🔹 Blur Circles
-            SignupBlurCircle(left: s(-146), top: s(-201), size: s(383), opacity: 1.0),
-            SignupBlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1.0),
-            SignupBlurCircle(left: s(-241), top: s(580), size: s(383), opacity: 0.4),
-      
-            /// 🔹 Content
-            SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                      child: IntrinsicHeight(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: s(20)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: s(86)),
-      
-                              /// LOGO
-                              Center(child: SignupLogoWidget(scale: scale)),
-      
-                              SizedBox(height: s(55)),
-      
-                              /// TITLE
-                              Text(
-                                "Sign Up Account",
-                                style: GoogleFonts.poppins(
-                                  fontSize: s(32),
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.19,
-                                  color: const Color(0xFF282828),
+          ),
+
+          /// 🔹 Blur Circles
+          SignupBlurCircle(left: s(-146), top: s(-201), size: s(383), opacity: 1.0),
+          SignupBlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1.0),
+          SignupBlurCircle(left: s(-241), top: s(580), size: s(383), opacity: 0.4),
+
+          /// 🔹 Content
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: s(20)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: s(86)),
+
+                          /// LOGO
+                          Center(child: SignupLogoWidget(scale: scale)),
+
+                          SizedBox(height: s(55)),
+
+                          /// TITLE
+                          Text(
+                            "Sign Up Account",
+                            style: GoogleFonts.poppins(
+                              fontSize: s(32),
+                              fontWeight: FontWeight.w600,
+                              height: 1.19,
+                              color: const Color(0xFF282828),
+                            ),
+                          ),
+
+                          SizedBox(height: s(6)),
+
+                          /// SUBTITLE
+                          Text(
+                            "Enter your personal details",
+                            style: GoogleFonts.lato(
+                              fontSize: s(16),
+                              height: 1.4,
+                              color: const Color(0xFF484848),
+                            ),
+                          ),
+
+                          SizedBox(height: s(31)),
+
+                          /// FULL NAME
+                          SignupFieldLabel("Full Name", scale),
+                          SizedBox(height: s(9)),
+                          SignupGlassField(
+                            controller: name,
+                            hint: "Full Name",
+                            scale: scale,
+                          ),
+
+                          SizedBox(height: s(24)),
+
+                          /// EMAIL
+                          SignupFieldLabel("Email Address", scale),
+                          SizedBox(height: s(9)),
+                          SignupGlassField(
+                            controller: email,
+                            hint: "Email Address",
+                            scale: scale,
+                          ),
+
+                          SizedBox(height: s(24)),
+
+                          /// PASSWORD
+                          SignupFieldLabel("Password*", scale),
+                          SizedBox(height: s(9)),
+                          SignupGlassField(
+                            controller: pass,
+                            hint: "Password",
+                            scale: scale,
+                            obscure: hide1,
+                          ),
+
+                          SizedBox(height: s(24)),
+
+                          /// CONFIRM PASSWORD
+                          SignupFieldLabel("Confirm Password*", scale),
+                          SizedBox(height: s(9)),
+                          SignupGlassField(
+                            controller: confirm,
+                            hint: "Confirm Password",
+                            scale: scale,
+                            obscure: hide2,
+                          ),
+
+                          SizedBox(height: s(32)),
+
+                          /// SIGN UP BUTTON
+                          SizedBox(
+                            width: double.infinity,
+                            child: SignupPrimaryButton(
+                              text: "Sign Up",
+                              scale: scale,
+                              onTap: () {},
+                            ),
+                          ),
+                          const Spacer(), // ✅ Push bottom content
+                          SizedBox(height: s(12)),
+                          /// LOGIN TEXT (BOTTOM FIXED)
+                          SafeArea(
+                            top: false,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Already have an account?",
+                                  style: GoogleFonts.lato(
+                                    fontSize: s(14),
+                                    fontWeight: FontWeight.w400,
+                                    color: const Color(0xFF1E1E1E),
+                                  ),
                                 ),
-                              ),
-      
-                              SizedBox(height: s(6)),
-      
-                              /// SUBTITLE
-                              Text(
-                                "Enter your personal details",
-                                style: GoogleFonts.lato(
-                                  fontSize: s(16),
-                                  height: 1.4,
-                                  color: const Color(0xFF484848),
-                                ),
-                              ),
-      
-                              SizedBox(height: s(31)),
-      
-                              /// FULL NAME
-                              SignupFieldLabel("Full Name", scale),
-                              SizedBox(height: s(9)),
-                              SignupGlassField(
-                                controller: name,
-                                hint: "Full Name",
-                                scale: scale,
-                              ),
-      
-                              SizedBox(height: s(24)),
-      
-                              /// EMAIL
-                              SignupFieldLabel("Email Address", scale),
-                              SizedBox(height: s(9)),
-                              SignupGlassField(
-                                controller: email,
-                                hint: "Email Address",
-                                scale: scale,
-                              ),
-      
-                              SizedBox(height: s(24)),
-      
-                              /// PASSWORD
-                              SignupFieldLabel("Password*", scale),
-                              SizedBox(height: s(9)),
-                              SignupGlassField(
-                                controller: pass,
-                                hint: "Password",
-                                scale: scale,
-                                obscure: hide1,
-                              ),
-      
-                              SizedBox(height: s(24)),
-      
-                              /// CONFIRM PASSWORD
-                              SignupFieldLabel("Confirm Password*", scale),
-                              SizedBox(height: s(9)),
-                              SignupGlassField(
-                                controller: confirm,
-                                hint: "Confirm Password",
-                                scale: scale,
-                                obscure: hide2,
-                              ),
-      
-                              SizedBox(height: s(32)),
-      
-                              /// SIGN UP BUTTON
-                              SizedBox(
-                                width: double.infinity,
-                                child: SignupPrimaryButton(
-                                  text: "Sign Up",
-                                  scale: scale,
-                                  onTap: () {},
-                                ),
-                              ),
-      
-                              const Spacer(), // ✅ Push bottom content
-      
-                              SizedBox(height: s(12)),
-      
-                              /// LOGIN TEXT (BOTTOM FIXED)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Already have an account?",
+                                GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: Text(
+                                    " Login",
                                     style: GoogleFonts.lato(
                                       fontSize: s(14),
                                       fontWeight: FontWeight.w400,
-                                      color: const Color(0xFF1E1E1E),
+                                      color: const Color(0xFF26A7DF),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () => Navigator.pop(context),
-                                    child: Text(
-                                      " Login",
-                                      style: GoogleFonts.lato(
-                                        fontSize: s(14),
-                                        fontWeight: FontWeight.w400,
-                                        color: const Color(0xFF26A7DF),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-      
-                              SizedBox(height: s(24)),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+
+                          SizedBox(height: s(24)),
+                        ],
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

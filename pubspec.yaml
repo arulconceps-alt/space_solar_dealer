@@ -95,6 +95,9 @@ flutter:
     - assets/images/new_register/
     - assets/images/success/
     - assets/images/customer/
+    - assets/images/ticket/
+    - assets/images/profile/
+    - assets/images/notification/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

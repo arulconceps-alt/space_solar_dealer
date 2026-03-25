@@ -11,5 +11,8 @@ mixin RouteName {
   static const customer_list = "customer_list";
   static const customer_detail = "customer_detail";
   static const ticket_list = "ticket_list";
+  static const profile_screen = "profile_screen";
+  static const edit_profile_screen = "edit_profile_screen";
+  static const notification_screen = "notification_screen";
 
 }

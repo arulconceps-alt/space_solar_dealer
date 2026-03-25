@@ -24,20 +24,24 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final size = MediaQuery.of(context).size;
 
-    final double logoWidth = screenWidth * (281.18 / 390);
+    // Use the full screen width for the logo scale
+    final double logoWidth = size.width * 0.7;
+
+    // Maintain your specific aspect ratio (30 / 281.18)
     final double logoHeight = logoWidth * (30 / 281.18);
 
     return Scaffold(
       backgroundColor: ColorPalette.background,
-      body: SafeArea(
-        child: Center(
-          child: Image.asset(
-            iconLogo,
-            width: logoWidth,
-            height: logoHeight,
-          ),
+      // Removing SafeArea ensures the Center widget
+      // uses the 100% height of the physical screen.
+      body: Center(
+        child: Image.asset(
+          iconLogo,
+          width: logoWidth,
+          height: logoHeight,
+          fit: BoxFit.contain,
         ),
       ),
     );
