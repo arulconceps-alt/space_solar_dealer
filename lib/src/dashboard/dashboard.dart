@@ -50,7 +50,7 @@ class _DashboardState extends State<Dashboard> {
             preferredSize: Size.fromHeight(s(1)),
             child: Container(
               height: s(1),
-              color: ColorPalette.background, // 👈 border color
+              color: ColorPalette.background.withOpacity(0.2), // 👈 border color
             ),
           ),
           actions: [

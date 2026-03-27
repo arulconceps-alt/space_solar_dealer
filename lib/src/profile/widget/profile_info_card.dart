@@ -54,7 +54,7 @@ class ProfileInfoCard extends StatelessWidget {
                       children: [
                         Text(
                           "Kavin Kumar",
-                          style: TextStyle(
+                          style: GoogleFonts.lato(
                             fontSize: s(18),
                             fontWeight: FontWeight.w500,
                             color: const Color(0xFF282828),

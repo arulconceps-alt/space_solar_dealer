@@ -33,7 +33,11 @@ class PrimaryButton extends StatelessWidget {
         onPressed: onTap,
         child: Text(
           text,
-          style: AppTextStyles.buttonScaled(scale)
+          style: GoogleFonts.poppins(
+            fontSize: scale * 16,
+            fontWeight: FontWeight.w600,
+            color: ColorPalette.whitetext,
+          ),
         ),
       ),
     );

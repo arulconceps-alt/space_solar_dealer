@@ -18,7 +18,7 @@ class _CustomerListState extends State<CustomerList> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<String> allCustomers = [
-    "Baranee", "Mani", "Rahul", "Mohan", "Rahul", "Mani",
+    "Baranee", "Mani", "Rahul", "Mohan", "Rahul",
   ];
 
   List<String> filteredCustomers = [];
@@ -55,63 +55,55 @@ class _CustomerListState extends State<CustomerList> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: AppBackground(
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: s(24)),
+          child: SingleChildScrollView(   // ✅ ADD THIS
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: s(24)),
 
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: s(20)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Customer List",
-                      style: GoogleFonts.poppins(
-                        fontSize: s(20),
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF282828),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: s(20)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Customer List",
+                        style: GoogleFonts.poppins(
+                          fontSize: s(20),
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF282828),
+                        ),
                       ),
-                    ),
-
-                    SizedBox(height: s(4)),
-
-                    Text(
-                      "Customer Information",
-                      style: GoogleFonts.lato(
-                        fontSize: s(14),
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xCC484848),
+                      SizedBox(height: s(4)),
+                      Text(
+                        "Customer Information",
+                        style: GoogleFonts.lato(
+                          fontSize: s(14),
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xCC484848),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: s(20)),
-
-              /// SEARCH BOX
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: s(20)),
-                child: SearchBox(
-                  scale: scale,
-                  controller: _searchController,
-                  onChanged: _searchCustomer,
-                ),
-              ),
-
-              SizedBox(height: s(33)),
-
-              /// LIST
-              Expanded(
-                child: filteredCustomers.isEmpty
-                    ? Center(
-                  child: Text(
-                    "No customers found",
-                    style: TextStyle(fontSize: s(14)),
+                    ],
                   ),
-                )
-                    : ListView.builder(
+                ),
+
+                SizedBox(height: s(20)),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: s(20)),
+                  child: SearchBox(
+                    scale: scale,
+                    controller: _searchController,
+                    onChanged: _searchCustomer,
+                  ),
+                ),
+
+                SizedBox(height: s(33)),
+
+                /// ✅ LIST (NOW SCROLLS WITH HEADER)
+                ListView.builder(
+                  shrinkWrap: true, // ✅ IMPORTANT
+                  physics: const NeverScrollableScrollPhysics(), // ✅ keep this now
                   padding: EdgeInsets.symmetric(horizontal: s(20)),
                   itemCount: filteredCustomers.length,
                   itemBuilder: (context, index) {
@@ -119,24 +111,22 @@ class _CustomerListState extends State<CustomerList> {
                     return CustomerItem(
                       name: customer,
                       isFirst: index == 0,
-                      isLast:
-                      index == filteredCustomers.length - 1,
+                      isLast: index == filteredCustomers.length - 1,
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                CustomerDetailsScreen(
-                                  name: customer,
-                                ),
+                            builder: (_) => CustomerDetailsScreen(name: customer),
                           ),
                         );
                       },
                     );
                   },
                 ),
-              ),
-            ],
+
+                SizedBox(height: s(80)), // 👈 space for FAB
+              ],
+            ),
           ),
         ),
       ),
