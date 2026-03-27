@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/widgets/ticket_card.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/widgets/custom_search_bar.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/widgets/custom_Segmented_tab.dart';

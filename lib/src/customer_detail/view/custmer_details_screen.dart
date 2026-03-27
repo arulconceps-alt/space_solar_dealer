@@ -15,20 +15,22 @@ class CustomerDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double scale = MediaQuery.of(context).size.width / 440;
+    final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
+
+    double s(double v) => v * scale;
 
     return Scaffold(
-      extendBodyBehindAppBar: true, // Allows background to flow under AppBar
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
 
-      /// 1. STANDARD APPBAR
       appBar: CommonAppBar(
-      scale: scale,
-      showBack: true,
-      onBackTap: () {
-        context.pop();
-      },
-    ),
+        scale: scale,
+        showBack: true,
+        onBackTap: () {
+          context.pop();
+        },
+      ),
 
       body: AppBackground(
         child: SafeArea(
@@ -36,58 +38,53 @@ class CustomerDetailsScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                  padding: EdgeInsets.symmetric(horizontal: s(20)), // ✅ scaled
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 24 * scale),
-
-                      /// TITLE & SUBTITLE
+                      SizedBox(height: s(20)),
                       Text(
                         'Customer Detail',
                         style: GoogleFonts.poppins(
                           color: const Color(0xFF282828),
-                          fontSize: 20 * scale,
+                          fontSize: s(20),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
-                        'Customer Information',
-                        style: GoogleFonts.lato(
-                          fontSize: 14 * scale,
-                          color: const Color(0xCC484848),
-                        ),
-                      ),
-
-                      SizedBox(height: 30 * scale),
-
-                      /// 2. PROFILE SECTION (IMAGE/INITIAL)
+                      SizedBox(height: s(22)),
                       Center(
                         child: Column(
                           children: [
                             Container(
-                              width: 100 * scale,
-                              height: 100 * scale,
+                              width: s(100),
+                              height: s(100),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.5),
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: s(2), // ✅ scaled
+                                ),
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                name.isNotEmpty ? name[0].toUpperCase() : 'B',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 40 * scale,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF26A7DF),
+                                name.isNotEmpty
+                                    ? name[0].toUpperCase()
+                                    : 'B',
+                                style: GoogleFonts.lato(
+                                  fontSize: s(48),
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF000000),
                                 ),
                               ),
                             ),
-                            SizedBox(height: 12 * scale),
+
+                            SizedBox(height: s(11)),
+
                             Text(
                               name,
                               style: GoogleFonts.lato(
-                                fontSize: 16 * scale,
+                                fontSize: s(16),
                                 fontWeight: FontWeight.w600,
                                 color: const Color(0xFF282828),
                               ),
@@ -96,15 +93,20 @@ class CustomerDetailsScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: 30 * scale),
+                      SizedBox(height: s(26)),
 
-                      /// 3. INFO FIELDS
+                      /// FIELDS
                       _buildField("Panel ID", "SS-001 to SS-024", scale),
                       _buildField("Phone Number", "9876543212", scale),
                       _buildField("Email", "${name.toLowerCase()}123@gmail.com", scale),
-                      _buildField("Address", "21/22 Raja colony, Ganapathy, Coimbatore", scale, isAddress: true),
+                      _buildField(
+                        "Address",
+                        "21/22 Raja colony, Ganapathy, Coimbatore",
+                        scale,
+                        isAddress: true,
+                      ),
 
-                      SizedBox(height: 40 * scale),
+                      SizedBox(height: s(40)),
                     ],
                   ),
                 ),
@@ -116,32 +118,34 @@ class CustomerDetailsScreen extends StatelessWidget {
     );
   }
 
-  /// 🔹 Notification Badge UI
+  /// 🔹 Notification Badge (scaled fix)
   Widget _buildNotificationBadge(double scale) {
+    double s(double v) => v * scale;
+
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.topRight,
       children: [
         SvgPicture.asset(
           "assets/images/home/notification.svg",
-          height: 24 * scale,
-          width: 24 * scale,
+          height: s(24),
+          width: s(24),
         ),
         Positioned(
-          right: -6,
-          top: -6,
+          right: -s(6), // ✅ scaled
+          top: -s(6),
           child: Container(
-            padding: const EdgeInsets.all(4),
+            padding: EdgeInsets.all(s(4)), // ✅ scaled
             decoration: const BoxDecoration(
               color: Colors.red,
               shape: BoxShape.circle,
             ),
-            child: const Text(
+            child: Text(
               '16',
               style: TextStyle(
-                  fontSize: 9,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold
+                fontSize: s(9), // ✅ scaled
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -150,37 +154,62 @@ class CustomerDetailsScreen extends StatelessWidget {
     );
   }
 
-  /// 🔹 Reusable Info Field
-  Widget _buildField(String title, String value, double scale, {bool isAddress = false}) {
+  /// 🔹 FIELD (scaled fix)
+  Widget _buildField(
+      String title,
+      String value,
+      double scale, {
+        bool isAddress = false,
+      }) {
+    double s(double v) => v * scale;
+
     return Padding(
-      padding: EdgeInsets.only(bottom: 20 * scale),
+      padding: EdgeInsets.only(bottom: s(16)), // ✅ gap between fields
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// 🔹 LABEL
           Text(
             title,
             style: GoogleFonts.lato(
-              fontSize: 16 * scale,
+              fontSize: s(16),
               fontWeight: FontWeight.w600,
               color: const Color(0xFF282828),
             ),
           ),
-          SizedBox(height: 8 * scale),
+
+          /// 🔥 EXACT FIGMA GAP
+          SizedBox(height: s(14)), // ✅ FIXED
+
+          /// 🔹 BOX
           Container(
-            width: double.infinity,
-            constraints: isAddress ? BoxConstraints(minHeight: 71 * scale) : null,
-            padding: EdgeInsets.all(14 * scale),
+            width: double.infinity, // ✅ FIXED
+            height: isAddress ? null : s(50),
+            constraints: isAddress
+                ? BoxConstraints(minHeight: s(71))
+                : null,
+            padding: EdgeInsets.symmetric(
+              horizontal: s(16),
+              vertical: s(14),
+            ),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(12 * scale),
-              border: Border.all(color: Colors.white),
+              borderRadius: BorderRadius.circular(s(10)),
+              border: Border.all(
+                color: Colors.white,
+                width: s(1),
+              ),
             ),
-            child: Text(
-              value,
-              style: GoogleFonts.lato(
-                fontSize: 16 * scale,
-                color: const Color(0xCC484848),
-                height: 1.4,
+
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: GoogleFonts.lato(
+                  fontSize: s(16),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xCC484848),
+                ),
               ),
             ),
           ),

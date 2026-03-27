@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/register_new_customer/widgets/register_success_dialog.dart';
 
 class RegisterCustomerScreen extends StatelessWidget {
   const RegisterCustomerScreen({super.key});
@@ -131,8 +133,19 @@ class RegisterCustomerScreen extends StatelessWidget {
                 SizedBox(height: 30 * scale),
 
                 /// 6. SUBMIT BUTTON
-                _buildBlueButton("Submit", scale, () {}),
-
+              _buildBlueButton("Submit", scale, () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false, // optional (click outside close or not)
+                  builder: (context) {
+                    return Dialog(
+                      backgroundColor: Colors.transparent, // 🔥 important for glass UI
+                      insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                      child: SuccessDialog(scale: scale), // 👈 your custom widget
+                    );
+                  },
+                );
+              }),
                 SizedBox(height: 40 * scale),
               ],
             ),

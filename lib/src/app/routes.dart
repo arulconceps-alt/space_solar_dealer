@@ -5,7 +5,6 @@ import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_scre
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
 import 'package:space_solar_dealer/src/dashboard/dashboard.dart';
 import 'package:space_solar_dealer/src/edit_profile/view/edit_profile_screen.dart';
-import 'package:space_solar_dealer/src/home/view/home_screen.dart';
 import 'package:space_solar_dealer/src/login/view/login_screen.dart';
 import 'package:space_solar_dealer/src/notifications/view/notification_screen.dart';
 import 'package:space_solar_dealer/src/onboarding/view/onboarding_screen.dart';

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
+import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+
 
 class RegistrationSuccessScreen extends StatelessWidget {
   const RegistrationSuccessScreen({super.key});
@@ -13,41 +15,31 @@ class RegistrationSuccessScreen extends StatelessWidget {
     final w = MediaQuery.of(context).size.width;
     final scale = w / 440;
 
+    double s(double v) => v * scale;
+
     return Scaffold(
       backgroundColor: const Color(0xFFB5E2F4),
-      body: Stack(
-        children: [
-          // 1. Background Blurred Circles
-          _buildBlurredCircle(298, 44, 383, Colors.white.withOpacity(0.4), scale, 60),
-          _buildBlurredCircle(-187, 716, 383, Colors.white.withOpacity(0.5), scale, 40),
-          _buildBlurredCircle(-146, -201, 383, Colors.white, scale, 50),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // 2. Header (No back arrow passed)
-                TopHeaderCard(
-                  scale: scale,
-                  notificationCount: "5",
-                onBackTap: null,
-                  onNotificationTap: () {
-                    context.push('/notification_screen');
-                  },
-                  showNotification: true,
-                ),
-
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                      child: _buildSuccessCard(context,scale),
-                    ),
+      appBar: CommonAppBar(
+        scale: scale,
+        showBack: false,
+        onBackTap:null,
+      ),
+      body: AppBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                    child: _buildSuccessCard(context,scale),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
 import 'package:space_solar_dealer/src/profile/widget/active_status_card.dart';
 import 'package:space_solar_dealer/src/profile/widget/logout_button.dart';
 import 'package:space_solar_dealer/src/profile/widget/profile_header.dart';
