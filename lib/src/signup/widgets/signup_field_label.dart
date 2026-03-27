@@ -11,17 +11,14 @@ class SignupFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: scale * 6),
-      child: Text(
-        text,
-        style: GoogleFonts.lato(
-          fontSize: scale * 16,
-          fontWeight: FontWeight.w400,
-          color: ColorPalette.textfiledin,
-          height: 1.4,
-          letterSpacing: 0,
-        ),
+    return Text(
+      text,
+      style: GoogleFonts.lato(
+        fontSize: scale * 16,
+        fontWeight: FontWeight.w400,
+        color: ColorPalette.textfiledin,
+        height: 1.4,
+        letterSpacing: 0,
       ),
     );
   }

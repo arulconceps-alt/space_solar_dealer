@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
 
 
 class FieldLabel extends StatelessWidget {
@@ -18,7 +17,13 @@ class FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: AppTextStyles.labelTextHeadScaled(scale)
+       style: GoogleFonts.lato(
+          fontSize: scale * 16,
+          fontWeight: FontWeight.w400,
+          color: ColorPalette.textfiledin,
+          height: 1.4,
+          letterSpacing: 0,
+        ),
     );
   }
 }

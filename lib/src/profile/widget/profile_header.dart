@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
-
-import 'logout_button.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class ProfileHeader extends StatelessWidget {
   final double scale;
@@ -10,23 +9,31 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
+
+    double s(double v) => v * scale;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           "Profile",
-          style: TextStyle(
-            fontSize: 20 * scale,
+          style: GoogleFonts.poppins(
+            fontSize: s(20),
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF282828),
+            height: 1,
+            color: ColorPalette.bottomtext,
           ),
         ),
-        SizedBox(height: 4 * scale),
+        SizedBox(height: s(4)),
         Text(
           "Dealer Information",
-          style: TextStyle(
-            fontSize: 14 * scale,
-            color: const Color(0xCC484848),
+          style: GoogleFonts.lato(
+            fontSize: s(14),
+            height: 1,
+            fontWeight: FontWeight.w400,
+            color: ColorPalette.textfiledin.withValues(alpha: .80),
           ),
         ),
       ],

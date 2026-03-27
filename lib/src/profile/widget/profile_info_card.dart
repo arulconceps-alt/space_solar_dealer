@@ -1,162 +1,221 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/profile/widget/profile_info_row.dart';
 
 class ProfileInfoCard extends StatelessWidget {
-  const ProfileInfoCard({super.key});
+  final double scale;
+  final bool isActive;
+
+  const ProfileInfoCard({
+    super.key,
+    required this.scale,
+    required this.isActive,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final scale = MediaQuery.of(context).size.width / 440;
+    double s(double v) => v * scale;
 
     return Container(
-      padding: EdgeInsets.all(16 * scale),
+      padding: EdgeInsets.all(s(16)),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(20 * scale),
+        borderRadius: BorderRadius.circular(s(20)),
         border: Border.all(color: Colors.white),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          /// 🔹 Top Row (Image + Name + Active)
+          /// 🔹 Top Row
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// Profile Image
               ClipRRect(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(s(30)),
                 child: Image.asset(
                   "assets/images/profile/profile.png",
-                  width: 60 * scale,
-                  height: 60 * scale,
+                  width: s(60),
+                  height: s(60),
                   fit: BoxFit.cover,
                 ),
               ),
-              SizedBox(width: 12 * scale),
-              /// Name + details
+
+              SizedBox(width: s(12)),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// Name + Active
+                    /// Name + Status
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "Kavin Kumar",
                           style: TextStyle(
-                            fontSize: 18 * scale,
+                            fontSize: s(18),
                             fontWeight: FontWeight.w500,
                             color: const Color(0xFF282828),
                           ),
                         ),
 
-                        /// Active badge
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12 * scale, vertical: 4 * scale),
+                        AnimatedContainer(
+                          height: s(26),
+                          width: s(72),
+                          duration: const Duration(milliseconds: 300),
+                          alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2EAD4B),
-                            borderRadius: BorderRadius.circular(6),
+                            color: isActive
+                                ? const Color(0xFF319F43).withValues(alpha: .60)
+                                : const Color(0xFFAAAAAA),
+                            borderRadius: BorderRadius.circular(s(6)),
                           ),
-                          child: const Text(
-                            "Active",
-                            style: TextStyle(
+                          child: Text(
+                            isActive ? 'Active' : 'Offline',
+                            style: GoogleFonts.lato(
+                              fontSize: s(14),
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
-                              fontSize: 12,
+                              height: 1,
                             ),
                           ),
                         ),
                       ],
                     ),
 
-                    SizedBox(height: 8 * scale),
+                    SizedBox(height: s(17)),
 
-                    /// ⭐ Rating
-                    _infoRow(Icons.star, "4.8 (100 reviews)", scale),
+                    /// INFO ROWS
+                    ProfileInfoRow(
+                      s: s,
+                      iconPath: "assets/images/profile/star.svg",
+                      iconSize: 22,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '4.8',
+                              style: GoogleFonts.lato(
+                                fontSize: s(14),
+                                fontWeight: FontWeight.w400,
+                                height: s(1),
+                                color: ColorPalette.bottomtext,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' (100 reviews)',
+                              style: GoogleFonts.lato(
+                                fontSize: s(14),
+                                fontWeight: FontWeight.w400,
+                                height: s(1),
+                                color: ColorPalette.textfiledin.withValues(
+                                  alpha: .80,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
-                    /// 📞 Phone
-                    _infoRow(Icons.phone, "+91 98745 63210", scale),
+                    SizedBox(height: s(13)),
 
-                    /// ✉ Email
-                    _infoRow(Icons.email, "kumar@gmail.com", scale),
+                    ProfileInfoRow(
+                      s: s,
+                      iconSize: 18,
+                      iconPath: "assets/images/profile/call.svg",
+                      text: '+91 98745 63210',
+                    ),
 
-                    /// 📍 Address
-                    _infoRow(Icons.location_on,
-                        "40 Ganapathy , Coimbatore- 642108", scale),
+                    SizedBox(height: s(13)),
+
+                    ProfileInfoRow(
+                      s: s,
+                      iconSize: 18,
+                      iconPath: "assets/images/profile/mail.svg",
+                      text: 'kumar@gmail.com',
+                    ),
+
+                    SizedBox(height: s(13)),
+
+                    ProfileInfoRow(
+                      s: s,
+                      iconSize: 20,
+                      iconPath: "assets/images/profile/location.svg",
+                      text: '40 Ganapathy , Coimbatore- 642108',
+                    ),
                   ],
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: 16 * scale),
+          SizedBox(height: s(30)),
 
-          /// Divider (ONLY HERE ✅)
-          Container(
-            height: 1,
-            color: Colors.black.withOpacity(0.2),
-          ),
+          Container(height: s(1), color: Color(0x000000).withOpacity(0.20)),
 
-          SizedBox(height: 12 * scale),
+          SizedBox(height: s(14)),
 
-          /// Bottom Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Member Since : Nov 2025",
-                style: TextStyle(
-                  fontSize: 14 * scale,
-                  color: const Color(0xCC484848),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Member Since',
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w400,
+                        height: s(1),
+                        color: ColorPalette.textfiledin,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' : Nov 2005',
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w400,
+                        height: s(1),
+                        color: ColorPalette.bottomtext,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-              InkWell(
+              SizedBox(width: s(30)),
+              GestureDetector(
                 onTap: () {
-                  context.push('/edit_profile_screen'); // 👈 your route
+                  context.push('/edit_profile_screen');
                 },
-                borderRadius: BorderRadius.circular(10),
                 child: Container(
+                  height: s(37),
+                  width: s(146),
+                  alignment: Alignment.center, 
                   padding: EdgeInsets.symmetric(
-                    horizontal: 16 * scale,
-                    vertical: 8 * scale,
+                    horizontal: s(16),
+                    vertical: s(10),
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF282828),
-                    borderRadius: BorderRadius.circular(10),
+                    color: ColorPalette.bottomtext,
+                    borderRadius: BorderRadius.circular(s(10)),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Edit Profile",
-                    style: TextStyle(color: Colors.white),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      fontSize: s(14),
+                      fontWeight: FontWeight.w600,
+                      height: 1,
+                      color: ColorPalette.whitetext,
+                    ),
                   ),
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 🔹 Reusable row (Perfect alignment)
-  Widget _infoRow(IconData icon, String text, double scale) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 6 * scale),
-      child: Row(
-        children: [
-          Icon(icon, size: 16 * scale, color: const Color(0xFF484848)),
-          SizedBox(width: 8 * scale),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 14 * scale,
-                color: const Color(0xCC484848),
-              ),
-            ),
           ),
         ],
       ),
