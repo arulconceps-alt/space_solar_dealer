@@ -6,6 +6,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/register_new_customer/widgets/register_success_dialog.dart';
 
 class RegisterCustomerScreen extends StatelessWidget {
   const RegisterCustomerScreen({super.key});
@@ -186,8 +187,19 @@ class RegisterCustomerScreen extends StatelessWidget {
                 SizedBox(height: 31 * scale),
 
                 /// 6. SUBMIT BUTTON
-                _buildBlueButton("Submit", scale, () {}),
-
+              _buildBlueButton("Submit", scale, () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false, // optional (click outside close or not)
+                  builder: (context) {
+                    return Dialog(
+                      backgroundColor: Colors.transparent, // 🔥 important for glass UI
+                      insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                      child: SuccessDialog(scale: scale), // 👈 your custom widget
+                    );
+                  },
+                );
+              }),
                 SizedBox(height: 31 * scale),
               ],
             ),
@@ -379,20 +391,23 @@ class RegisterCustomerScreen extends StatelessWidget {
   }
 
   Widget _buildBlueButton(String text, double scale, VoidCallback onTap) {
-    return Container(
-      width: double.infinity,
-      height: 50 * scale,
-      decoration: BoxDecoration(
-        color: const Color(0xFF26A7DF),
+    return Material(
+      color: const Color(0xFF26A7DF),
+      borderRadius: BorderRadius.circular(10 * scale),
+      child: InkWell(
         borderRadius: BorderRadius.circular(10 * scale),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 16 * scale,
-          fontWeight: FontWeight.w600,
+        onTap: onTap,
+        child: Container(
+          height: 50 * scale,
+          alignment: Alignment.center,
+          child: Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );

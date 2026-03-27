@@ -28,7 +28,6 @@ class EditProfileScreen extends StatelessWidget {
 
       body: AppBackground(
         child: SafeArea(
-          bottom: false,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: s(20)),
             child: Column(
@@ -56,25 +55,7 @@ class EditProfileScreen extends StatelessWidget {
                       Positioned(
                         right: 0,
                         bottom: s(5),
-                        child: Container(
-                          width: s(30),
-                          height: s(30),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0x28000000),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                          child: Image.asset(
-                            "assets/images/profile/edit_icon.png",
-                            width: s(16),
-                            height: s(16),
-                          ),
-                        ),
+                        child: buildEditIcon(scale),
                       ),
                     ],
                   ),
@@ -116,7 +97,9 @@ class EditProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: s(31)),
+                SizedBox(
+                  height: MediaQuery.of(context).padding.bottom + s(16),
+                ),
               ],
             ),
           ),
@@ -165,6 +148,33 @@ class EditProfileScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildEditIcon(double scale) {
+    double s(double v) => v * scale;
+
+    return Container(
+      width: s(30),
+      height: s(30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x28000000),
+            blurRadius: 4,
+          )
+        ],
+      ),
+      child: Center(
+        child: Image.asset(
+          "assets/images/profile/edit_icon.png",
+          width: s(14.4),
+          height: s(14.4),
+          fit: BoxFit.contain,
+        ),
+      ),
     );
   }
 }
