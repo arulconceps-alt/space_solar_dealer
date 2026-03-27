@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
 
 
 class PrimaryButton extends StatelessWidget {
@@ -32,11 +33,7 @@ class PrimaryButton extends StatelessWidget {
         onPressed: onTap,
         child: Text(
           text,
-          style: GoogleFonts.poppins(
-            fontSize: scale * 16,
-            fontWeight: FontWeight.w600,
-            color: ColorPalette.whitetext,
-          ),
+          style: AppTextStyles.buttonScaled(scale)
         ),
       ),
     );

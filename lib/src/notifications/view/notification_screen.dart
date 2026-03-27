@@ -1,102 +1,60 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
-import 'package:space_solar_dealer/src/notifications/widgets/notification_card.dart';
-import 'package:space_solar_dealer/src/register_new_customer/widgets/register_blur_circle.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/notifications/widgets/notification_list.dart';
+import 'package:space_solar_dealer/src/notifications/widgets/notification_title.dart';
 
-class NotificationScreen extends StatefulWidget {
+class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
 
-  @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
-}
-
-class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final scale = w / 440;
 
+    double s(double v) => v * scale;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFB5E2F4),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
 
-      body: Stack(
-        children: [
+      /// ✅ COMMON APPBAR
+      appBar: CommonAppBar(
+        scale: scale,
+        showBack: true,
+        onBackTap: () => context.pop(),
+      ),
 
-          /// 🔵 BACKGROUND + HEADER
-          Positioned.fill(
-            child: Stack(
-              children: [
-                RegisterBlurCircle(left: -146, top: -201, size: 383, color: Colors.white, scale: scale, blur: 60),
-                RegisterBlurCircle(left: 209, top: 94, size: 383, color: Colors.white.withOpacity(0.3), scale: scale, blur: 40),
-                RegisterBlurCircle(left: -153, top: 575, size: 383, color: Colors.white.withOpacity(0.6), scale: scale, blur: 50),
+      body: AppBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: s(20)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: s(24)),
 
-                TopHeaderCard(
-                  scale: scale,
-                  showNotification: false,
-                  onBackTap: () {
-                    context.pop();
-                  },
+                      NotificationTitle(scale: scale),
+
+                      SizedBox(height: s(20)),
+
+                      NotificationList(scale: scale),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-
-          /// ✅ CONTENT BELOW HEADER
-          Positioned.fill(
-            top: 140 * scale, // 👈 adjust if needed
-            child: SafeArea(
-              top: false,
-              child: Column(
-                children: [
-
-                  /// TITLE
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: 20 * scale,
-                      top: 16 * scale,
-                      bottom: 10 * scale,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Notification",
-                        style: AppTextStyles.title,
-                      ),
-                    ),
-                  ),
-
-                  /// LIST
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                      children: [
-                        SizedBox(height: 20 * scale),
-
-                        NotificationCard(
-                          scale: scale,
-                          title: "New Ticket Assigned",
-                          description: "TKT-005 has been assigned to you.\nLocation: Coimbatore",
-                        ),
-
-                        NotificationCard(
-                          scale: scale,
-                          title: "New Ticket Assigned",
-                          description: "TKT-006 has been assigned to you.\nLocation: Coimbatore",
-                        ),
-
-                        SizedBox(height: 20 * scale),
-                      ],
-                    ),
-                  ),
-                ],
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
+
 }

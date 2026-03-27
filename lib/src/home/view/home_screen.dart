@@ -1,3 +1,4 @@
+/*
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,9 +46,9 @@ class _HomeScreenState extends State<HomeScreen> {
           currentIndex: _selectedIndex,
           scale: scale,
           onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
+            setState(() {
+              _selectedIndex = index;
+            });
           },
         ),
       ),
@@ -75,28 +76,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 showNotification: true,
               ),
 
-              Positioned(
-                left: 20 * scale,
-                top: 158 * scale,
-                child: Text(
-                  'Good morning, Dealer',
-                  style: GoogleFonts.poppins(
-                    color: const Color(0xFF282828),
-                    fontSize: 20 * scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+
             ],
           ),
         ),
 
         /// 🔥 SCROLLABLE CONTENT ONLY
         Positioned.fill(
-          top: 200 * scale, // 🔥 VERY IMPORTANT (below header)
+          top: 140 * scale, // 🔥 VERY IMPORTANT (below header)
           child: SingleChildScrollView(
             child: Column(
               children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 20 * scale, top: 20 * scale),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Good morning, Dealer',
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xFF282828),
+                        fontSize: 20 * scale,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: 20 * scale),
 
                 /// Dashboard Cards
@@ -139,16 +143,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
 
-                SizedBox(height: 30 * scale),
+                SizedBox(height: 16 * scale),
 
                 /// Quick Actions
                 Container(
                   width: double.infinity,
-                    decoration: ShapeDecoration(
+                  decoration: ShapeDecoration(
                       color: Colors.white.withValues(alpha: 0.50),
                       shape: RoundedRectangleBorder(
                         side: BorderSide(width: 1, color: Colors.white),
-                        borderRadius: BorderRadius.circular(20 * scale),
+                   //     borderRadius: BorderRadius.circular(20 * scale),
                       ),
                     ),
                   child: Padding(
@@ -255,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
- 
+
 
   Widget _buildBlurredCircle(double left, double top, double size, Color color, double scale, double blurAmount) {
     return Positioned(
@@ -266,4 +270,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
+}*/

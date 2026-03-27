@@ -1,36 +1,47 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
-class ActivityTile extends StatelessWidget {
-  final String title;
-  final String name;
-  final String status;
-  final String time;
+class ActivityCard extends StatelessWidget {
+  final String title, name, time, status;
   final Color statusColor;
 
-  const ActivityTile({
+  const ActivityCard({
     super.key,
     required this.title,
     required this.name,
-    required this.status,
     required this.time,
+    required this.status,
     required this.statusColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    bool isCompleted = status == "Completed";
-    bool isPending = status == "Pending";
-    bool isInProgress = status == "In-Progress";
+    final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
+
+    double s(double v) => v * scale;
+
+    /// 🔥 STATUS COLORS (based on your Figma)
+    Color bgColor;
+    Color textColor;
+
+    if (status == "Completed") {
+      bgColor = const Color(0xFF4A4A4A);   // dark grey
+      textColor = const Color(0xFFF2F2F2); // light text
+    } else {
+      bgColor = statusColor.withOpacity(0.15); // default light bg
+      textColor = statusColor; // full color text
+    }
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: ShapeDecoration(
-        color: Colors.white.withValues(alpha: 0.50),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: Colors.white),
-          borderRadius: BorderRadius.circular(20),
-        ),
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: s(12)),
+      padding: EdgeInsets.symmetric(horizontal: s(16), vertical: s(16)),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(s(20)),
+        border: Border.all(width: s(1), color: Colors.white),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,21 +53,21 @@ class ActivityTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    color: const Color(0xFF282828),
-                    fontSize: 16,
-                    fontFamily: 'Lato',
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
                     fontWeight: FontWeight.w400,
+                    color: ColorPalette.bottomtext,
                   ),
                 ),
-                const SizedBox(height: 6),
+
+                SizedBox(height: s(8)),
+
                 Text(
                   name,
-                  style: TextStyle(
-                    color: const Color(0xCC484848),
-                    fontSize: 14,
-                    fontFamily: 'Lato',
+                  style: GoogleFonts.lato(
+                    fontSize: s(14),
                     fontWeight: FontWeight.w400,
+                    color: const Color(0xCC484848),
                   ),
                 ),
               ],
@@ -67,42 +78,39 @@ class ActivityTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              /// STATUS BADGE
               Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                width: s(74),
+                height: s(20),
                 decoration: BoxDecoration(
-                  color: isCompleted
-                      ? const Color(0xFF484848)
-                      : isPending
-                      ? statusColor.withValues(alpha: 0.2)
-                      : const Color(0x33484848), // ✅ In-progress bg
-                  borderRadius: BorderRadius.circular(10),
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(s(10)),
                 ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                    color: isCompleted
-                        ? Colors.white
-                        : isPending
-                        ? statusColor
-                        : const Color(0xFF282828),
-                    fontSize: 10,
-                    fontFamily: 'Lato',
+                child: Center(
+                  child: Text(
+                    status,
+                    style: GoogleFonts.lato(
+                      fontSize: s(10),
+                      fontWeight: FontWeight.w400,
+                      color: textColor,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+
+              SizedBox(height: s(6)),
+
+              /// TIME
               Text(
                 time,
-                style: TextStyle(
-                  color: const Color(0xCC484848),
-                  fontSize: 12,
-                  fontFamily: 'Lato',
+                style: GoogleFonts.lato(
+                  fontSize: s(14),
                   fontWeight: FontWeight.w400,
+                  color: ColorPalette.textfiled,
                 ),
               ),
             ],
-          ),
+          )
         ],
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class CustomSearchBar extends StatelessWidget {
   final double scale;
@@ -16,47 +18,57 @@ class CustomSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double s(double v) => v * scale;
+
     return Container(
-      width: double.infinity, // Makes it responsive
-      height: 50 * scale,
+      height: s(50),
+      width:s(400),
+      padding: EdgeInsets.symmetric(horizontal: s(16)),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.50),
-        borderRadius: BorderRadius.circular(20 * scale),
-        border: Border.all(color: Colors.white, width: 1),
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(s(20)),
+        border: Border.all(
+          color: Colors.white,
+          width: s(1),
+        ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16 * scale),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center, // ✅ vertical center
         children: [
-          // --- SEARCH ICON ---
-          Image.asset(
-            'assets/images/customer/search_icon.png', // Update with your actual path
-            width: 24 * scale,
-            height: 24 * scale,
-            color: const Color(0xFF484848), // Optional: tints your icon
+          /// 🔍 ICON (Perfectly centered like Figma)
+          SizedBox(
+            width: s(24),
+            height: s(24),
+            child: Image.asset(
+              'assets/images/customer/search_icon.png',
+              fit: BoxFit.contain,
+              color: const Color(0xFF484848),
+            ),
           ),
 
-          SizedBox(width: 12 * scale),
+          SizedBox(width: s(12)), // ✅ spacing from Figma
 
-          // --- INPUT FIELD ---
+          /// ✍️ TEXT FIELD
           Expanded(
-            child: TextField(
-              controller: controller,
-              onChanged: onChanged,
-              style: TextStyle(
-                color: const Color(0xFF282828),
-                fontSize: 16 * scale,
-                fontFamily: 'Lato',
-              ),
-              decoration: InputDecoration(
-                hintText: hintText,
-                hintStyle: TextStyle(
-                  color: const Color(0xCC484848),
-                  fontSize: 15 * scale, // Slightly smaller to fit long hints
-                  fontFamily: 'Lato',
+            child: Center(
+              child: TextField(
+                controller: controller,
+                onChanged: onChanged,
+                style:  GoogleFonts.lato(
+                  fontSize: s(16),
                   fontWeight: FontWeight.w400,
+                  color: ColorPalette.bottomtext,
                 ),
-                border: InputBorder.none, // Removes the default underline
-                isDense: true, // Reduces vertical height to center text
+                decoration: InputDecoration(
+                  isCollapsed: true, // ✅ IMPORTANT (removes extra height)
+                  hintText: hintText,
+                  hintStyle: GoogleFonts.lato(
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                    color: ColorPalette.textfiled,
+                  ),
+                  border: InputBorder.none,
+                ),
               ),
             ),
           ),

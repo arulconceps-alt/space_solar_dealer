@@ -3,6 +3,7 @@ import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
+import 'package:space_solar_dealer/src/dashboard/dashboard.dart';
 import 'package:space_solar_dealer/src/edit_profile/view/edit_profile_screen.dart';
 import 'package:space_solar_dealer/src/home/view/home_screen.dart';
 import 'package:space_solar_dealer/src/login/view/login_screen.dart';
@@ -50,7 +51,7 @@ class Routes {
       GoRoute(
         name: RouteName.home,
         path: "/home",
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const Dashboard(),
       ),
       /// new_customer_register
       GoRoute(

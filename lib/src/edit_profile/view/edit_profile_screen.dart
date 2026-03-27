@@ -1,113 +1,124 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
-import 'package:space_solar_dealer/src/notifications/view/notification_screen.dart';
-import 'package:space_solar_dealer/src/register_new_customer/widgets/register_blur_circle.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final scale = w / 440;
+    final double scale = MediaQuery.of(context).size.width / 440;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFB5E2F4),
-      body: Stack(
-        children: [
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
 
-          /// 🔵 BACKGROUND + HEADER (same as CustomerList)
-          Positioned.fill(
-            child: Stack(
+      /// 1. APPBAR
+      appBar: CommonAppBar(
+        scale: scale,
+        showBack: true,
+        onBackTap: () {
+          context.pop();
+        },
+      ),
+
+      body: AppBackground(
+        child: SafeArea(
+          bottom: false, // Prevents gap between body and bottom bar
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RegisterBlurCircle(left: -146, top: -201, size: 383, color: Colors.white, scale: scale, blur: 60),
-                RegisterBlurCircle(left: 209, top: 94, size: 383, color: Colors.white.withOpacity(0.3), scale: scale, blur: 40),
-                RegisterBlurCircle(left: -153, top: 575, size: 383, color: Colors.white.withOpacity(0.6), scale: scale, blur: 50),
+                SizedBox(height: 30 * scale),
 
-                /// 🔥 HEADER (NOW PERFECT POSITION)
-                TopHeaderCard(
-                  scale: scale,
-                  onBackTap: () =>context.pop(),
-                  onNotificationTap: () {
-                    context.push('/notification_screen');
-                  },
-                  showNotification: true,
+                /// PROFILE IMAGE WITH EDIT ICON
+                Center(
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100 * scale,
+                        height: 100 * scale,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: const DecorationImage(
+                            image: AssetImage("assets/images/profile/profile.png"),
+                            fit: BoxFit.cover,
+                          ),
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 5,
+                        child: Container(
+                          width: 30 * scale,
+                          height: 30 * scale,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0x28000000),
+                                blurRadius: 4,
+                              )
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.edit_outlined,
+                            size: 16 * scale,
+                            color: const Color(0xFF282828),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+
+                SizedBox(height: 40 * scale),
+
+                _buildField("Company Name", "Company name", scale),
+                _buildField("Your Name", "Your Name", scale),
+                _buildField("Email", "Email", scale),
+                _buildField("Phone Number", "Phone number", scale),
+                _buildField("Address", "Your Address", scale),
+
+                SizedBox(height: 100 * scale),
               ],
             ),
           ),
-
-          /// ✅ MAIN CONTENT BELOW HEADER
-          Positioned.fill(
-            top: 150 * scale, // 👈 adjust based on header height
-            child: SafeArea(
-              top: false, // 🔥 important (avoid extra gap)
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                child: Column(
-                  children: [
-
-                    /// PROFILE IMAGE
-                    Center(
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 50 * scale,
-                            backgroundImage: const AssetImage(
-                              "assets/images/profile/profile.png",
-                            ),
-                          ),
-                          Positioned(
-                            right: 0,
-                            bottom: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(6 * scale),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.edit, size: 16 * scale),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 30 * scale),
-
-                    _buildField("Company Name", "Company name", scale),
-                    _buildField("Your Name", "Your Name", scale),
-                    _buildField("Email", "Email", scale),
-                    _buildField("Phone Number", "Phone number", scale),
-                    _buildField("Address", "Your Address", scale),
-
-                    SizedBox(height: 100 * scale),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(20 * scale),
-          child: SizedBox(
-            height: 50 * scale,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF26A7DF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+
+      /// 2. FIXED BOTTOM BUTTON (Corrected to remove the line)
+      bottomNavigationBar: Container(
+        // Ensure this color is identical to the bottom of your AppBackground
+        color: const Color(0xFFB5E2F4),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20 * scale, 10 * scale, 20 * scale, 20 * scale),
+            child: InkWell(
+              onTap: () => context.pop(),
+              child: Container(
+                height: 50 * scale,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF26A7DF),
+                  borderRadius: BorderRadius.circular(10 * scale),
+                  // Ensure no shadow or border is added here
+                  boxShadow: const [],
                 ),
-              ),
-              onPressed: () {},
-              child: Text(
-                "Done",
-                style: AppTextStyles.buttonScaled(scale),
+                alignment: Alignment.center,
+                child: Text(
+                  'Done',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16 * scale,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ),
@@ -116,29 +127,38 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  /// 🔹 Reusable Field Widget
   Widget _buildField(String title, String hint, double scale) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16 * scale),
+      padding: EdgeInsets.only(bottom: 20 * scale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.titleScaled(scale)),
-
-          SizedBox(height: 6 * scale),
-
+          Text(
+            title,
+            style: GoogleFonts.lato(
+              color: const Color(0xFF282828),
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 8 * scale),
           Container(
+            width: double.infinity,
             height: 50 * scale,
             padding: EdgeInsets.symmetric(horizontal: 16 * scale),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white),
+              color: Colors.white.withOpacity(0.50),
+              borderRadius: BorderRadius.circular(10 * scale),
+              border: Border.all(color: Colors.white, width: 1),
             ),
             alignment: Alignment.centerLeft,
             child: Text(
               hint,
-              style: AppTextStyles.descriptionScaled(scale),
+              style: GoogleFonts.lato(
+                color: const Color(0xCC484848),
+                fontSize: 16 * scale,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],

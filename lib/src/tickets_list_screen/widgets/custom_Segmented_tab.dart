@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomSegmentedTab extends StatelessWidget {
   final double scale;
@@ -16,37 +17,47 @@ class CustomSegmentedTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double s(double v) => v * scale;
+
     return Container(
-      width: double.infinity,
-      height: 50 * scale,
-      padding: EdgeInsets.all(5 * scale), // Padding for the selection pill
+      width: s(400),
+      height: s(50),
+      padding: EdgeInsets.all(s(5)), // clean padding
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.50),
-        borderRadius: BorderRadius.circular(25 * scale),
-        border: Border.all(color: Colors.white, width: 1),
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(s(25)),
+        border: Border.all(
+          color: Colors.white,
+          width: s(1),
+        ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // ✅ spread evenly
         children: tabs.map((tab) {
           bool isSelected = selectedTab == tab;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onTabChanged(tab),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF26A7DF) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20 * scale),
-                ),
-                child: Text(
-                  tab,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF282828),
-                    fontSize: 14 * scale,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w600,
-                  ),
+
+          return GestureDetector(
+            onTap: () => onTabChanged(tab),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: s(94),   // ✅ FIXED WIDTH (Figma)
+              height: s(36),  // ✅ FIXED HEIGHT (Figma)
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF26A7DF)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(s(20)), // ✅ radius
+              ),
+              child: Text(
+                tab,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.lato(
+                  color: isSelected
+                      ? Colors.white
+                      : const Color(0xFF282828),
+                  fontSize: s(14),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

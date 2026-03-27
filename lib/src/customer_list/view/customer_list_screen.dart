@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/widget/customer_item.dart';
 import 'package:space_solar_dealer/src/customer_list/widget/search_box.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
-import 'package:space_solar_dealer/src/notifications/view/notification_screen.dart';
+import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
-import 'package:space_solar_dealer/src/register_new_customer/widgets/register_blur_circle.dart';
 
 class CustomerList extends StatefulWidget {
   const CustomerList({super.key});
@@ -15,15 +13,12 @@ class CustomerList extends StatefulWidget {
   @override
   State<CustomerList> createState() => _CustomerListState();
 }
+
 class _CustomerListState extends State<CustomerList> {
   final TextEditingController _searchController = TextEditingController();
-  List<String> allCustomers = [
-    "Baranee",
-    "Mani",
-    "Rahul",
-    "Mohan",
-    "Rahul",
-    "Mani",
+
+  final List<String> allCustomers = [
+    "Baranee", "Mani", "Rahul", "Mohan", "Rahul", "Mani",
   ];
 
   List<String> filteredCustomers = [];
@@ -35,168 +30,171 @@ class _CustomerListState extends State<CustomerList> {
   }
 
   void _searchCustomer(String query) {
-    final results = allCustomers.where((customer) {
-      return customer.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+    setState(() {
+      if (query.isEmpty) {
+        filteredCustomers = allCustomers;
+      } else {
+        filteredCustomers = allCustomers
+            .where((customer) =>
+            customer.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
 
-    setState(() {
-      filteredCustomers = results;
-    });
-  }
-  void _addCustomer() {
-    setState(() {
-      allCustomers.add("New Customer ${allCustomers.length + 1}");
-      filteredCustomers = allCustomers;
-    });
-  }
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final scale = w / 440;
 
+    double s(double v) => v * scale;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFB5E2F4),
+      backgroundColor: Colors.transparent,
+      floatingActionButton: _buildFAB(s),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      body: AppBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: s(24)),
 
-      floatingActionButton: _buildFAB(scale),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Customer List",
+                      style: GoogleFonts.poppins(
+                        fontSize: s(20),
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF282828),
+                      ),
+                    ),
 
-      body: Stack(
-        children: [
-          /// 🔵 BACKGROUND + HEADER
-          Positioned.fill(
-            child: Stack(
-              children: [
-                RegisterBlurCircle(left: -146, top: -201, size: 383, color: Colors.white, scale: scale, blur: 60),
-                RegisterBlurCircle(left: 209, top: 94, size: 383, color: Colors.white.withOpacity(0.3), scale: scale, blur: 40),
-                RegisterBlurCircle(left: -153, top: 575, size: 383, color: Colors.white.withOpacity(0.6), scale: scale, blur: 50),
-                TopHeaderCard(
+                    SizedBox(height: s(4)),
+
+                    Text(
+                      "Customer Information",
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xCC484848),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: s(20)),
+
+              /// SEARCH BOX
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                child: SearchBox(
                   scale: scale,
-                onBackTap: null,
-                  onNotificationTap: () {
-                    context.push('/notification_screen');
-                  },
-                  showNotification: true,
+                  controller: _searchController,
+                  onChanged: _searchCustomer,
                 ),
+              ),
 
-                /// ✅ TITLE (same position as Figma)
-                Positioned(
-                  left: 20 * scale,
-                  top: 158 * scale,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Customer List",
-                        style: TextStyle(
-                          fontSize: 20 * scale,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF282828),
-                        ),
-                      ),
-                      SizedBox(height: 4 * scale),
-                      Text(
-                        "Customer Information",
-                        style: TextStyle(
-                          fontSize: 14 * scale,
-                          color: const Color(0xCC484848),
-                        ),
-                      ),
-                    ],
+              SizedBox(height: s(33)),
+
+              /// LIST
+              Expanded(
+                child: filteredCustomers.isEmpty
+                    ? Center(
+                  child: Text(
+                    "No customers found",
+                    style: TextStyle(fontSize: s(14)),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          /// 🔥 SCROLLABLE CONTENT
-          Positioned.fill(
-            top: 230 * scale, // 👈 IMPORTANT (push below header)
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-              child: Column(
-                children: [
-                  /// 🔍 SEARCH
-                  SearchBox(
-                    scale: scale,
-                    controller: _searchController,
-                    onChanged: _searchCustomer,
-                  ),
-
-                  SizedBox(height: 20 * scale),
-
-                  /// 📋 LIST
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredCustomers.length,
-                      itemBuilder: (context, index) {
-                        final customerName = filteredCustomers[index];
-
-                        return CustomerItem(
-                          name: customerName,
-                          isFirst: index == 0,
-                          isLast: index == filteredCustomers.length - 1,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => CustomerDetailsScreen(
-                                  name: customerName,
+                )
+                    : ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: s(20)),
+                  itemCount: filteredCustomers.length,
+                  itemBuilder: (context, index) {
+                    final customer = filteredCustomers[index];
+                    return CustomerItem(
+                      name: customer,
+                      isFirst: index == 0,
+                      isLast:
+                      index == filteredCustomers.length - 1,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CustomerDetailsScreen(
+                                  name: customer,
                                 ),
-                              ),
-                            );
-                          },
+                          ),
                         );
                       },
-                    ),
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildFAB(double scale) {
+  /// ✅ FIXED FAB (scaling applied correctly)
+  Widget _buildFAB(double Function(double) s) {
     return Container(
-      width: 192 * scale,
-      height: 50 * scale,
+      width: s(192),
+      height: s(50),
       decoration: BoxDecoration(
         color: const Color(0xFF26A7DF),
-        borderRadius: BorderRadius.circular(10 * scale),
+        borderRadius: BorderRadius.circular(s(10)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 10 * scale,
-            offset: Offset(0, 4 * scale),
+            blurRadius: s(10),
+            offset: Offset(0, s(4)),
           ),
         ],
       ),
       child: InkWell(
         onTap: () {
-          context.push('/customer_register'); // your navigation
+          context.push('/customer_register');
         },
-        borderRadius: BorderRadius.circular(10 * scale),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_circle_outline,
-              color: Colors.white,
-              size: 22 * scale,
-            ),
-            SizedBox(width: 8 * scale),
-            Text(
-              "New Customer",
-              style: TextStyle(
+        borderRadius: BorderRadius.circular(s(10)),
+
+        /// ✅ FIXED ALIGNMENT
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: s(13),   // 👈 Figma exact
+            right: s(19),  // 👈 Figma exact
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              /// ICON
+              Image.asset(
+                "assets/images/customer/add_icon.png",
                 color: Colors.white,
-                fontSize: 16 * scale,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Poppins',
+                height: s(22),
+                width: s(22),
               ),
-            ),
-          ],
+
+              SizedBox(width: s(13)), // 👈 exact spacing
+
+              /// TEXT
+              Text(
+                "New Customer",
+                style: GoogleFonts.poppins(
+                  fontSize: s(16),
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

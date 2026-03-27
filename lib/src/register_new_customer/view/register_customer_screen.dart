@@ -1,209 +1,180 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dotted_border/dotted_border.dart'; // Import this
+import 'package:dotted_border/dotted_border.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/app/route_names.dart';
-import 'package:space_solar_dealer/src/home/widgets/top_header_card.dart';
-import 'package:space_solar_dealer/src/register_new_customer/widgets/register_blur_circle.dart';
+import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
-class RegisterCustomerScreen extends StatefulWidget {
+class RegisterCustomerScreen extends StatelessWidget {
   const RegisterCustomerScreen({super.key});
 
   @override
-  State<RegisterCustomerScreen> createState() => _RegisterCustomerScreenState();
-}
-
-class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
-  // Simulated list of added panels from your screenshot
-  final List<String> _addedPanels = ["SS-78A00-S001", "SS-78A00-S002"];
-
-  @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final scale = w / 440;
+    final double scale = MediaQuery.of(context).size.width / 440;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFB5E2F4),
-      body: Stack(
-        children: [
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      appBar: CommonAppBar(
+        scale: scale,
+        showBack: true,
+        onBackTap: () {
+          context.pop();
+        },
+      ),
+      /// 1. STANDARD APPBAR
+      /*appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 74 * scale,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: SizedBox(
+            width: 7.5 * scale,
+            height: 15 * scale,
+            child: Image.asset(
+              'assets/images/new_register/back_arrow.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        title: SvgPicture.asset(
+          "assets/images/login/logo.svg",
+          height: 24 * scale,
+        ),
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 20 * scale),
+            child: _buildNotificationIcon(scale),
+          )
+        ],
+      ),*/
 
-          /// 🔵 BACKGROUND + HEADER
-          Positioned.fill(
-            child: Stack(
+      body: AppBackground(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RegisterBlurCircle(left: -146, top: -201, size: 383, color: Colors.white, scale: scale, blur: 60),
-                RegisterBlurCircle(left: 209, top: 94, size: 383, color: Colors.white.withOpacity(0.3), scale: scale, blur: 40),
-                RegisterBlurCircle(left: -153, top: 575, size: 383, color: Colors.white.withOpacity(0.6), scale: scale, blur: 50),
+                SizedBox(height: 20 * scale),
 
-                /// ✅ FIXED HEADER
-                TopHeaderCard(
-                  scale: scale,
-                  onBackTap: () => context.pop(),
-                  onNotificationTap: () {
-                    context.push('/notification_screen');
-                  },
-                  showNotification: true,
+                /// TITLE
+                Text(
+                  'Register Customer & Panel IDs',
+                  style: GoogleFonts.poppins(
+                    color: const Color(0xFF282828),
+                    fontSize: 20 * scale,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
+
+                SizedBox(height: 20 * scale),
+
+                /// 2. CUSTOMER DETAILS CARD
+                _buildCardContainer(
+                  scale: scale,
+                  title: "Customer Details",
+                  child: Column(
+                    children: [
+                      _buildInputField("Customer Name*", "Customer Name", scale),
+                      _buildInputField("Phone Number*", "Phone Number", scale),
+                      _buildInputField("Email*", "Email", scale),
+                      _buildInputField("Address*", "Enter full installation address", scale, isAddress: true),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 20 * scale),
+
+                /// 3. REGISTER PANEL (DOTTED SCANNER) CARD
+                _buildCardContainer(
+                  scale: scale,
+                  title: "Register Panel",
+                  centerChild: true, // Centers the scanner
+                  child: Column(
+                    children: [
+                      DottedBorder(
+                        options: RoundedRectDottedBorderOptions(
+                          color: ColorPalette.textfiledin,
+                          strokeWidth: 2,
+                          dashPattern: const [6, 4],
+                          radius: Radius.circular(10 * scale),
+                        ),
+                        child: Container(
+                          width: 180 * scale,
+                          height: 180 * scale,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(10 * scale),
+                          ),
+                          child: Center(
+                            child: Image.asset(
+                              "assets/images/new_register/qr_scan.png",
+                              width: 90 * scale,
+                              height: 90 * scale,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.qr_code_scanner, size: 80 * scale, color: const Color(0xFF484848)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 15 * scale),
+                      Text(
+                        'Position QR code within the frame',
+                        style: GoogleFonts.lato(fontSize: 14 * scale, color: const Color(0xCC484848)),
+                      ),
+                      SizedBox(height: 20 * scale),
+                      _buildBlueButton("Scan", scale, () {}),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 25 * scale),
+                _buildOrDivider(scale),
+                SizedBox(height: 25 * scale),
+
+                /// 4. MANUAL ENTRY CARD
+                _buildCardContainer(
+                  scale: scale,
+                  title: "Enter Panel ID Manual",
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildSimpleInput("Enter Panel ID", scale),
+                      ),
+                      SizedBox(width: 10 * scale),
+                      _buildSmallAddButton(scale),
+                    ],
+                  ),
+                ),
+
+                /// 5. ADDED PANELS LIST
+                SizedBox(height: 20 * scale),
+                _buildAddedPanelTile("SS-78A00-S001", scale),
+                _buildAddedPanelTile("SS-78A00-S002", scale),
+
+                SizedBox(height: 30 * scale),
+
+                /// 6. SUBMIT BUTTON
+                _buildBlueButton("Submit", scale, () {}),
+
+                SizedBox(height: 40 * scale),
               ],
             ),
           ),
-
-          /// ✅ CONTENT BELOW HEADER
-          Positioned.fill(
-            top: 150 * scale, // 👈 adjust if needed
-            child: SafeArea(
-              top: false,
-              child: ListView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20 * scale,
-                  vertical: 20 * scale,
-                ),
-                children: [
-
-                  Text(
-                    'Register Customer & Panel IDs',
-                    style: GoogleFonts.poppins(
-                      color: const Color(0xFF282828),
-                      fontSize: 20 * scale,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-
-                  SizedBox(height: 20 * scale),
-
-                  /// SECTION 1
-                  _buildSectionCard(
-                    scale: scale,
-                    title: "Customer Details",
-                    child: Column(
-                      children: [
-                        _buildTextField("Customer Name*", "Customer Name", scale),
-                        _buildTextField("Phone Number*", "Phone Number", scale),
-                        _buildTextField("Email*", "Email", scale),
-                        _buildTextField("Address*", "Enter full installation address", scale, isMultiline: true),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 20 * scale),
-
-                  /// SECTION 2
-                  _buildSectionCard(
-                    scale: scale,
-                    title: "Register Panel",
-                    child: Column(
-                      children: [
-                        DottedBorder(
-                          options: RoundedRectDottedBorderOptions(
-                            color: ColorPalette.textfiledin,
-                            strokeWidth: 2,
-                            dashPattern: const [6, 4],
-                            radius: Radius.circular(10 * scale),
-                          ),
-                          child: Container(
-                            width: 180 * scale,
-                            height: 180 * scale,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(10 * scale),
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                "assets/images/new_register/qr_scan.png",
-                                width: 90 * scale,
-                                height: 90 * scale,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 15 * scale),
-
-                        Text(
-                          "Position QR code within the frame",
-                          style: GoogleFonts.lato(fontSize: 14 * scale, color: Colors.black54),
-                        ),
-
-                        SizedBox(height: 20 * scale),
-
-                        _buildPrimaryButton("Scan", ColorPalette.background, scale),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 20 * scale),
-
-                  _buildDivider(scale),
-
-                  SizedBox(height: 20 * scale),
-
-                  /// SECTION 3
-                  _buildSectionCard(
-                    scale: scale,
-                    title: "Enter Panel ID Manual",
-                    child: Row(
-                      children: [
-                        Expanded(child: _buildSimpleInput("Enter Panel ID", scale)),
-                        SizedBox(width: 10 * scale),
-                        _buildSmallButton("Add", scale),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 20 * scale),
-
-                  /// PANEL LIST
-                  ..._addedPanels.map((id) => _buildAddedPanelTile(id, scale)).toList(),
-
-                  SizedBox(height: 30 * scale),
-
-                  /// SUBMIT
-                  _buildPrimaryButton(
-                    "Submit",
-                    ColorPalette.background,
-                    scale,
-                    onTap: () {
-                      context.pushNamed(RouteName.registration_success);
-                    },
-                  ),
-
-                  SizedBox(height: 40 * scale),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- New Widget for Panel ID List ---
-  Widget _buildAddedPanelTile(String id, double scale) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10 * scale),
-      child: Container(
-        height: 50 * scale,
-        padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE3F2FD).withOpacity(0.7),
-          borderRadius: BorderRadius.circular(10 * scale),
-          border: Border.all(color: Colors.white),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(id, style: GoogleFonts.lato(fontSize: 16 * scale, color: const Color(0xFF484848))),
-            Icon(Icons.close, size: 20 * scale, color: const Color(0xFF484848)),
-          ],
         ),
       ),
     );
   }
 
-  // --- Helper Widgets (Keeping your existing style) ---
+  /// --- UI HELPER METHODS ---
 
-  Widget _buildSectionCard({required double scale, required String title, required Widget child}) {
+  Widget _buildCardContainer({required double scale, required String title, required Widget child, bool centerChild = false}) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(20 * scale),
@@ -213,20 +184,20 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
         border: Border.all(color: Colors.white),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center, // Center for QR section
+        crossAxisAlignment: centerChild ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
           Align(
             alignment: Alignment.centerLeft,
             child: Text(title, style: GoogleFonts.poppins(fontSize: 18 * scale, fontWeight: FontWeight.w500)),
           ),
-          SizedBox(height: 20 * scale),
+          SizedBox(height: 15 * scale),
           child,
         ],
       ),
     );
   }
 
-  Widget _buildTextField(String label, String hint, double scale, {bool isMultiline = false}) {
+  Widget _buildInputField(String label, String hint, double scale, {bool isAddress = false}) {
     return Padding(
       padding: EdgeInsets.only(bottom: 15 * scale),
       child: Column(
@@ -234,33 +205,34 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
         children: [
           Text(label, style: GoogleFonts.lato(fontSize: 16 * scale, fontWeight: FontWeight.w600)),
           SizedBox(height: 8 * scale),
-          _buildSimpleInput(hint, scale, isMultiline: isMultiline),
+          _buildSimpleInput(hint, scale, isAddress: isAddress),
         ],
       ),
     );
   }
 
-  Widget _buildSimpleInput(String hint, double scale, {bool isMultiline = false}) {
+  Widget _buildSimpleInput(String hint, double scale, {bool isAddress = false}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15 * scale),
+      height: isAddress ? null : 50 * scale,
+      padding: EdgeInsets.symmetric(horizontal: 16 * scale),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(10 * scale),
         border: Border.all(color: Colors.white),
       ),
       child: TextField(
-        maxLines: isMultiline ? 3 : 1,
+        maxLines: isAddress ? 3 : 1,
         decoration: InputDecoration(
           hintText: hint,
           border: InputBorder.none,
-          hintStyle: GoogleFonts.lato(color: Colors.black38, fontSize: 16 * scale),
+          hintStyle: GoogleFonts.lato(color: const Color(0xCC484848), fontSize: 16 * scale),
         ),
       ),
     );
   }
 
-  Widget _buildPrimaryButton(String text, Color color, double scale, {VoidCallback? onTap}) {
-    return GestureDetector( // Add GestureDetector
+  Widget _buildBlueButton(String text, double scale, VoidCallback onTap) {
+    return InkWell(
       onTap: onTap,
       child: Container(
         width: double.infinity,
@@ -269,46 +241,74 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
           color: const Color(0xFF26A7DF),
           borderRadius: BorderRadius.circular(10 * scale),
         ),
-        child: Center(
-          child: Text(
-            text,
-            style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16 * scale
-            ),
-          ),
-        ),
+        alignment: Alignment.center,
+        child: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 16 * scale, fontWeight: FontWeight.w600)),
       ),
     );
   }
 
-  Widget _buildSmallButton(String text, double scale) {
+  Widget _buildSmallAddButton(double scale) {
     return Container(
-      width: 90 * scale,
+      width: 100 * scale,
       height: 50 * scale,
       decoration: BoxDecoration(
         color: const Color(0xFF26A7DF),
         borderRadius: BorderRadius.circular(6 * scale),
       ),
-      child: Center(
-        child: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
+      alignment: Alignment.center,
+      child: Text("Add", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600)),
+    );
+  }
+
+  Widget _buildAddedPanelTile(String id, double scale) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10 * scale),
+      height: 50 * scale,
+      padding: EdgeInsets.symmetric(horizontal: 16 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE3F2FD).withOpacity(0.7), // Slight blue tint like your old code
+        borderRadius: BorderRadius.circular(10 * scale),
+        border: Border.all(color: Colors.white),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(id, style: GoogleFonts.lato(fontSize: 16 * scale, color: const Color(0xFF484848))),
+          Icon(Icons.close, size: 20 * scale, color: const Color(0xFF484848)),
+        ],
       ),
     );
   }
 
-  Widget _buildDivider(double scale) {
+  Widget _buildOrDivider(double scale) {
     return Row(
       children: [
         const Expanded(child: Divider(color: Color(0xFF484848), thickness: 1)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10 * scale),
-          child: Text("OR", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFF484848), fontSize: 16 * scale)),
+          child: Text("OR", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: const Color(0xFF484848))),
         ),
         const Expanded(child: Divider(color: Color(0xFF484848), thickness: 1)),
       ],
     );
   }
 
-
+  Widget _buildNotificationIcon(double scale) {
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        SvgPicture.asset("assets/images/home/notification.svg", height: 24 * scale),
+        Positioned(
+          right: -2,
+          top: -2,
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+            constraints: const BoxConstraints(minWidth: 12, minHeight: 12),
+            child: const Text('16', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          ),
+        )
+      ],
+    );
+  }
 }

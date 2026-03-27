@@ -3,13 +3,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
 import 'package:space_solar_dealer/src/login/widgets/blur_circle.dart';
 import 'package:space_solar_dealer/src/login/widgets/field_label.dart';
 import 'package:space_solar_dealer/src/login/widgets/glass_field.dart';
 import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
 import 'package:space_solar_dealer/src/login/widgets/primary_button.dart';
 import 'package:space_solar_dealer/src/login/widgets/social_button.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,39 +39,25 @@ class _LoginScreenState extends State<LoginScreen> {
     double s(double v) => v * scale;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false, // ✅ FIXED
       body: Stack(
         children: [
+          /// BACKGROUND
           Container(
             decoration: const BoxDecoration(
               gradient: ColorPalette.scaffoldGradient,
             ),
           ),
 
-          /// Blur circles
-          BlurCircle(
-            left: s(-146),
-            top: s(-201),
-            size: s(383),
-            opacity: 1,
-          ),
-
-          BlurCircle(
-            left: s(399),
-            top: s(44),
-            size: s(383),
-            opacity: 1,
-          ),
-
-          BlurCircle(
-            left: s(-241),
-            top: s(580),
-            size: s(383),
-            opacity: .4,
-          ),
+          /// BLUR CIRCLES
+          BlurCircle(left: s(-146), top: s(-201), size: s(383), opacity: 1),
+          BlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1),
+          BlurCircle(left: s(-241), top: s(580), size: s(383), opacity: .4),
 
           SafeArea(
             child: Stack(
               children: [
+                /// LOGO
                 Positioned(
                   top: s(86),
                   left: 0,
@@ -81,46 +67,36 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
+                /// FORM CONTENT
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: s(20)),
                   child: SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ), // ✅ FIXED scroll with keyboard
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: s(86 + 20.5644 + 55)),
 
-                        /// Title
+                        /// TITLE
                         Text(
                           'Welcome Back!',
-                          style: GoogleFonts.poppins(
-                            fontSize: s(32),
-                            fontWeight: FontWeight.w600,
-                            color: ColorPalette.bottomtext,
-                            height: 1.19,
-                          ),
+                          style: AppTextStyles.headingScaled(scale),
                         ),
 
                         SizedBox(height: s(4)),
 
-                        /// Subtitle
+                        /// SUBTITLE
                         Text(
                           'Enter your Login Information',
-                          style: GoogleFonts.lato(
-                            fontSize: s(16),
-                            fontWeight: FontWeight.w400,
-                            color: ColorPalette.textfiledin,
-                            height: 1.40,
-                          ),
+                          style: AppTextStyles.subheadingScaled(scale),
                         ),
 
                         SizedBox(height: s(31)),
 
-                        /// Email
-                        FieldLabel(
-                          text: "Email Address",
-                          scale: scale,
-                        ),
-
+                        /// EMAIL
+                        FieldLabel(text: "Email Address", scale: scale),
                         SizedBox(height: s(9)),
 
                         SizedBox(
@@ -134,12 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         SizedBox(height: s(24)),
 
-                        /// Password
-                        FieldLabel(
-                          text: "Password",
-                          scale: scale,
-                        ),
-
+                        /// PASSWORD
+                        FieldLabel(text: "Password", scale: scale),
                         SizedBox(height: s(9)),
 
                         SizedBox(
@@ -151,7 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             obscure: _obscurePassword,
                           ),
                         ),
-                        SizedBox(height:12),
+
+                        SizedBox(height: s(12)),
+
+                        /// FORGOT PASSWORD
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -167,19 +142,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {},
                             child: Text(
                               'Forget Password?',
-                              style: GoogleFonts.lato(
-                                fontSize: s(16),
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF26A7DF),
-                                height: 1.40,
-                              ),
+                              style:
+                              AppTextStyles.labelTextHeadScaled(scale),
                             ),
                           ),
                         ),
 
                         SizedBox(height: s(30)),
 
-                        /// Login button
+                        /// LOGIN BUTTON
                         PrimaryButton(
                           text: "Login",
                           scale: scale,
@@ -204,11 +175,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               EdgeInsets.symmetric(horizontal: s(10)),
                               child: Text(
                                 'Or Continue with',
-                                style: GoogleFonts.lato(
-                                  fontSize: s(12),
-                                  fontWeight: FontWeight.w400,
-                                  color: const Color(0xFF1E1E1E),
-                                ),
+                                style:
+                                AppTextStyles.centerTextScaled(scale),
                               ),
                             ),
                             Container(
@@ -221,10 +189,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         SizedBox(height: s(40)),
 
-                        /// Social
+                        /// SOCIAL BUTTONS
                         Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SocialButton(
                               scale: scale,
@@ -254,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
 
-                        SizedBox(height: s(80)),
+                        SizedBox(height: s(100)), // 👈 extra safe spacing
                       ],
                     ),
                   ),
@@ -263,46 +230,46 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          /// bottom signup
+          /// 🔻 FIXED BOTTOM TEXT (WON'T MOVE)
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: s(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Don't have an account yet? ",
-                    style: GoogleFonts.lato(
-                      fontSize: s(14),
-                      color: ColorPalette.bottomtext,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.push('/signup');
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize:
-                      MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      "Sign Up",
+              child: Padding(
+                padding: EdgeInsets.only(bottom: s(10)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account yet? ",
                       style: GoogleFonts.lato(
                         fontSize: s(14),
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF26A7DF),
+                        color: ColorPalette.bottomtext,
                       ),
                     ),
-                  ),
-                ],
+                    TextButton(
+                      onPressed: () {
+                        context.push('/signup');
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize:
+                        MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        "Sign Up",
+                        style: GoogleFonts.lato(
+                          fontSize: s(14),
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF26A7DF),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
             ),
           ),
         ],

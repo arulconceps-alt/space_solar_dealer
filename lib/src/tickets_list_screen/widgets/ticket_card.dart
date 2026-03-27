@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TicketCard extends StatelessWidget {
   final String ticketId, customerName, status, issue, panelId, date, sla;
@@ -9,80 +9,163 @@ class TicketCard extends StatelessWidget {
 
   const TicketCard({
     super.key,
-    required this.ticketId, required this.customerName, required this.status,
-    required this.issue, required this.panelId, required this.date,
-    required this.sla, required this.statusColor, required this.onViewDetails,
+    required this.ticketId,
+    required this.customerName,
+    required this.status,
+    required this.issue,
+    required this.panelId,
+    required this.date,
+    required this.sla,
+    required this.statusColor,
+    required this.onViewDetails,
     required this.scale,
   });
 
   @override
   Widget build(BuildContext context) {
+    double s(double v) => v * scale;
+
     return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(bottom: 16 * scale),
-        decoration: ShapeDecoration(
-          color: Colors.white.withValues(alpha: 0.50),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(width: 1, color: Colors.white.withValues(alpha: 0.50),),
-            borderRadius: BorderRadius.circular(20),
+      width: s(400),
+      margin: EdgeInsets.only(bottom: s(16),),
+      decoration: ShapeDecoration(
+        color: Colors.white.withOpacity(0.5),
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            width: s(1),
+            color: Colors.white.withOpacity(0.5),
           ),
-          shadows: [
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.5),
-              blurRadius: 4,
-              offset: Offset(0, 0),
-              spreadRadius: 0,
-            )
-          ],
+          borderRadius: BorderRadius.circular(s(20)), // ✅ scaled
         ),
+        shadows: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.5),
+            blurRadius: s(4), // ✅ scaled
+            offset: Offset(0, 0),
+            spreadRadius: 0,
+          )
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// 🔹 TOP CONTENT
           Padding(
-            padding: EdgeInsets.all(16 * scale),
+            padding: EdgeInsets.all(s(16)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// Ticket ID + Status
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(ticketId, style: TextStyle(color: Color(0xFF484848), fontSize: 14 * scale)),
-                    _buildBadge(),
+                    Text(
+                      ticketId,
+                      style: GoogleFonts.lato(
+                        color: const Color(0xCC484848),
+                        fontSize: s(14), // ✅ scaled
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    _buildBadge(s),
                   ],
                 ),
-                SizedBox(height: 8 * scale),
-                Text(customerName, style: TextStyle(color: Color(0xFF282828), fontSize: 18 * scale, fontWeight: FontWeight.w600)),
-                SizedBox(height: 12 * scale),
-                Text(issue, style: TextStyle(color: Color(0xFF484848), fontSize: 14 * scale)),
-                SizedBox(height: 16 * scale),
+
+                SizedBox(height: s(8)),
+
+                /// Customer Name
+                Text(
+                  customerName,
+                  style: GoogleFonts.lato(
+                    color: const Color(0xFF282828),
+                    fontSize: s(18), // ✅ scaled
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                SizedBox(height: s(12)),
+
+                /// Issue
+                Text(
+                  issue,
+                  style: GoogleFonts.lato(
+                    color: const Color(0xFF484848),
+                    fontSize: s(14), // ✅ scaled
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+
+                SizedBox(height: s(27)),
+
+                /// Panel ID + Date
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Panel ID : $panelId', style: TextStyle(color: Color(0xFF484848), fontSize: 14 * scale)),
-                    Text(date, style: TextStyle(color: Color(0xFF484848), fontSize: 14 * scale)),
+                    Text(
+                      'Panel ID : $panelId',
+                      style: GoogleFonts.lato(
+                        color: const Color(0xFF484848),
+                        fontSize: s(14), // ✅ scaled
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      date,
+                      style: GoogleFonts.lato(
+                        color: const Color(0xFF484848),
+                        fontSize: s(14), // ✅ scaled
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                   ],
+                ),
+                SizedBox(height: 6,),
+                Divider(
+                  height: s(1),
+                  thickness: s(1),
+                  color: Colors.black.withOpacity(0.2),
                 ),
               ],
             ),
+
           ),
-          Divider(height: 1, color: Colors.black.withValues(alpha: 0.1)),
+
+
+
+          /// 🔹 BOTTOM SECTION
           Padding(
-            padding: EdgeInsets.all(12 * scale),
+            padding: EdgeInsets.only(left: s(24),),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('SLA : $sla', style: TextStyle(color: Color(0xFF484848), fontSize: 14 * scale)),
+                /// SLA
+                Text(
+                  'SLA : $sla',
+                  style: TextStyle(
+                    color: const Color(0xFF484848),
+                    fontSize: s(14),
+                  ),
+                ),
+
+                /// VIEW DETAILS BUTTON
                 GestureDetector(
                   onTap: onViewDetails,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 8 * scale),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s(20),
+                      vertical: s(8),
+                    ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF26A7DF).withValues(alpha: 0.2), // Matches Figma's button style
-                      borderRadius: BorderRadius.circular(10 * scale),
+                      color: const Color(0xFF26A7DF).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(s(10)),
                     ),
                     child: Text(
                       'View Details',
-                      style: TextStyle(color: const Color(0xFF26A7DF), fontSize: 14 * scale, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: const Color(0xFF26A7DF),
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -94,19 +177,23 @@ class TicketCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge() {
+  /// 🔹 STATUS BADGE
+  Widget _buildBadge(double Function(double) s) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 4 * scale),
+      width: s(72),   // ✅ fixed width
+      height: s(20),  // ✅ fixed height
+      alignment: Alignment.center, // ✅ center text
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.15), // ✅ like figma
-        borderRadius: BorderRadius.circular(20 * scale),
+        color: statusColor.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(s(10)), // ✅ correct radius
       ),
       child: Text(
         status,
-        style: TextStyle(
-          color: statusColor,
-          fontSize: 10 * scale,
-          fontWeight: FontWeight.w600,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.lato(
+          color: const Color(0xFF26A7DF),
+          fontSize: s(10), // ✅ scaled
+          fontWeight: FontWeight.w400,
         ),
       ),
     );
