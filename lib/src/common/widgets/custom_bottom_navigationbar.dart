@@ -13,8 +13,12 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final scale = (w / 440).clamp(0.85, 1.2);
+    double s(double v) => v * scale;
+
     return Container(
-      height: 70, // ✅ fixed height (no scale)
+      height: s(98),
       decoration: const BoxDecoration(
         color: Color(0xFFF1F9FF),
         border: Border(top: BorderSide(color: Colors.white, width: 1)),
@@ -22,16 +26,25 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(0, "Dashboard", "assets/images/bottom_navigation/dashboard_icon.png"),
-          _buildNavItem(1, "Customer", "assets/images/bottom_navigation/customer_icon.png"),
-          _buildNavItem(2, "Tickets", "assets/images/bottom_navigation/tickets_icon.png"),
-          _buildNavItem(3, "Profile", "assets/images/bottom_navigation/profile_icon.png"),
+          _buildNavItem(0, "Dashboard",
+              "assets/images/bottom_navigation/dashboard_icon.png", s),
+          _buildNavItem(1, "Customer",
+              "assets/images/bottom_navigation/customer_icon.png", s),
+          _buildNavItem(2, "Tickets",
+              "assets/images/bottom_navigation/tickets_icon.png", s),
+          _buildNavItem(3, "Profile",
+              "assets/images/bottom_navigation/profile_icon.png", s),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index, String label, String imagePath) {
+  Widget _buildNavItem(
+    int index,
+    String label,
+    String imagePath,
+    double Function(double) s,
+  ) {
     bool isSelected = currentIndex == index;
 
     Color activeColor = const Color(0xFF26A7DF);
@@ -44,17 +57,17 @@ class CustomBottomNavBar extends StatelessWidget {
         children: [
           Image.asset(
             imagePath,
-            width: 24,
-            height: 24,
+            width: s(30),
+            height: s(30),
             color: isSelected ? activeColor : inactiveColor,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: s(5)),
           Text(
             label,
-            style: GoogleFonts.lato(
-              fontSize: 12,
+            style: GoogleFonts.poppins(
+              fontSize: s(8),
               color: isSelected ? activeColor : inactiveColor,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

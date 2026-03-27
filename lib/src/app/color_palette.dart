@@ -15,7 +15,8 @@ class ColorPalette {
   static const Color alert = Color(0xFFFF6900);
   static const Color pending = Color(0xFFEA1F27);
   static const Color cardBorder = Color(0x4D000000); // 30% black
-  static const Color hintText = Color(0x80484848);   // 50%
+  static const Color hintText = Color(0x80484848); 
+  static const Color blacktext = Color(0xFF1E1E1E);   // 50%
 
   static const Color notificationstatusback = Color(0x4CEA1F27);
   static const Color notificationstatus = Color(0xFFEA1F27);

@@ -13,10 +13,20 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool isActive = true;
+
+  void onToggle(bool value) {
+    setState(() {
+      isActive = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Calculate scale factor based on Figma design width (440)
-    final double scale = MediaQuery.of(context).size.width / 440;
+    final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
+
+    double s(double v) => v * scale;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -25,49 +35,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 24 * scale),
-
-                    /// HEADER + LOGOUT ROW (UNCHANGED)
+                    SizedBox(height: s(24)),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        ProfileHeader(scale: scale),
 
-                        Expanded(
-                          child: ProfileHeader(scale: scale),
-                        ),
+                        ///FIXED ALIGNMENT
+                        const Spacer(),
 
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Icon(
                               Icons.more_vert,
-                              size: 20 * scale,
+                              size: s(20),
                               color: const Color(0xFF282828),
                             ),
-                            SizedBox(height: 4 * scale),
+                            SizedBox(height: s(4)),
                             LogoutButton(scale: scale),
                           ],
                         ),
                       ],
                     ),
 
-
-                    SizedBox(height: 25 * scale),
+                    SizedBox(height: s(20)),
 
                     /// ACTIVE STATUS CARD
-                    ActiveStatusCard(scale: scale),
+                    ActiveStatusCard(
+                      scale: scale,
+                      isActive: isActive,
+                      onToggle: onToggle,
+                    ),
 
-                    SizedBox(height: 20 * scale),
+                    SizedBox(height: s(16)),
 
                     /// PROFILE INFO CARD
-                    const ProfileInfoCard(),
+                    ProfileInfoCard(scale: scale, isActive: isActive),
 
-                    /// EXTRA BOTTOM SPACING
-                    SizedBox(height: 100 * scale),
+                    SizedBox(height: s(100)),
                   ],
                 ),
               ),

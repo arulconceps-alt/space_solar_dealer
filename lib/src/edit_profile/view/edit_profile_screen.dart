@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
@@ -10,53 +10,55 @@ class EditProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double scale = MediaQuery.of(context).size.width / 440;
+    final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
+
+    double s(double v) => v * scale;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
 
-      /// 1. APPBAR
+      /// APPBAR
       appBar: CommonAppBar(
         scale: scale,
         showBack: true,
-        onBackTap: () {
-          context.pop();
-        },
+        onBackTap: () => context.pop(),
       ),
 
       body: AppBackground(
         child: SafeArea(
-          bottom: false, // Prevents gap between body and bottom bar
+          bottom: false,
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+            padding: EdgeInsets.symmetric(horizontal: s(20)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 30 * scale),
+                SizedBox(height: s(30)),
 
                 /// PROFILE IMAGE WITH EDIT ICON
                 Center(
                   child: Stack(
                     children: [
                       Container(
-                        width: 100 * scale,
-                        height: 100 * scale,
+                        width: s(100),
+                        height: s(100),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: const DecorationImage(
-                            image: AssetImage("assets/images/profile/profile.png"),
+                            image: AssetImage(
+                              "assets/images/profile/profile.png",
+                            ),
                             fit: BoxFit.cover,
                           ),
-                          border: Border.all(color: Colors.white, width: 2),
                         ),
                       ),
                       Positioned(
                         right: 0,
-                        bottom: 5,
+                        bottom: s(5),
                         child: Container(
-                          width: 30 * scale,
-                          height: 30 * scale,
+                          width: s(30),
+                          height: s(30),
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -64,13 +66,13 @@ class EditProfileScreen extends StatelessWidget {
                               BoxShadow(
                                 color: Color(0x28000000),
                                 blurRadius: 4,
-                              )
+                              ),
                             ],
                           ),
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 16 * scale,
-                            color: const Color(0xFF282828),
+                          child: Image.asset(
+                            "assets/images/profile/edit_icon.png",
+                            width: s(16),
+                            height: s(16),
                           ),
                         ),
                       ),
@@ -78,48 +80,44 @@ class EditProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: 40 * scale),
+                SizedBox(height: s(50)),
 
-                _buildField("Company Name", "Company name", scale),
-                _buildField("Your Name", "Your Name", scale),
-                _buildField("Email", "Email", scale),
-                _buildField("Phone Number", "Phone number", scale),
-                _buildField("Address", "Your Address", scale),
+                _buildField("Company Name", "Company name", s),
+                SizedBox(height: s(16)),
+                _buildField("Your Name", "Your Name", s),
+                SizedBox(height: s(16)),
+                _buildField("Email", "Email", s),
+                SizedBox(height: s(16)),
+                _buildField("Phone Number", "Phone number", s),
+                SizedBox(height: s(16)),
+                _buildField("Address", "Your Address", s),
 
-                SizedBox(height: 100 * scale),
-              ],
-            ),
-          ),
-        ),
-      ),
+                SizedBox(height: s(102)),
 
-      /// 2. FIXED BOTTOM BUTTON (Corrected to remove the line)
-      bottomNavigationBar: Container(
-        // Ensure this color is identical to the bottom of your AppBackground
-        color: const Color(0xFFB5E2F4),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(20 * scale, 10 * scale, 20 * scale, 20 * scale),
-            child: InkWell(
-              onTap: () => context.pop(),
-              child: Container(
-                height: 50 * scale,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF26A7DF),
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  // Ensure no shadow or border is added here
-                  boxShadow: const [],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Done',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 16 * scale,
-                    fontWeight: FontWeight.w600,
+                SizedBox(
+                  height: s(50),
+                  width: s(400),
+                  child: ElevatedButton(
+                    onPressed: () => context.pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorPalette.background,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(s(10)),
+                      ),
+                    ),
+                    child: Text(
+                      'Done',
+                      style: GoogleFonts.poppins(
+                        color: ColorPalette.whitetext,
+                        fontSize: s(16),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+
+                SizedBox(height: s(31)),
+              ],
             ),
           ),
         ),
@@ -127,42 +125,46 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildField(String title, String hint, double scale) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 20 * scale),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
+  Widget _buildField(
+    String title,
+    String hint,
+    double Function(double) s,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.lato(
+            color: ColorPalette.bottomtext,
+            fontSize: s(16),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: s(14)),
+        Container(
+          width: double.infinity,
+          height: s(50),
+          padding: EdgeInsets.symmetric(horizontal: s(16)),
+          decoration: BoxDecoration(
+            color: ColorPalette.whitetext.withOpacity(0.50),
+            borderRadius: BorderRadius.circular(s(10)),
+            border: Border.all(
+              color: ColorPalette.whitetext,
+              width: 1,
+            ),
+          ),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            hint,
             style: GoogleFonts.lato(
-              color: const Color(0xFF282828),
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w600,
+              color: ColorPalette.textfiledin.withValues(alpha: .80),
+              fontSize: s(16),
+              fontWeight: FontWeight.w400,
             ),
           ),
-          SizedBox(height: 8 * scale),
-          Container(
-            width: double.infinity,
-            height: 50 * scale,
-            padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.50),
-              borderRadius: BorderRadius.circular(10 * scale),
-              border: Border.all(color: Colors.white, width: 1),
-            ),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              hint,
-              style: GoogleFonts.lato(
-                color: const Color(0xCC484848),
-                fontSize: 16 * scale,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

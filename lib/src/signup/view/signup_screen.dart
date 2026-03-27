@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_blur_circle.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_field_label.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_glass_field.dart';
-import 'package:space_solar_dealer/src/signup/widgets/signup_logo_widget.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_primary_button.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -26,44 +26,53 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    /// ✅ Responsive scale (safe)
     final scale = (w / 440).clamp(0.85, 1.2);
     double s(double v) => v * scale;
 
     return Scaffold(
       body: Stack(
         children: [
-          /// 🔹 Background Gradient
           Container(
             decoration: const BoxDecoration(
               gradient: ColorPalette.scaffoldGradient,
             ),
           ),
 
-          /// 🔹 Blur Circles
-          SignupBlurCircle(left: s(-146), top: s(-201), size: s(383), opacity: 1.0),
-          SignupBlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1.0),
-          SignupBlurCircle(left: s(-241), top: s(580), size: s(383), opacity: 0.4),
+          SignupBlurCircle(
+            left: s(-146),
+            top: s(-201),
+            size: s(383),
+            opacity: 1.0,
+          ),
+          SignupBlurCircle(
+            left: s(399),
+            top: s(44),
+            size: s(383),
+            opacity: 1.0,
+          ),
+          SignupBlurCircle(
+            left: s(-241),
+            top: s(580),
+            size: s(383),
+            opacity: 0.4,
+          ),
 
           /// 🔹 Content
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: s(20)),
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: s(20)),
+              child: Column(
+                children: [
+                  SizedBox(height: s(60)),
+                  Center(child: LogoWidget(scale: scale)),
+
+
+                  SizedBox(height: s(55)),
+                  Expanded(
+                    child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: s(86)),
-
-                          /// LOGO
-                          Center(child: SignupLogoWidget(scale: scale)),
-
-                          SizedBox(height: s(55)),
-
                           /// TITLE
                           Text(
                             "Sign Up Account",
@@ -75,14 +84,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ),
 
-                          SizedBox(height: s(6)),
-
-                          /// SUBTITLE
+                          SizedBox(height: s(4)),
                           Text(
                             "Enter your personal details",
                             style: GoogleFonts.lato(
                               fontSize: s(16),
-                              height: 1.4,
                               color: const Color(0xFF484848),
                             ),
                           ),
@@ -133,9 +139,9 @@ class _SignupScreenState extends State<SignupScreen> {
                             obscure: hide2,
                           ),
 
-                          SizedBox(height: s(32)),
+                          SizedBox(height: s(40)),
 
-                          /// SIGN UP BUTTON
+                          /// BUTTON
                           SizedBox(
                             width: double.infinity,
                             child: SignupPrimaryButton(
@@ -144,45 +150,41 @@ class _SignupScreenState extends State<SignupScreen> {
                               onTap: () {},
                             ),
                           ),
-                          const Spacer(), // ✅ Push bottom content
-                          SizedBox(height: s(12)),
-                          /// LOGIN TEXT (BOTTOM FIXED)
-                          SafeArea(
-                            top: false,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Already have an account?",
-                                  style: GoogleFonts.lato(
-                                    fontSize: s(14),
-                                    fontWeight: FontWeight.w400,
-                                    color: const Color(0xFF1E1E1E),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => Navigator.pop(context),
-                                  child: Text(
-                                    " Login",
-                                    style: GoogleFonts.lato(
-                                      fontSize: s(14),
-                                      fontWeight: FontWeight.w400,
-                                      color: const Color(0xFF26A7DF),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
 
-                          SizedBox(height: s(24)),
+                          SizedBox(height: s(30)),
                         ],
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+
+                  Padding(
+                    padding: EdgeInsets.only(bottom: s(20)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Already have an account?",
+                          style: GoogleFonts.lato(
+                            fontSize: s(14),
+                            color: const Color(0xFF1E1E1E),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Text(
+                            " Login",
+                            style: GoogleFonts.lato(
+                              fontSize: s(14),
+                              color: const Color(0xFF26A7DF),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
