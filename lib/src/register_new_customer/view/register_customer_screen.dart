@@ -12,8 +12,10 @@ class RegisterCustomerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double scale = MediaQuery.of(context).size.width / 440;
+    final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
 
+    double s(double v) => v * scale;
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
@@ -24,36 +26,6 @@ class RegisterCustomerScreen extends StatelessWidget {
           context.pop();
         },
       ),
-      /// 1. STANDARD APPBAR
-      /*appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: 74 * scale,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: SizedBox(
-            width: 7.5 * scale,
-            height: 15 * scale,
-            child: Image.asset(
-              'assets/images/new_register/back_arrow.png',
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        title: SvgPicture.asset(
-          "assets/images/login/logo.svg",
-          height: 24 * scale,
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 20 * scale),
-            child: _buildNotificationIcon(scale),
-          )
-        ],
-      ),*/
-
       body: AppBackground(
         child: SafeArea(
           child: SingleChildScrollView(
@@ -62,8 +34,6 @@ class RegisterCustomerScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20 * scale),
-
-                /// TITLE
                 Text(
                   'Register Customer & Panel IDs',
                   style: GoogleFonts.poppins(

@@ -1,256 +1,282 @@
-
 import 'package:flutter/material.dart';
-import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 
 class TicketDetailsDialog extends StatelessWidget {
   const TicketDetailsDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final scale = MediaQuery.of(context).size.width / 440;
+    final w = MediaQuery.of(context).size.width;
+    final scale = w / 440;
+    double s(double v) => v * scale;
 
     return Center(
       child: Container(
-        width: 400 * scale,
-        padding: EdgeInsets.all(20 * scale),
+        width: s(400),
+        constraints: BoxConstraints(maxHeight: s(706)),
+        padding: EdgeInsets.all(s(20)),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20 * scale),
+          borderRadius: BorderRadius.circular(s(20)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Ticket Details",
-                  style: TextStyle(
-                    fontSize: 18 * scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Image.asset(
-                    "assets/images/ticket/cross_icon.png",
-                    width: 12,
-                    height: 12,
-                  ),
-                )
-              ],
-            ),
-            /// 🔹 Header
 
-            SizedBox(height: 21 * scale),
-            Text(
-              "TKT-001",
-              style: TextStyle(
-                fontSize: 14 * scale,
-                color: const Color(0xFF282828),
-              ),
-            ),
+        child: SingleChildScrollView( // ✅ prevents overflow
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-            SizedBox(height: 16 * scale),
-
-            /// 🔹 Customer Card
-            Container(
-              padding: EdgeInsets.all(14 * scale),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(10 * scale),
-              ),
-              child: Column(
+              /// 🔹 HEADER
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _iconTextItem(
-                    "assets/images/ticket/noun_profile_icon.png",
-                    "Customer Name",
-                    "Rohit Sharma",
-                    scale,
+                  Text(
+                    "Ticket Details",
+                    style: GoogleFonts.poppins(
+                      fontSize: s(18),
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF282828),
+                    ),
                   ),
-                  _iconTextItem(
-                    "assets/images/ticket/solar_panel.png",
-                    "Panel ID",
-                    "SS-2025-001",
-                    scale,
-                  ),
-                  _iconTextItem(
-                    "assets/images/ticket/exclamation_icon.png",
-                    "Issue Type",
-                    "Low Power Output",
-                    scale,
-                  ),
-                  _iconTextItem(
-                    "assets/images/ticket/calender_icon.png",
-                    "Created Date",
-                    "2025-11-14",
-                    scale,
-                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset(
+                      "assets/images/ticket/cross_icon.png",
+                      width: s(20),
+                      height: s(20),
+                    ),
+                  )
                 ],
               ),
-            ),
 
-            SizedBox(height: 16 * scale),
+              SizedBox(height: s(28)),
 
-            /// 🔹 Technician
-            Text(
-              "Technician Assigned",
-              style: TextStyle(
-                fontSize: 16 * scale,
-                fontWeight: FontWeight.w600,
+              /// 🔹 TICKET ID
+              Text(
+                "TKT-001",
+                style: GoogleFonts.lato(
+                  fontSize: s(16),
+                  color: const Color(0xFF282828),
+                ),
               ),
-            ),
 
-            SizedBox(height: 8 * scale),
-            Container(
-              padding: EdgeInsets.all(12 * scale),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(10 * scale),
+              SizedBox(height: s(20)),
+
+              /// 🔹 CUSTOMER CARD
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(s(16)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black.withOpacity(0.3)),
+                  borderRadius: BorderRadius.circular(s(10)),
+                ),
+                child: Column(
+                  children: [
+                    _infoRow(
+                      "assets/images/ticket/noun_profile_icon.png",
+                      "Customer Name",
+                      "Rohit Sharma",
+                      scale,
+                    ),
+                    _infoRow(
+                      "assets/images/ticket/solar_panel.png",
+                      "Panel ID",
+                      "SS-2025-001",
+                      scale,
+                    ),
+                    _infoRow(
+                      "assets/images/ticket/exclamation_icon.png",
+                      "Issue Type",
+                      "Low Power Output",
+                      scale,
+                    ),
+                    _infoRow(
+                      "assets/images/ticket/calender_icon.png",
+                      "Created Date",
+                      "2025-11-14",
+                      scale,
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  /// 👤 Profile image
-                  Image.asset(
-                    "assets/images/ticket/gg_profile.png",
-                    width: 24 * scale,
-                    height: 24 * scale,
-                  ),
-                  SizedBox(width: 10 * scale),
 
-                  /// Name + date
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Sharma",
-                          style: TextStyle(
-                            fontSize: 14 * scale,
-                            color: const Color(0xFF282828),
-                          ),
-                        ),
-                        Text(
-                          "2025-11-14",
-                          style: TextStyle(
-                            fontSize: 12 * scale,
-                            color: const Color(0xFF484848),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              SizedBox(height: s(20)),
 
-                  /// Call button
-                  Container(
-                    width: 98.98 * scale,   // ✅ exact width
-                    height: 40 * scale,     // ✅ exact height
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF26A7DF),
-                      borderRadius: BorderRadius.circular(6 * scale),
+              /// 🔹 TECHNICIAN
+              Text(
+                "Technician Assigned",
+                style: GoogleFonts.lato(
+                  fontSize: s(16),
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF282828),
+                ),
+              ),
+
+              SizedBox(height: s(10)),
+
+              Container(
+                padding: EdgeInsets.all(s(12)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black.withOpacity(0.3)),
+                  borderRadius: BorderRadius.circular(s(10)),
+                ),
+                child: Row(
+                  children: [
+                    /// ICON
+                    Image.asset(
+                      "assets/images/ticket/gg_profile.png",
+                      width: s(24),
+                      height: s(24),
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Call",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16 * scale, // ✅ match figma
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
+
+                    SizedBox(width: s(10)),
+
+                    /// NAME + DATE
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Sharma",
+                            style: GoogleFonts.lato(
+                              fontSize: s(14),
+                              color: const Color(0xFF282828),
+                            ),
+                          ),
+                          Text(
+                            "2025-11-14",
+                            style: GoogleFonts.lato(
+                              fontSize: s(12),
+                              color: const Color(0xFF484848),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+
+                    /// CALL BUTTON
+                    Container(
+                      width: s(98),
+                      height: s(40),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF26A7DF),
+                        borderRadius: BorderRadius.circular(s(6)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Call",
+                        style: GoogleFonts.poppins(
+                          fontSize: s(16),
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: s(20)),
+
+              /// 🔹 DESCRIPTION
+              Text(
+                "Description",
+                style: GoogleFonts.lato(
+                  fontSize: s(16),
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF282828),
+                ),
+              ),
+
+              SizedBox(height: s(10)),
+
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(s(12)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black.withOpacity(0.3)),
+                  borderRadius: BorderRadius.circular(s(10)),
+                ),
+                child: Text(
+                  "Panel showing reduced efficiency after recent dust storm.",
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
+                    color: const Color(0xFF484848),
                   ),
-                ],
+                ),
               ),
-            ),
 
-            SizedBox(height: 16 * scale),
+              SizedBox(height: s(30)),
 
-            /// 🔹 Description
-            Text(
-              "Description",
-              style: AppTextStyles.title,
-            ),
-
-            SizedBox(height: 8 * scale),
-
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(12 * scale),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(10),
+              /// 🔹 BUTTON
+              Container(
+                width: double.infinity,
+                height: s(50),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF26A7DF),
+                  borderRadius: BorderRadius.circular(s(10)),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  "View Whatsapp update",
+                  style: GoogleFonts.poppins(
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-              child: Text(
-                "Panel showing reduced efficiency after recent dust storm.",
-                style: AppTextStyles.descriptionScaled(scale),
-              ),
-            ),
-
-            SizedBox(height: 20 * scale),
-
-            /// 🔹 Bottom Button
-            Container(
-              width: double.infinity,
-              height: 50 * scale,
-              decoration: BoxDecoration(
-                color: const Color(0xFF26A7DF),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                "View WhatsApp Update",
-                  style: AppTextStyles.buttonScaled(scale),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// 🔥 Figma style row (ICON + TEXT)
-  Widget _iconTextItem(
-      String icon,
+  /// 🔹 reusable row
+  Widget _infoRow(
+      String icon,   // ✅ add icon path
       String title,
       String value,
       double scale,
       ) {
+    double s(double v) => v * scale;
+
     return Padding(
-      padding: EdgeInsets.only(bottom: 16 * scale),
+      padding: EdgeInsets.only(bottom: s(14)),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // ✅ FIX
         children: [
+          /// ✅ IMAGE (fixed)
           Image.asset(
             icon,
-            width: 24 * scale,
-            height: 24 * scale,
+            width: s(24),
+            height: s(24),
+            fit: BoxFit.contain,
+
+            /// 🔥 debug (optional)
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(Icons.error, size: s(24), color: Colors.red);
+            },
           ),
 
-          SizedBox(width: 12 * scale),
+          SizedBox(width: s(12)),
 
-          Expanded( // ✅ important for proper alignment
+          Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // ✅ center both texts
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 12 * scale,
+                  style: GoogleFonts.lato(
+                    fontSize: s(12),
                     color: const Color(0xFF484848),
-                    fontFamily: 'Lato',
                   ),
                 ),
-                SizedBox(height: 2 * scale),
+                SizedBox(height: s(2)),
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 14 * scale,
+                  style: GoogleFonts.lato(
+                    fontSize: s(14),
                     color: const Color(0xFF282828),
-                    fontFamily: 'Lato',
                   ),
                 ),
               ],

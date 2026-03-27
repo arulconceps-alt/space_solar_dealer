@@ -86,35 +86,43 @@ class TicketCard extends StatelessWidget {
                 SizedBox(height: s(12)),
 
                 /// Issue
-                Text(
-                  issue,
-                  style: GoogleFonts.lato(
-                    color: const Color(0xFF484848),
-                    fontSize: s(14), // ✅ scaled
-                    fontWeight: FontWeight.w400,
+                Padding(
+                  padding: EdgeInsets.only(left: s(2)),
+                  child: Text(
+                    issue,
+                    style: GoogleFonts.lato(
+                      color: const Color(0xFF484848),
+                      fontSize: s(14),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
-
                 SizedBox(height: s(27)),
 
                 /// Panel ID + Date
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Panel ID : $panelId',
-                      style: GoogleFonts.lato(
-                        color: const Color(0xFF484848),
-                        fontSize: s(14), // ✅ scaled
-                        fontWeight: FontWeight.w400,
+                    Padding(
+                      padding: EdgeInsets.only(left: s(2)),
+                      child: Text(
+                        'Panel ID : $panelId',
+                        style: GoogleFonts.lato(
+                          color: const Color(0xFF484848),
+                          fontSize: s(14),
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
-                    Text(
-                      date,
-                      style: GoogleFonts.lato(
-                        color: const Color(0xFF484848),
-                        fontSize: s(14), // ✅ scaled
-                        fontWeight: FontWeight.w400,
+                    Padding(
+                      padding: EdgeInsets.only(right: s(16)), // optional if you want space from the right edge
+                      child: Text(
+                        date,
+                        style: GoogleFonts.lato(
+                          color: const Color(0xFF484848),
+                          fontSize: s(14),
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
                   ],
@@ -132,39 +140,46 @@ class TicketCard extends StatelessWidget {
 
 
 
-          /// 🔹 BOTTOM SECTION
           Padding(
-            padding: EdgeInsets.only(left: s(24),),
+            padding: EdgeInsets.only(left: s(18), right: s(17)), // horizontal padding for the whole row
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                /// SLA
-                Text(
-                  'SLA : $sla',
-                  style: TextStyle(
-                    color: const Color(0xFF484848),
-                    fontSize: s(14),
+                // SLA Text with its own top & bottom padding
+                Padding(
+                  padding: EdgeInsets.only(top: s(22), bottom: s(23)),
+                  child: Text(
+                    'SLA : $sla',
+                    style: GoogleFonts.lato(
+                      color: const Color(0xFF484848),
+                      fontSize: s(14),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
 
-                /// VIEW DETAILS BUTTON
-                GestureDetector(
-                  onTap: onViewDetails,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: s(20),
-                      vertical: s(8),
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF26A7DF).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(s(10)),
-                    ),
-                    child: Text(
-                      'View Details',
-                      style: TextStyle(
-                        color: const Color(0xFF26A7DF),
-                        fontSize: s(14),
-                        fontWeight: FontWeight.w600,
+                // View Details Button with fixed size
+                Padding(
+                  padding: EdgeInsets.only(top: s(14), bottom: s(14)),
+                  child: SizedBox(
+                    width: s(146),  // fixed width
+                    height: s(37),  // fixed height
+                    child: GestureDetector(
+                      onTap: onViewDetails,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF26A7DF).withOpacity(0.3), // 30% opacity background
+                          borderRadius: BorderRadius.circular(s(10)),      // radius 10
+                        ),
+                        child: Text(
+                          'View Details',
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF26A7DF),  // text color
+                            fontSize: s(14),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -191,7 +206,7 @@ class TicketCard extends StatelessWidget {
         status,
         textAlign: TextAlign.center,
         style: GoogleFonts.lato(
-          color: const Color(0xFF26A7DF),
+          color: statusColor,
           fontSize: s(10), // ✅ scaled
           fontWeight: FontWeight.w400,
         ),
