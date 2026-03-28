@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 import 'package:space_solar_dealer/src/notifications/widgets/notification_list.dart';
@@ -21,10 +19,10 @@ class NotificationScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
 
-      /// ✅ COMMON APPBAR
       appBar: CommonAppBar(
         scale: scale,
         showBack: true,
+        showNotification: false,
         onBackTap: () => context.pop(),
       ),
 

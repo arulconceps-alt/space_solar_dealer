@@ -7,12 +7,14 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double scale;
   final bool showBack;
+  final bool showNotification;
   final VoidCallback? onBackTap;
 
   const CommonAppBar({
     super.key,
     required this.scale,
     this.showBack = false,
+    this.showNotification =false,
     this.onBackTap,
   });
 
@@ -49,7 +51,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
 
-      bottom: PreferredSize(
+      bottom: PreferredSize(  
         preferredSize: Size.fromHeight(s(1)),
         child: Container(
           height: s(1),
@@ -57,7 +59,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
 
-      actions: [
+     actions: showNotification
+    ? [
        Padding(
               padding: EdgeInsets.only(right: s(20)),
               child: Stack(
@@ -99,11 +102,10 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ),
             ),
-      ],
+      ] : [],
     );
   }
 
-  /// ✅ FIXED HEIGHT (MATCHES toolbarHeight)
   @override
   Size get preferredSize => Size.fromHeight(74 * scale);
 }
