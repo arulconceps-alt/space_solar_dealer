@@ -8,19 +8,17 @@ class AppBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scale = MediaQuery.of(context).size.width / 390; // base width from Figma
+    final scale = MediaQuery.of(context).size.width / 390; 
 
     return Stack(
       children: [
-        /// 🎨 BASE COLOR
         Container(color: const Color(0xFFB5E2F4)),
 
         /// 🌫️ BLUR CIRCLES (FIGMA MATCH)
-        _buildBlurredCircle(163, 956, 383, Colors.white.withOpacity(0.40), scale, 40),
+        _buildBlurredCircle(150, 600, 383, Colors.white.withOpacity(0.30), scale, 40),
         _buildBlurredCircle(-153, 575, 383, Colors.white.withOpacity(0.60), scale, 50),
         _buildBlurredCircle(154, 108, 383, Colors.white.withOpacity(0.50), scale, 40),
         _buildBlurredCircle(-146, -201, 383, Colors.white, scale, 60),
-        /// 📱 CONTENT
         child,
       ],
     );

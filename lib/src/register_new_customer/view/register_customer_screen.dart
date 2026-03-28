@@ -190,12 +190,12 @@ class RegisterCustomerScreen extends StatelessWidget {
               _buildBlueButton("Submit", scale, () {
                 showDialog(
                   context: context,
-                  barrierDismissible: false, // optional (click outside close or not)
+                  barrierDismissible: false, 
                   builder: (context) {
                     return Dialog(
-                      backgroundColor: Colors.transparent, // 🔥 important for glass UI
+                      backgroundColor: Colors.transparent,
                       insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                      child: SuccessDialog(scale: scale), // 👈 your custom widget
+                      child: SuccessDialog(scale: scale), 
                     );
                   },
                 );
@@ -358,38 +358,42 @@ class RegisterCustomerScreen extends StatelessWidget {
   }
 
   Widget _buildSimpleInput(
-    String hint,
-    double scale, {
-    bool isAddress = false,
-  }) {
-    return Container(
-      height: isAddress ? 74 * scale : 50 * scale,
+  String hint,
+  double scale, {
+  bool isAddress = false,
+}) {
+  return Container(
+    height: isAddress ? 74 * scale : 50 * scale,
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.5),
+      borderRadius: BorderRadius.circular(10 * scale),
+      border: Border.all(color: Colors.white),
+    ),
+
+    child: Padding(
       padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(10 * scale),
-        border: Border.all(color: Colors.white),
-      ),
-
       child: TextField(
         maxLines: isAddress ? 3 : 1,
+        textAlign: TextAlign.start,
+        textAlignVertical: isAddress
+            ? TextAlignVertical.top  
+            : TextAlignVertical.center, 
+
         decoration: InputDecoration(
           hintText: hint,
           border: InputBorder.none,
-
-          isCollapsed: isAddress,
+          contentPadding: EdgeInsets.symmetric(vertical: 16 * scale), 
 
           hintStyle: GoogleFonts.lato(
-            color: const Color(0xCC484848).withOpacity(0.8),
+            color: const Color(0xCC484848).withOpacity(0.80),
             fontSize: 16 * scale,
             fontWeight: FontWeight.w400,
           ),
         ),
       ),
-    );
-  }
-
+    ),
+  );
+}
   Widget _buildBlueButton(String text, double scale, VoidCallback onTap) {
     return Material(
       color: const Color(0xFF26A7DF),

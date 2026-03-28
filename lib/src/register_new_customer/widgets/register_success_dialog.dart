@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
+import 'package:space_solar_dealer/src/register_new_customer/widgets/_register_success_animation_tick.dart';
 
 class SuccessDialog extends StatelessWidget {
   final double scale;
@@ -17,42 +19,42 @@ class SuccessDialog extends StatelessWidget {
       height: s(538.56),
       padding: EdgeInsets.symmetric(horizontal: s(20)),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ColorPalette.whitetext,
         borderRadius: BorderRadius.circular(s(20)),
-        border: Border.all(color: Colors.white, width: s(1)),
+        border: Border.all(color: ColorPalette.whitetext, width: s(1)),
       ),
 
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: s(34)),
+          // Container(
+          //   width: s(110),
+          //   height: s(110),
+          //   decoration: const BoxDecoration(
+          //     color: Color(0x4C319F43),
+          //     shape: BoxShape.circle,
+          //   ),
+          //   child: Padding(
+          //     padding:  EdgeInsets.all(s(33)),
+          //     child: Image.asset(
+          //       "assets/images/success/tick_circle_outline.png",
+          //       width: s(44),
+          //       height: s(44),
+          //     ),
+          //   ),
+          // ),
+            RegisterSuccessAnimatedTick(scale: scale),
 
-          /// 🔹 TOP ICON
-          Container(
-            width: s(110),
-            height: s(110),
-            decoration: const BoxDecoration(
-              color: Color(0x4C319F43),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Image.asset(
-                "assets/images/success/tick_circle_outline.png",
-                width: s(44),
-                height: s(44),
-              ),
-            ),
-          ),
 
           SizedBox(height: s(26)),
-
-          /// 🔹 TITLE
           Text(
             "Registered!",
             style: GoogleFonts.poppins(
               fontSize: s(18),
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF282828),
+              height: s(1),
+              color: ColorPalette.bottomtext,
             ),
           ),
 
@@ -64,11 +66,11 @@ class SuccessDialog extends StatelessWidget {
             style: GoogleFonts.lato(
               fontSize: s(16),
               fontWeight: FontWeight.w400,
-              color: const Color(0xCC484848),
+              color: ColorPalette.textfiledin.withValues(alpha: .80),
             ),
           ),
 
-          SizedBox(height: s(41)),
+          SizedBox(height: s(41.68)),
 
           /// 🔹 DESCRIPTION
           Text(
@@ -77,7 +79,7 @@ class SuccessDialog extends StatelessWidget {
             style: GoogleFonts.lato(
               fontSize: s(16),
               fontWeight: FontWeight.w400,
-              color: const Color(0xCC484848),
+              color: ColorPalette.textfiledin.withValues(alpha: .80),
             ),
           ),
 
@@ -93,7 +95,7 @@ class SuccessDialog extends StatelessWidget {
               width: double.infinity,
               height: s(50),
               decoration: BoxDecoration(
-                color: const Color(0xFF26A7DF),
+                color: ColorPalette.background,
                 borderRadius: BorderRadius.circular(s(10)),
               ),
               alignment: Alignment.center,
@@ -102,7 +104,7 @@ class SuccessDialog extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: ColorPalette.whitetext,
                 ),
               ),
             ),
@@ -110,11 +112,10 @@ class SuccessDialog extends StatelessWidget {
 
           SizedBox(height: s(16)),
 
-          /// 🔹 OUTLINE BUTTON
           GestureDetector(
             onTap: () {
-              Navigator.pop(context); // ✅ close dialog first
-              context.goNamed(RouteName.home); // ✅ go to dashboard
+              Navigator.pop(context);
+              context.goNamed(RouteName.home); 
             },
             child: Container(
               width: double.infinity,
@@ -122,7 +123,7 @@ class SuccessDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(s(10)),
                 border: Border.all(
-                  color: const Color(0x33484848),
+                  color:  ColorPalette.textfiledin.withValues(alpha: .20),
                   width: s(1),
                 ),
               ),
@@ -132,7 +133,7 @@ class SuccessDialog extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF484848),
+                  color:  ColorPalette.textfiledin,
                 ),
               ),
             ),

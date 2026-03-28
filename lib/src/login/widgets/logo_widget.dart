@@ -8,12 +8,25 @@ class LogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: scale * 192.7461,
-      height: scale * 20.5644,
-      child: SvgPicture.asset(
-        "assets/images/login/logo.svg",
-        fit: BoxFit.contain,
+     double s(double v) => v * scale;
+    return  SafeArea(
+      bottom: false,
+      child: SizedBox(
+        width: double.infinity,
+        height: s(74),
+        child: Row(
+          mainAxisAlignment : MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: s(192.75),
+              height: s(20.56),
+              child: SvgPicture.asset(
+                "assets/images/login/logo.svg",
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class CustomerItem extends StatelessWidget {
   final String name;
@@ -27,29 +28,25 @@ class CustomerItem extends StatelessWidget {
       onTap: onTap,
       child: ClipRRect(
         borderRadius: BorderRadius.only(
-          topLeft: isFirst ? Radius.circular(s(12)) : Radius.zero,
-          topRight: isFirst ? Radius.circular(s(12)) : Radius.zero,
+          topLeft: isFirst ? Radius.circular(s(10)) : Radius.zero,
+          topRight: isFirst ? Radius.circular(s(10)) : Radius.zero,
 
         ),
         child: BackdropFilter(
           filter: ImageFilter.blur(
-            sigmaX: s(5), // ✅ scaled
-            sigmaY: s(5), // ✅ scaled
+            sigmaX: s(5), 
+            sigmaY: s(5), 
           ),
           child: Container(
             height: s(70),
             width: s(400),
-            padding: EdgeInsets.symmetric(horizontal: s(12)),
+            padding: EdgeInsets.symmetric(horizontal: s(10), vertical: s(10)),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.4),
-              border: Border(
-                top: isFirst
-                    ? BorderSide(color: Colors.white.withOpacity(0.6))
-                    : BorderSide.none,
-                left: BorderSide(color: Colors.white.withOpacity(0.6)),
-                right: BorderSide(color: Colors.white.withOpacity(0.6)),
-                bottom: BorderSide(color: Colors.white.withOpacity(0.6)),
-              ),
+              color: ColorPalette.whitetext.withOpacity(0.50),
+              border: Border.all(
+                color: ColorPalette.whitetext,
+                width: s(1)
+              )
             ),
             child: Row(
               children: [
@@ -58,9 +55,9 @@ class CustomerItem extends StatelessWidget {
                   width: s(50),
                   height: s(50),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: ColorPalette.whitetext.withOpacity(0.50),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white),
+                    border: Border.all(color: ColorPalette.whitetext),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -86,15 +83,16 @@ class CustomerItem extends StatelessWidget {
                         style: GoogleFonts.lato(
                           fontSize: s(16),
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF282828),
+                          color: ColorPalette.bottomtext,
                         ),
                       ),
+                       SizedBox(height: s(4)),
                       Text(
                         "9874563212",
                         style: GoogleFonts.lato(
                           fontSize: s(14),
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF282828),
+                          color: ColorPalette.textfiledin.withValues(alpha: .80),
                         ),
                       ),
                     ],
@@ -106,6 +104,7 @@ class CustomerItem extends StatelessWidget {
                   "assets/images/customer/three_dots_icon.png",
                   width: s(23.9),
                   height: s(23.9),
+                  color: ColorPalette.textfiledin.withValues(alpha: .80),
                 ),
               ],
             ),

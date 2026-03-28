@@ -15,12 +15,15 @@ class SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth / 440;
+    double s(double v) => v * scale;
     return ClipOval(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Container(
-          width: scale * 60,
-          height: scale * 60,
+          width: s(60),
+          height: s(60),
           decoration: BoxDecoration(
             color: ColorPalette.whitetext.withOpacity(0.50),
             shape: BoxShape.circle,

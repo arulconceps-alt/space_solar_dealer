@@ -5,17 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
+import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/common/widgets/custom_bottom_navigationbar.dart';
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/dashboard_card_design.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/action_card.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/activity_tile.dart';
-import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
 import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 
 import 'view/widgets/app_background.dart';
-
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -26,6 +25,9 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
+  double iconSmall = 22.0;
+  double iconMedium = 24.0;
+  double iconLarge = 28.0;
 
   @override
   Widget build(BuildContext context) {
@@ -37,72 +39,90 @@ class _DashboardState extends State<Dashboard> {
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        // appBar: AppBar(
+        //   backgroundColor: Colors.transparent,
+        //   elevation: 0,
+        //   toolbarHeight: s(74),
+        //   automaticallyImplyLeading: false,
+        //   centerTitle: true,
+        //   title: Padding(
+        //     padding: EdgeInsets.all(s(20)),
+        //     child: SizedBox(
+        //       width: s(192.75),
+        //       height: s(20.56),
+        //       child: SvgPicture.asset(
+        //         "assets/images/login/logo.svg",
+        //         fit: BoxFit.contain,
+        //       ),
+        //     ),
+        //   ),
+        //   bottom: PreferredSize(
+        //     preferredSize: Size.fromHeight(s(1)),
+        //     child: Container(
+        //       height: s(1),
+        //       color: ColorPalette.background.withOpacity(0.2),
+        //     ),
+        //   ),
+        //   actions: [
+        //     Padding(
+        //       padding: EdgeInsets.only(right: s(20)),
+        //       child: Stack(
+        //         clipBehavior: Clip.none,
+        //         children: [
+        //           GestureDetector(
+        //             onTap: () => context.push('/notification'),
+        //             child: SvgPicture.asset(
+        //               "assets/images/home/notification.svg",
+        //               width: s(24),
+        //               height: s(24),
+        //             ),
+        //           ),
 
-        /// 🔝 APPBAR
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          toolbarHeight: s(74),
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          title: LogoWidget(scale: scale),
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(s(1)),
-            child: Container(
-              height: s(1),
-              color: ColorPalette.background.withOpacity(0.2), // 👈 border color
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: EdgeInsets.only(right: s(20)),
-              child: GestureDetector(
-                onTap: () {
-                  context.push('/notification_screen');
-                },
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    SvgPicture.asset(
-                      "assets/images/home/notification.svg",
-                      height: s(20),
-                      width: s(20),
-                    ),
-                    Transform.translate(
-                      offset: Offset(s(8), -s(6)),
-                      child: Container(
-                        padding: EdgeInsets.all(s(3)),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '16',
-                          style: TextStyle(
-                            fontSize: s(9),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        //           Positioned(
+        //             right: -1,
+        //             top: -2,
+        //             child: Container(
+        //               width: s(12),
+        //               height: s(12),
+        //               alignment: Alignment.center,
+        //               padding: EdgeInsets.all(s(2)),
+        //               decoration: BoxDecoration(
+        //                 color: const Color(0xFFEA1F27),
+        //                 shape: BoxShape.circle,
+        //               ),
+        //               child: Text(
+        //                 "16",
+        //                 style: GoogleFonts.poppins(
+        //                   fontSize: s(6),
+        //                   fontWeight: FontWeight.w500,
+        //                   height: 1,
+        //                   letterSpacing: 0,
+        //                   color: ColorPalette.whitetext,
+        //                 ),
+        //               ),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
-        /// 📱 BODY
+  appBar: CommonAppBar(
+        scale: scale,
+        showBack: false,
+        onBackTap: () {
+          context.pop();
+        },
+      ),
         body: IndexedStack(
           index: _selectedIndex,
           children: [
-            /// 🏠 DASHBOARD PAGE
             SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                    SizedBox(height: s(24),),
+                  SizedBox(height: s(24)),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: s(20)),
                     child: Text(
@@ -138,6 +158,7 @@ class _DashboardState extends State<Dashboard> {
                             "subtitle": "This month",
                             "color": ColorPalette.background,
                             "icon": "assets/images/dashboard/solar_panel.png",
+                            "iconsize": iconLarge,
                           },
                           {
                             "title": "Active Warranties",
@@ -145,13 +166,16 @@ class _DashboardState extends State<Dashboard> {
                             "subtitle": "Registered",
                             "color": ColorPalette.active,
                             "icon": "assets/images/dashboard/active_shield.png",
+                            "iconsize": iconMedium,
                           },
                           {
                             "title": "Tickets",
                             "value": "8",
                             "subtitle": "2 Pending",
                             "color": ColorPalette.alert,
-                            "icon": "assets/images/dashboard/tickets_notify_icon.png",
+                            "icon":
+                                "assets/images/dashboard/tickets_notify_icon.png",
+                            "iconsize": iconSmall,
                           },
                           {
                             "title": "Pending Registrations",
@@ -159,6 +183,7 @@ class _DashboardState extends State<Dashboard> {
                             "subtitle": "This week",
                             "color": ColorPalette.pending,
                             "icon": "assets/images/dashboard/time_icon.png",
+                            "iconsize": iconMedium,
                           },
                         ];
 
@@ -170,6 +195,7 @@ class _DashboardState extends State<Dashboard> {
                           subtitle: item["subtitle"] as String,
                           backgroundColor: item["color"] as Color,
                           imagePath: item["icon"] as String,
+                          iconSize: item["iconsize"] as double? ?? iconMedium,
                         );
                       },
                     ),
@@ -179,48 +205,60 @@ class _DashboardState extends State<Dashboard> {
 
                   /// QUICK ACTIONS
                   Container(
+                    height: s(208),
                     width: double.infinity,
-                    padding: EdgeInsets.all(s(16)),
+                    padding: EdgeInsets.symmetric(
+                      vertical: s(16),
+                      horizontal: s(20),
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      border: Border.all(color: Colors.white.withOpacity(0.4)),
+                      color: ColorPalette.whitetext.withOpacity(0.50),
+                      border: Border.all(
+                        color: ColorPalette.whitetext.withOpacity(0.4),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Quick Actions', style: GoogleFonts.poppins(
-                        fontSize: s(18),
-                    fontWeight: FontWeight.w500,
-                    height: 1.2,
-                    color: ColorPalette.bottomtext,
-                  ),),
-                        SizedBox(height: s(12)),
+                        Text(
+                          'Quick Actions',
+                          style: GoogleFonts.poppins(
+                            fontSize: s(18),
+                            fontWeight: FontWeight.w500,
+                            height: 1.2,
+                            color: ColorPalette.bottomtext,
+                          ),
+                        ),
+                        SizedBox(height: s(14)),
 
                         Row(
                           children: [
                             Expanded(
                               child: ActionCard(
                                 title: "Register\nNew Customer",
+                                iconSize: 16,
                                 color: ColorPalette.background,
                                 imagePath:
-                                "assets/images/dashboard/new_user.png",
+                                    "assets/images/dashboard/new_user.png",
                                 arrowSvgPath:
-                                "assets/images/home/arrow_right.svg",
+                                    "assets/images/home/arrow_right.svg",
                                 onTap: () {
                                   context.pushNamed(
-                                      RouteName.customer_register);
+                                    RouteName.customer_register,
+                                  );
                                 },
                               ),
                             ),
-                            SizedBox(width: s(12)),
+                            SizedBox(width: s(16)),
                             Expanded(
                               child: ActionCard(
                                 title: "Raise Tickets",
+                                iconSize: 22,
                                 color: ColorPalette.alert,
                                 imagePath:
-                                "assets/images/dashboard/raise_tickets_icon.png",
+                                    "assets/images/dashboard/raise_tickets_icon.png",
                                 arrowSvgPath:
-                                "assets/images/home/arrow_right.svg",
+                                    "assets/images/home/arrow_right.svg",
                                 onTap: () {
                                   setState(() {
                                     _selectedIndex = 2;
@@ -234,7 +272,7 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
 
-                  SizedBox(height: s(14)),
+                  SizedBox(height: s(16)),
 
                   /// RECENT ACTIVITIES
                   Padding(
@@ -249,12 +287,12 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
 
-                  SizedBox(height: s(16)),
+                  SizedBox(height: s(14.45)),
 
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: s(20)),
                     child: Column(
-                      children:  [
+                      children: [
                         ActivityCard(
                           title: "Warranty Registered",
                           name: "Rajesh Kumar",
@@ -305,4 +343,4 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
-  }
+}

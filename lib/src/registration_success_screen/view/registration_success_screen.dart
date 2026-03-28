@@ -57,7 +57,6 @@ class RegistrationSuccessScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // --- GREEN SUCCESS CIRCLE WITH IMAGE ---
           Container(
             width: 110 * scale,
             height: 110 * scale,

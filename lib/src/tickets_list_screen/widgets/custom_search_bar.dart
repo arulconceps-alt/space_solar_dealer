@@ -23,26 +23,25 @@ class CustomSearchBar extends StatelessWidget {
     return Container(
       height: s(50),
       width:s(400),
-      padding: EdgeInsets.symmetric(horizontal: s(16)),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
+     decoration: BoxDecoration(
+        color:  ColorPalette.whitetext.withOpacity(0.5),
         borderRadius: BorderRadius.circular(s(20)),
-        border: Border.all(
-          color: Colors.white,
-          width: s(1),
-        ),
+        border: Border.all(width: s(1), color: ColorPalette.whitetext),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // ✅ vertical center
+        crossAxisAlignment: CrossAxisAlignment.center, 
         children: [
-          /// 🔍 ICON (Perfectly centered like Figma)
-          SizedBox(
-            width: s(24),
-            height: s(24),
-            child: Image.asset(
-              'assets/images/customer/search_icon.png',
-              fit: BoxFit.contain,
-              color: const Color(0xFF484848),
+        
+          Padding(
+            padding:  EdgeInsets.only(left: s(16)),
+            child: SizedBox(
+              width: s(24),
+              height: s(24),
+              child: Image.asset(
+                'assets/images/customer/search_icon.png',
+                fit: BoxFit.contain,
+                color: const Color(0xFF484848),
+              ),
             ),
           ),
 

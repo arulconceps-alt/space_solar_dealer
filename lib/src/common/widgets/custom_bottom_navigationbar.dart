@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // ✅ IMPORTANT
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -21,13 +23,15 @@ class CustomBottomNavBar extends StatelessWidget {
       height: s(98),
       decoration: const BoxDecoration(
         color: Color(0xFFF1F9FF),
-        border: Border(top: BorderSide(color: Colors.white, width: 1)),
+        border: Border(
+          top: BorderSide(color: ColorPalette.whitetext, width: 1),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildNavItem(0, "Dashboard",
-              "assets/images/bottom_navigation/dashboard_icon.png", s),
+              "assets/images/bottom_navigation/dashboard_icon.svg", s),
           _buildNavItem(1, "Customer",
               "assets/images/bottom_navigation/customer_icon.png", s),
           _buildNavItem(2, "Tickets",
@@ -47,19 +51,20 @@ class CustomBottomNavBar extends StatelessWidget {
   ) {
     bool isSelected = currentIndex == index;
 
-    Color activeColor = const Color(0xFF26A7DF);
-    Color inactiveColor = const Color(0xFF707070);
+    Color activeColor = ColorPalette.background;
+    Color inactiveColor = const Color(0xFF000000).withOpacity(0.5);
 
     return InkWell(
       onTap: () => onTap(index),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
+          _buildIcon(
             imagePath,
-            width: s(30),
-            height: s(30),
-            color: isSelected ? activeColor : inactiveColor,
+            s(30),
+            isSelected,
+            activeColor,
+            inactiveColor,
           ),
           SizedBox(height: s(5)),
           Text(
@@ -73,5 +78,31 @@ class CustomBottomNavBar extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildIcon(
+    String path,
+    double size,
+    bool isSelected,
+    Color activeColor,
+    Color inactiveColor,
+  ) {
+    final color = isSelected ? activeColor : inactiveColor;
+
+    if (path.endsWith(".svg")) {
+      return SvgPicture.asset(
+        path,
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+    } else {
+      return Image.asset(
+        path,
+        width: size,
+        height: size,
+        color: color,
+      );
+    }
   }
 }

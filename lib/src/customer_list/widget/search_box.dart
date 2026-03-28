@@ -21,51 +21,46 @@ class SearchBox extends StatelessWidget {
     return Container(
       height: s(50),
       width: s(400),
-      padding: EdgeInsets.only(
-        left: s(20),   // ✅ exact Figma
-        right: s(20),
-      ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
+        color:  ColorPalette.whitetext.withOpacity(0.5),
         borderRadius: BorderRadius.circular(s(20)),
-        border: Border.all(width: s(1), color: Colors.white),
+        border: Border.all(width: s(1), color: ColorPalette.whitetext),
       ),
       child: Row(
         children: [
-          /// 🔍 ICON (perfectly centered like Figma)
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: s(13), // ✅ top & bottom = 13
-            ),
-            child: Image.asset(
-              'assets/images/customer/search_icon.png',
+            Padding(
+                padding:  EdgeInsets.only(left: s(16)),
+              child: SizedBox(
               width: s(24),
               height: s(24),
-              color: const Color(0xFF484848),
+              child: Image.asset(
+                'assets/images/customer/search_icon.png',
+                fit: BoxFit.contain,
+                color: const Color(0xFF484848),
+              ),
+                        ),
             ),
-          ),
 
-          SizedBox(width: s(9)), // ✅ tighter spacing like Figma
 
-          /// 🔤 TEXT FIELD
+           SizedBox(width: s(12)), 
           Expanded(
             child: TextField(
               controller: controller,
               onChanged: onChanged,
               style: TextStyle(
                 fontSize: s(16),
-                color: const Color(0xFF282828),
+              color: ColorPalette.bottomtext,
               ),
               decoration: InputDecoration(
+                isCollapsed: true, 
                 hintText: "Search by Customer",
                 hintStyle: GoogleFonts.lato(
-                  fontSize: s(16),
-                  fontWeight: FontWeight.w400,
-                  color: ColorPalette.textfiled,
-                ),
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                    color: ColorPalette.textfiled.withValues(alpha:  .80),
+                  ),
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.zero, // ✅ IMPORTANT (fix vertical alignment)
               ),
             ),
           ),

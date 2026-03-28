@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/widget/customer_item.dart';
 import 'package:space_solar_dealer/src/customer_list/widget/search_box.dart';
@@ -18,7 +19,7 @@ class _CustomerListState extends State<CustomerList> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<String> allCustomers = [
-    "Baranee", "Mani", "Rahul", "Mohan", "Rahul",
+    "Baranee", "Mani", "Rahul", "Mohan", "Rahul", "Mani", "Mani"
   ];
 
   List<String> filteredCustomers = [];
@@ -53,87 +54,82 @@ class _CustomerListState extends State<CustomerList> {
       backgroundColor: Colors.transparent,
       floatingActionButton: _buildFAB(s),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: AppBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(   // ✅ ADD THIS
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: s(24)),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: s(20)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Customer List",
-                        style: GoogleFonts.poppins(
-                          fontSize: s(20),
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF282828),
-                        ),
+      body: SafeArea(
+        child: SingleChildScrollView(  
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: s(24)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Customer List",
+                      style: GoogleFonts.poppins(
+                        fontSize: s(20),
+                        fontWeight: FontWeight.w600,
+                        color:  ColorPalette.bottomtext,
                       ),
-                      SizedBox(height: s(4)),
-                      Text(
-                        "Customer Information",
-                        style: GoogleFonts.lato(
-                          fontSize: s(14),
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xCC484848),
-                        ),
+                    ),
+                    SizedBox(height: s(4)),
+                    Text(
+                      "Customer Information",
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w400,
+                        color:  ColorPalette.textfiledin.withValues(alpha: .80),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-
-                SizedBox(height: s(20)),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: s(20)),
-                  child: SearchBox(
-                    scale: scale,
-                    controller: _searchController,
-                    onChanged: _searchCustomer,
-                  ),
+              ),
+      
+              SizedBox(height: s(20)),
+      
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                child: SearchBox(
+                  scale: scale,
+                  controller: _searchController,
+                  onChanged: _searchCustomer,
                 ),
-
-                SizedBox(height: s(33)),
-
-                /// ✅ LIST (NOW SCROLLS WITH HEADER)
-                ListView.builder(
-                  shrinkWrap: true, // ✅ IMPORTANT
-                  physics: const NeverScrollableScrollPhysics(), // ✅ keep this now
-                  padding: EdgeInsets.symmetric(horizontal: s(20)),
-                  itemCount: filteredCustomers.length,
-                  itemBuilder: (context, index) {
-                    final customer = filteredCustomers[index];
-                    return CustomerItem(
-                      name: customer,
-                      isFirst: index == 0,
-                      isLast: index == filteredCustomers.length - 1,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CustomerDetailsScreen(name: customer),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-
-                SizedBox(height: s(80)), // 👈 space for FAB
-              ],
-            ),
+              ),
+      
+              SizedBox(height: s(33)),
+      
+              ListView.builder(
+                shrinkWrap: true, 
+                physics: const NeverScrollableScrollPhysics(), 
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                itemCount: filteredCustomers.length,
+                itemBuilder: (context, index) {
+                  final customer = filteredCustomers[index];
+                  return CustomerItem(
+                    name: customer,
+                    isFirst: index == 0,
+                    isLast: index == filteredCustomers.length - 1,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CustomerDetailsScreen(name: customer),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+      
+              SizedBox(height: s(80)), 
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// ✅ FIXED FAB (scaling applied correctly)
   Widget _buildFAB(double Function(double) s) {
     return Container(
       width: s(192),
@@ -155,11 +151,10 @@ class _CustomerListState extends State<CustomerList> {
         },
         borderRadius: BorderRadius.circular(s(10)),
 
-        /// ✅ FIXED ALIGNMENT
         child: Padding(
           padding: EdgeInsets.only(
-            left: s(13),   // 👈 Figma exact
-            right: s(19),  // 👈 Figma exact
+            left: s(13),   
+            right: s(19), 
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -167,12 +162,12 @@ class _CustomerListState extends State<CustomerList> {
               /// ICON
               Image.asset(
                 "assets/images/customer/add_icon.png",
-                color: Colors.white,
+                color:  ColorPalette.whitetext,
                 height: s(22),
                 width: s(22),
               ),
 
-              SizedBox(width: s(13)), // 👈 exact spacing
+              SizedBox(width: s(12)), 
 
               /// TEXT
               Text(
@@ -180,7 +175,7 @@ class _CustomerListState extends State<CustomerList> {
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
+                  color: ColorPalette.whitetext,
                 ),
               ),
             ],

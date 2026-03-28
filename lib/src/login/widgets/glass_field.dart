@@ -21,63 +21,64 @@ class GlassField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: scale * 50,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 10,
-            sigmaY: 10,
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth / 440;
+    double s(double v) => v * scale;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 10,
+          sigmaY: 10,
+        ),
+        child: TextField(
+          controller: controller,
+          obscureText: obscure,
+          style: GoogleFonts.lato(
+            fontSize: s(16),
+            fontWeight: FontWeight.w400,
+            color: ColorPalette.textfiledin,
           ),
-          child: TextField(
-            controller: controller,
-            obscureText: obscure,
-            style: GoogleFonts.lato(
-              fontSize: scale * 16,
-              color: ColorPalette.textfiledin,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.lato(
+              fontSize:  s(16),
+              fontWeight: FontWeight.w400,
+              color: ColorPalette.textfiledin.withOpacity(0.7),
             ),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: GoogleFonts.lato(
-                fontSize: scale * 16,
-                color: ColorPalette.textfiledin.withOpacity(0.7),
+    
+            suffixIcon: suffix,
+  
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.45),
+    
+            contentPadding: EdgeInsets.symmetric(
+              horizontal:  s(16),
+              vertical:  s(14),
+            ),
+    
+            /// BORDER
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(
+                color: Colors.white.withOpacity(0.6),
+                width: 1,
               ),
-
-              suffixIcon: suffix,
-
-              /// 🔥 GLASS EFFECT
-              filled: true,
-              fillColor: Colors.white.withOpacity(0.45),
-
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: scale * 16,
-                vertical: scale * 14,
+            ),
+    
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(
+                color: Colors.white.withOpacity(0.6),
+                width: 1,
               ),
-
-              /// BORDER
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(
-                  color: Colors.white.withOpacity(0.6),
-                  width: 1,
-                ),
-              ),
-
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(
-                  color: Colors.white.withOpacity(0.6),
-                  width: 1,
-                ),
-              ),
-
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: const BorderSide(
-                  color: Color(0xFF26A7DF),
-                  width: 1,
-                ),
+            ),
+    
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: const BorderSide(
+                color: ColorPalette.background,
+                width: 1,
               ),
             ),
           ),

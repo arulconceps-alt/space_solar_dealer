@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
@@ -38,15 +39,15 @@ class CustomerDetailsScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: s(20)), // ✅ scaled
+                  padding: EdgeInsets.symmetric(horizontal: s(20)), 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: s(20)),
+                      SizedBox(height: s(24)),
                       Text(
                         'Customer Detail',
                         style: GoogleFonts.poppins(
-                          color: const Color(0xFF282828),
+                          color: ColorPalette.bottomtext,
                           fontSize: s(20),
                           fontWeight: FontWeight.w600,
                         ),
@@ -59,11 +60,11 @@ class CustomerDetailsScreen extends StatelessWidget {
                               width: s(100),
                               height: s(100),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.5),
+                                color: ColorPalette.whitetext.withOpacity(0.50),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Colors.white,
-                                  width: s(2), // ✅ scaled
+                                  color: ColorPalette.whitetext,
+                                  width: s(1), 
                                 ),
                               ),
                               alignment: Alignment.center,
@@ -86,7 +87,7 @@ class CustomerDetailsScreen extends StatelessWidget {
                               style: GoogleFonts.lato(
                                 fontSize: s(16),
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF282828),
+                                color: ColorPalette.bottomtext,
                               ),
                             ),
                           ],
@@ -164,26 +165,23 @@ class CustomerDetailsScreen extends StatelessWidget {
     double s(double v) => v * scale;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: s(16)), // ✅ gap between fields
+      padding: EdgeInsets.only(bottom: s(16)), 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// 🔹 LABEL
           Text(
             title,
             style: GoogleFonts.lato(
               fontSize: s(16),
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF282828),
+              color: ColorPalette.bottomtext,
             ),
           ),
 
-          /// 🔥 EXACT FIGMA GAP
-          SizedBox(height: s(14)), // ✅ FIXED
+          SizedBox(height: s(14)), 
 
-          /// 🔹 BOX
           Container(
-            width: double.infinity, // ✅ FIXED
+            width: double.infinity,
             height: isAddress ? null : s(50),
             constraints: isAddress
                 ? BoxConstraints(minHeight: s(71))
@@ -193,22 +191,22 @@ class CustomerDetailsScreen extends StatelessWidget {
               vertical: s(14),
             ),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
+              color: ColorPalette.whitetext.withOpacity(0.50),
               borderRadius: BorderRadius.circular(s(10)),
               border: Border.all(
-                color: Colors.white,
+                color: ColorPalette.whitetext,
                 width: s(1),
               ),
             ),
 
             child: Align(
-              alignment: Alignment.centerLeft,
+              alignment: isAddress ?Alignment.topLeft : Alignment.centerLeft,
               child: Text(
                 value,
                 style: GoogleFonts.lato(
                   fontSize: s(16),
                   fontWeight: FontWeight.w400,
-                  color: const Color(0xCC484848),
+                  color: ColorPalette.textfiledin.withValues(alpha: .80),
                 ),
               ),
             ),

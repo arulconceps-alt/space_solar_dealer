@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class CustomSegmentedTab extends StatelessWidget {
   final double scale;
@@ -24,15 +25,15 @@ class CustomSegmentedTab extends StatelessWidget {
       height: s(50),
       padding: EdgeInsets.all(s(5)), // clean padding
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(s(25)),
+        color: ColorPalette.whitetext.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(s(20)),
         border: Border.all(
-          color: Colors.white,
+          color: ColorPalette.whitetext,
           width: s(1),
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // ✅ spread evenly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
         children: tabs.map((tab) {
           bool isSelected = selectedTab == tab;
 
@@ -40,22 +41,22 @@ class CustomSegmentedTab extends StatelessWidget {
             onTap: () => onTabChanged(tab),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: s(94),   // ✅ FIXED WIDTH (Figma)
-              height: s(36),  // ✅ FIXED HEIGHT (Figma)
+              width: s(94),   
+              height: s(36),  
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF26A7DF)
+                    ? ColorPalette.background
                     : Colors.transparent,
-                borderRadius: BorderRadius.circular(s(20)), // ✅ radius
+                borderRadius: BorderRadius.circular(s(20)), 
               ),
               child: Text(
                 tab,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.lato(
                   color: isSelected
-                      ? Colors.white
-                      : const Color(0xFF282828),
+                      ? ColorPalette.whitetext
+                      : ColorPalette.bottomtext,
                   fontSize: s(14),
                   fontWeight: FontWeight.w600,
                 ),

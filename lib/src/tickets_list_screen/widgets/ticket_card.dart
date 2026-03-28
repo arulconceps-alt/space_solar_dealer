@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class TicketCard extends StatelessWidget {
   final String ticketId, customerName, status, issue, panelId, date, sla;
@@ -27,32 +28,18 @@ class TicketCard extends StatelessWidget {
 
     return Container(
       width: s(400),
-      margin: EdgeInsets.only(bottom: s(16),),
-      decoration: ShapeDecoration(
-        color: Colors.white.withOpacity(0.5),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: s(1),
-            color: Colors.white.withOpacity(0.5),
-          ),
-          borderRadius: BorderRadius.circular(s(20)), // ✅ scaled
-        ),
-        shadows: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.5),
-            blurRadius: s(4), // ✅ scaled
-            offset: Offset(0, 0),
-            spreadRadius: 0,
-          )
-        ],
+      margin: EdgeInsets.only(bottom: s(16)),
+      decoration: BoxDecoration(
+        color: Color(0xFFFFFFFF).withOpacity(0.50),
+        border: Border.all(width: s(1), color: ColorPalette.whitetext),
+        borderRadius: BorderRadius.circular(s(20)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// 🔹 TOP CONTENT
-          Padding(
-            padding: EdgeInsets.all(s(16)),
-            child: Column(
+      child: Padding(
+        padding: EdgeInsets.all(s(20)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// Ticket ID + Status
@@ -62,8 +49,8 @@ class TicketCard extends StatelessWidget {
                     Text(
                       ticketId,
                       style: GoogleFonts.lato(
-                        color: const Color(0xCC484848),
-                        fontSize: s(14), // ✅ scaled
+                        color: ColorPalette.textfiledin,
+                        fontSize: s(14),
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -77,24 +64,21 @@ class TicketCard extends StatelessWidget {
                 Text(
                   customerName,
                   style: GoogleFonts.lato(
-                    color: const Color(0xFF282828),
-                    fontSize: s(18), // ✅ scaled
+                    color: ColorPalette.bottomtext,
+                    fontSize: s(18),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
 
-                SizedBox(height: s(12)),
+                SizedBox(height: s(8)),
 
                 /// Issue
-                Padding(
-                  padding: EdgeInsets.only(left: s(2)),
-                  child: Text(
-                    issue,
-                    style: GoogleFonts.lato(
-                      color: const Color(0xFF484848),
-                      fontSize: s(14),
-                      fontWeight: FontWeight.w400,
-                    ),
+                Text(
+                  issue,
+                  style: GoogleFonts.lato(
+                    color: ColorPalette.textfiledin,
+                    fontSize: s(14),
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 SizedBox(height: s(27)),
@@ -103,82 +87,61 @@ class TicketCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: s(2)),
-                      child: Text(
-                        'Panel ID : $panelId',
-                        style: GoogleFonts.lato(
-                          color: const Color(0xFF484848),
-                          fontSize: s(14),
-                          fontWeight: FontWeight.w400,
-                        ),
+                    Text(
+                      'Panel ID : $panelId',
+                      style: GoogleFonts.lato(
+                        color: ColorPalette.textfiledin,
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(right: s(16)), // optional if you want space from the right edge
-                      child: Text(
-                        date,
-                        style: GoogleFonts.lato(
-                          color: const Color(0xFF484848),
-                          fontSize: s(14),
-                          fontWeight: FontWeight.w400,
-                        ),
+                    Text(
+                      date,
+                      style: GoogleFonts.lato(
+                        color: ColorPalette.textfiled,
+                        fontSize: s(14),
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 6,),
+                SizedBox(height: s(6)),
                 Divider(
                   height: s(1),
                   thickness: s(1),
-                  color: Colors.black.withOpacity(0.2),
+                  color: Color(0xFF000000).withOpacity(0.20),
                 ),
               ],
             ),
-
-          ),
-
-
-
-          Padding(
-            padding: EdgeInsets.only(left: s(18), right: s(17)), // horizontal padding for the whole row
-            child: Row(
+            SizedBox(height: s(14)),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // SLA Text with its own top & bottom padding
-                Padding(
-                  padding: EdgeInsets.only(top: s(22), bottom: s(23)),
-                  child: Text(
-                    'SLA : $sla',
-                    style: GoogleFonts.lato(
-                      color: const Color(0xFF484848),
-                      fontSize: s(14),
-                      fontWeight: FontWeight.w400,
-                    ),
+                Text(
+                  'SLA : $sla',
+                  style: GoogleFonts.lato(
+                    color: ColorPalette.textfiledin,
+                    fontSize: s(14),
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
-
-                // View Details Button with fixed size
-                Padding(
-                  padding: EdgeInsets.only(top: s(14), bottom: s(14)),
-                  child: SizedBox(
-                    width: s(146),  // fixed width
-                    height: s(37),  // fixed height
-                    child: GestureDetector(
-                      onTap: onViewDetails,
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF26A7DF).withOpacity(0.3), // 30% opacity background
-                          borderRadius: BorderRadius.circular(s(10)),      // radius 10
-                        ),
-                        child: Text(
-                          'View Details',
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFF26A7DF),  // text color
-                            fontSize: s(14),
-                            fontWeight: FontWeight.w600,
-                          ),
+                SizedBox(
+                  width: s(146),
+                  height: s(37),
+                  child: GestureDetector(
+                    onTap: onViewDetails,
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: ColorPalette.background.withOpacity(0.3), // 30% opacity background
+                        borderRadius: BorderRadius.circular(s(10)), // radius 10
+                      ),
+                      child: Text(
+                        'View Details',
+                        style: GoogleFonts.poppins(
+                          color: ColorPalette.background, // text color
+                          fontSize: s(14),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -186,28 +149,27 @@ class TicketCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  /// 🔹 STATUS BADGE
   Widget _buildBadge(double Function(double) s) {
     return Container(
-      width: s(72),   // ✅ fixed width
-      height: s(20),  // ✅ fixed height
-      alignment: Alignment.center, // ✅ center text
+      width: s(72), 
+      height: s(20), 
+      alignment: Alignment.center, 
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(s(10)), // ✅ correct radius
+        color: statusColor.withOpacity(0.30),
+        borderRadius: BorderRadius.circular(s(10)),
       ),
       child: Text(
         status,
         textAlign: TextAlign.center,
         style: GoogleFonts.lato(
           color: statusColor,
-          fontSize: s(10), // ✅ scaled
+          fontSize: s(10), 
           fontWeight: FontWeight.w400,
         ),
       ),

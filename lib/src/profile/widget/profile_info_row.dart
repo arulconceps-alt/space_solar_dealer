@@ -42,7 +42,6 @@ class ProfileInfoRow extends StatelessWidget {
                 style: GoogleFonts.lato(
                   fontSize: s(14),
                   fontWeight: FontWeight.w400,
-                  height: s(1),
                   color: ColorPalette.textfiledin.withValues(alpha: .80),
                 ),
               ),

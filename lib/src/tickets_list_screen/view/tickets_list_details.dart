@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/widgets/ticket_card.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/widgets/custom_search_bar.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/widgets/custom_Segmented_tab.dart';
@@ -49,84 +49,79 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: AppBackground(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: s(20)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: s(24)),
-
-                    /// TITLE
-                    Text(
-                      'Tickets',
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: s(20)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: s(24)),
+                  Text(
+                    'Tickets',
                       style: GoogleFonts.poppins(
-                        color: const Color(0xFF282828),
-                        fontSize: s(24), // ✅ scaled
+                        fontSize: s(20),
                         fontWeight: FontWeight.w600,
+                        color:  ColorPalette.bottomtext,
                       ),
+                  ),
+                   SizedBox(height: s(4)),
+                  /// SUBTITLE
+                  Text(
+                    'Track and manage customer issue',
+                    style: GoogleFonts.lato(
+                      color: ColorPalette.textfiledin.withValues(alpha: .80),
+                      fontSize: s(14),
+                       fontWeight: FontWeight.w400,
                     ),
-
-                    /// SUBTITLE
-                    Text(
-                      'Track and manage customer issue',
-                      style: GoogleFonts.lato(
-                        color: const Color(0xCC484848),
-                        fontSize: s(14),
-                      ),
-                    ),
-
-                    SizedBox(height: s(17)),
-
-                    /// SEARCH
-                    CustomSearchBar(
-                      scale: scale,
-                      onChanged: (val) {},
-                    ),
-
-                    SizedBox(height: s(16)),
-
-                    /// TABS
-                    CustomSegmentedTab(
-                      scale: scale,
-                      tabs: const [
-                        "All Active",
-                        "Assigned",
-                        "In Progress",
-                        "Resolved"
-                      ],
-                      selectedTab: _selectedTab,
-                      onTabChanged: (newTab) {
-                        setState(() => _selectedTab = newTab);
-                      },
-                    ),
-
-                    SizedBox(height: s(16)),
-                  ],
-                ),
+                  ),
+      
+                  SizedBox(height: s(20)),
+      
+      
+                  /// SEARCH
+                  CustomSearchBar(
+                    scale: scale,
+                    onChanged: (val) {},
+                  ),
+      
+                  SizedBox(height: s(16)),
+      
+                  /// TABS
+                  CustomSegmentedTab(
+                    scale: scale,
+                    tabs: const [
+                      "All Active",
+                      "Assigned",
+                      "In Progress",
+                      "Resolved"
+                    ],
+                    selectedTab: _selectedTab,
+                    onTabChanged: (newTab) {
+                      setState(() => _selectedTab = newTab);
+                    },
+                  ),
+                ],
               ),
-
-              /// ✅ LIST (PART OF MAIN SCROLL)
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 1,
-                itemBuilder: (context, index) {
-                  return _buildScrollableTicketList(scale, s);
-                },
-              ),
-
-              SizedBox(height: s(100)), // space for FAB
-            ],
-          ),
+            ),
+             SizedBox(height: s(16)),
+      
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return _buildScrollableTicketList(scale, s);
+              },
+            ),
+      
+            SizedBox(height: s(100)), // space for FAB
+          ],
         ),
       ),
 
-      /// ✅ FIXED FLOATING BUTTON
       floatingActionButton: _buildFigmaFAB(s),
     );
   }
@@ -144,7 +139,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
           "No records found",
           style: GoogleFonts.lato(
             color: const Color(0xCC484848),
-            fontSize: s(14), // ✅ scaled
+            fontSize: s(14),
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -152,9 +147,9 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
     }
 
     return ListView.builder(
-      shrinkWrap: true, // ✅ IMPORTANT
+      shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(s(20), 0, s(20), s(100)), // ✅ scaled
+      padding: EdgeInsets.fromLTRB(s(20), 0, s(20), s(100)), 
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final ticket = filtered[index];
@@ -183,6 +178,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
     return GestureDetector(
       onTap: () {
         showDialog(
+        
           context: context,
           builder: (dialogContext) =>
               RaiseTicketDialog(parentContext: context),
@@ -192,18 +188,22 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         width: s(174),
         height: s(50),
         decoration: BoxDecoration(
-          color: const Color(0xFF26A7DF),
+          color: ColorPalette.background,
           borderRadius: BorderRadius.circular(s(10)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, color: Colors.white, size: s(20)),
-            SizedBox(width: s(8)),
+           Image.asset("assets/images/ticket/add_icon.png",
+           height: s(22),
+           width: s(22),
+           color: ColorPalette.whitetext,
+           ),
+            SizedBox(width: s(12)),
             Text(
               'Raise Ticket',
               style: GoogleFonts.poppins(
-                color: Colors.white,
+                color: ColorPalette.whitetext,
                 fontSize: s(16),
                 fontWeight: FontWeight.w500,
               ),

@@ -100,7 +100,6 @@ class ProfileInfoCard extends StatelessWidget {
                               style: GoogleFonts.lato(
                                 fontSize: s(14),
                                 fontWeight: FontWeight.w400,
-                                height: s(1),
                                 color: ColorPalette.bottomtext,
                               ),
                             ),
@@ -109,7 +108,6 @@ class ProfileInfoCard extends StatelessWidget {
                               style: GoogleFonts.lato(
                                 fontSize: s(14),
                                 fontWeight: FontWeight.w400,
-                                height: s(1),
                                 color: ColorPalette.textfiledin.withValues(
                                   alpha: .80,
                                 ),
@@ -169,7 +167,6 @@ class ProfileInfoCard extends StatelessWidget {
                       style: GoogleFonts.lato(
                         fontSize: s(14),
                         fontWeight: FontWeight.w400,
-                        height: s(1),
                         color: ColorPalette.textfiledin,
                       ),
                     ),
@@ -178,7 +175,6 @@ class ProfileInfoCard extends StatelessWidget {
                       style: GoogleFonts.lato(
                         fontSize: s(14),
                         fontWeight: FontWeight.w400,
-                        height: s(1),
                         color: ColorPalette.bottomtext,
                       ),
                     ),

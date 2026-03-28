@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double scale;
@@ -26,8 +26,6 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       toolbarHeight: s(74),
       automaticallyImplyLeading: false,
       centerTitle: true,
-
-      /// 🔙 BACK BUTTON
       leading: showBack
           ? IconButton(
         onPressed: onBackTap ?? () => context.pop(),
@@ -39,10 +37,18 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       )
           : null,
 
-      /// 🧩 LOGO
-      title: LogoWidget(scale: scale),
+      title: Padding(
+            padding: EdgeInsets.all(s(20)),
+            child: SizedBox(
+              width: s(192.75),
+              height: s(20.56),
+              child: SvgPicture.asset(
+                "assets/images/login/logo.svg",
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
 
-      /// 🔻 BORDER
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(s(1)),
         child: Container(
@@ -51,44 +57,48 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
 
-      /// 🔔 NOTIFICATION
       actions: [
-        Padding(
-          padding: EdgeInsets.only(right: s(20)),
-          child: GestureDetector(
-            onTap: () {
-              context.push('/notification_screen');
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                SvgPicture.asset(
-                  "assets/images/home/notification.svg",
-                  height: s(20),
-                  width: s(20),
-                ),
-                Transform.translate(
-                  offset: Offset(s(8), -s(6)),
-                  child: Container(
-                    padding: EdgeInsets.all(s(3)),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
+       Padding(
+              padding: EdgeInsets.only(right: s(20)),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.push('/notification_screen'),
+                    child: SvgPicture.asset(
+                      "assets/images/home/notification.svg",
+                      width: s(24),
+                      height: s(24),
                     ),
-                    child: Text(
-                      '16',
-                      style: TextStyle(
-                        fontSize: s(9),
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  ),
+
+                  Positioned(
+                    right: -1,
+                    top: -2,
+                    child: Container(
+                      width: s(12),
+                      height: s(12),
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(s(2)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEA1F27),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        "16",
+                        style: GoogleFonts.poppins(
+                          fontSize: s(6),
+                          fontWeight: FontWeight.w500,
+                          height: 1,
+                          letterSpacing: 0,
+                          color: ColorPalette.whitetext,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
       ],
     );
   }

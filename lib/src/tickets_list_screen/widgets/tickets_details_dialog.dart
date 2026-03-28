@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class TicketDetailsDialog extends StatelessWidget {
   const TicketDetailsDialog({super.key});
@@ -13,19 +14,17 @@ class TicketDetailsDialog extends StatelessWidget {
     return Center(
       child: Container(
         width: s(400),
+       // height: s(706),
         padding: EdgeInsets.all(s(20)),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: ColorPalette.whitetext,
           borderRadius: BorderRadius.circular(s(20)),
         ),
 
-        /// ✅ IMPORTANT FIX (no unwanted space)
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            /// 🔹 HEADER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -34,37 +33,34 @@ class TicketDetailsDialog extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: s(18),
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF282828),
+                    color: ColorPalette.bottomtext,
                   ),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Image.asset(
                     "assets/images/ticket/cross_icon.png",
-                    width: s(12),
-                    height: s(12),
+                    width: s(12.73),
+                    height: s(12.73),
                   ),
                 )
               ],
             ),
 
-            SizedBox(height: s(16)),
-
-            /// 🔹 TICKET ID
+            SizedBox(height: s(21)),
             Text(
               "TKT-001",
               style: GoogleFonts.lato(
                 fontSize: s(16),
+                fontWeight: FontWeight.w400,
                 color: const Color(0xFF282828),
               ),
             ),
 
-            SizedBox(height: s(16)),
-
-            /// 🔹 CUSTOMER CARD
+            SizedBox(height: s(15)),
             Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(s(16)),
+              width: s(360),
+              padding: EdgeInsets.symmetric(vertical: s(20), horizontal: s(16)),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black.withOpacity(0.3)),
                 borderRadius: BorderRadius.circular(s(10)),
@@ -76,38 +72,48 @@ class TicketDetailsDialog extends StatelessWidget {
                     "Customer Name",
                     "Rohit Sharma",
                     scale,
+                    24,
+                    17,
                   ),
+                  SizedBox(height: s(20)),
                   _infoRow(
                     "assets/images/ticket/solar_panel.png",
                     "Panel ID",
                     "SS-2025-001",
                     scale,
+                     28,
+                     15,
                   ),
+                  SizedBox(height: s(20)),
                   _infoRow(
                     "assets/images/ticket/exclamation_icon.png",
                     "Issue Type",
                     "Low Power Output",
                     scale,
+                     22,
+                     19,
                   ),
+                  SizedBox(height: s(20)),
                   _infoRow(
                     "assets/images/ticket/calender_icon.png",
                     "Created Date",
                     "2025-11-14",
                     scale,
+                     24,
+                     18,
                   ),
-                ],
+                ], 
               ),
             ),
 
             SizedBox(height: s(16)),
 
-            /// 🔹 TECHNICIAN TITLE
             Text(
               "Technician Assigned",
               style: GoogleFonts.lato(
                 fontSize: s(16),
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF282828),
+                color: ColorPalette.bottomtext,
               ),
             ),
 
@@ -119,14 +125,12 @@ class TicketDetailsDialog extends StatelessWidget {
               height: s(82),
               padding: EdgeInsets.symmetric(horizontal: s(20)),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black.withOpacity(0.3)),
+                border: Border.all(color: Color(0xFF000000).withOpacity(0.30)),
                 borderRadius: BorderRadius.circular(s(10)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-
-                  /// ICON
+                children: [ 
                   Image.asset(
                     "assets/images/ticket/gg_profile.png",
                     width: s(24),
@@ -145,7 +149,8 @@ class TicketDetailsDialog extends StatelessWidget {
                           "Sharma",
                           style: GoogleFonts.lato(
                             fontSize: s(14),
-                            color: const Color(0xFF282828),
+                            fontWeight: FontWeight.w400,
+                            color: ColorPalette.bottomtext,
                           ),
                         ),
                         SizedBox(height: s(4)),
@@ -153,19 +158,20 @@ class TicketDetailsDialog extends StatelessWidget {
                           "2025-11-14",
                           style: GoogleFonts.lato(
                             fontSize: s(12),
-                            color: const Color(0xFF484848),
+                            fontWeight: FontWeight.w400,
+                            color: ColorPalette.textfiledin,
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  /// CALL BUTTON
+                  SizedBox(width: s(100)),
                   Container(
                     width: s(98.98),
                     height: s(40),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF26A7DF),
+                      color: ColorPalette.background,
                       borderRadius: BorderRadius.circular(s(6)),
                     ),
                     alignment: Alignment.center,
@@ -174,7 +180,7 @@ class TicketDetailsDialog extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: s(16),
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: ColorPalette.whitetext,
                       ),
                     ),
                   ),
@@ -190,23 +196,22 @@ class TicketDetailsDialog extends StatelessWidget {
               style: GoogleFonts.lato(
                 fontSize: s(16),
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF282828),
+                color: ColorPalette.bottomtext,
               ),
             ),
 
             SizedBox(height: s(16)),
 
-            /// 🔹 DESCRIPTION BOX
             Container(
               width: double.infinity,
               height: s(82),
               padding: EdgeInsets.symmetric(
-                horizontal: s(16),
-                vertical: s(12),
+                horizontal: s(21),
+                vertical: s(16),
               ),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Color(0xFF000000).withOpacity(0.30),
                   width: s(1),
                 ),
                 borderRadius: BorderRadius.circular(s(10)),
@@ -214,18 +219,17 @@ class TicketDetailsDialog extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Text(
-                  "Panel showing reduced efficiency after recent dust storm.",
+                  "Panel showing reduced efficiency after\nrecent dust storm.",
                   style: GoogleFonts.lato(
                     fontSize: s(16),
-                    color: const Color(0xFF484848),
+                    fontWeight: FontWeight.w400,
+                    color: ColorPalette.textfiledin,
                   ),
                 ),
               ),
             ),
 
-            SizedBox(height: s(20)),
-
-            /// 🔹 BUTTON
+            SizedBox(height: s(23)),
             Container(
               width: double.infinity,
               height: s(50),
@@ -239,7 +243,7 @@ class TicketDetailsDialog extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: ColorPalette.whitetext,
                 ),
               ),
             ),
@@ -249,55 +253,53 @@ class TicketDetailsDialog extends StatelessWidget {
     );
   }
 
-  /// 🔹 INFO ROW (ICON + TEXT)
   Widget _infoRow(
       String icon,
       String title,
       String value,
       double scale,
+      double iconsize,
+      double width,
       ) {
     double s(double v) => v * scale;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: s(14)),
-      child: Row(
-        children: [
-          Image.asset(
-            icon,
-            width: s(24),
-            height: s(24),
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return Icon(Icons.error, size: s(24), color: Colors.red);
-            },
-          ),
-
-          SizedBox(width: s(17)),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.lato(
-                    fontSize: s(12),
-                    color: const Color(0xFF484848),
-                  ),
+    return Row(
+      children: [
+        Image.asset(
+          icon,
+          width: s(iconsize),
+          height: s(iconsize),
+          fit: BoxFit.contain,
+          color: ColorPalette.textfiledin.withValues(alpha: .80),
+        ),
+    
+        SizedBox(width: s(width)),
+    
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.lato(
+                  fontSize: s(12),
+                  fontWeight: FontWeight.w400,
+                  color: ColorPalette.textfiledin,
                 ),
-                SizedBox(height: s(4)),
-                Text(
-                  value,
-                  style: GoogleFonts.lato(
-                    fontSize: s(14),
-                    color: const Color(0xFF282828),
-                  ),
+              ),
+              SizedBox(height: s(4)),
+              Text(
+                value,
+                style: GoogleFonts.lato(
+                  fontSize: s(14),
+                  fontWeight: FontWeight.w400,
+                  color: ColorPalette.bottomtext,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

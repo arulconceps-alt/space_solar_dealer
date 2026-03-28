@@ -9,6 +9,7 @@ class ActionCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
   final String? arrowSvgPath;
+  final double iconSize;
 
   const ActionCard({
     super.key,
@@ -16,6 +17,7 @@ class ActionCard extends StatelessWidget {
     required this.imagePath,
     required this.color,
     required this.onTap,
+    this. iconSize = 16,
     this.arrowSvgPath,
   });
 
@@ -40,7 +42,6 @@ class ActionCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            /// 🔵 ICON (top-left)
             Align(
               alignment: Alignment.topLeft,
               child: Container(
@@ -53,14 +54,13 @@ class ActionCard extends StatelessWidget {
                 child: Center(
                   child: Image.asset(
                     imagePath,
-                    width: s(22),
-                    height: s(22),
+                    width: s(iconSize),
+                    height: s(iconSize),
                   ),
                 ),
               ),
             ),
             SizedBox(height: s(17)),
-            /// 📝 TITLE (bottom-left)
             Align(
               alignment: Alignment.bottomLeft,
               child: Row(
@@ -69,17 +69,17 @@ class ActionCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style:GoogleFonts.lato(
+                    style:GoogleFonts.lato( 
                       fontSize: s(16),
                       fontWeight: FontWeight.w500,
-                      height: 1.2,
-                      color: ColorPalette.textfiled,
+                      height: 1,
+                      color: ColorPalette.textfiled.withValues(alpha: .80),
                     ),
                   ),
                   SvgPicture.asset(
                     arrowSvgPath!,
-                    width: s(16),
-                    height: s(16),
+                    width: s(24),
+                    height: s(24),
                   ),
                 ],
               ),

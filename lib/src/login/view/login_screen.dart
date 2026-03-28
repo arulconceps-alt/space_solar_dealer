@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
             decoration: BoxDecoration(gradient: ColorPalette.scaffoldGradient),
           ),
 
-          BlurCircle(left: s(-146), top: s(-201), size: s(383), opacity: 1),
+          BlurCircle(left: s(-146), top: s(-191), size: s(383), opacity: 1),
           BlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1),
           BlurCircle(left: s(-241), top: s(580), size: s(383), opacity: .4),
 
@@ -54,41 +54,39 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: EdgeInsets.symmetric(horizontal: s(20)),
               child: Column(
                 children: [
-                  SizedBox(height: s(60)),
                   Center(child: LogoWidget(scale: scale)),
-
                   SizedBox(height: s(55)),
-
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          /// TITLE
                           Text(
                             'Welcome Back!',
                             style: GoogleFonts.poppins(
-                              fontSize: s(30),
+                              fontSize: s(32),
                               fontWeight: FontWeight.w600,
+                              letterSpacing: 0,
                               color: ColorPalette.bottomtext,
                             ),
                           ),
-
                           SizedBox(height: s(8)),
                           Text(
                             'Enter your Login Information',
                             style: GoogleFonts.lato(
                               fontSize: s(16),
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0,
                               color: ColorPalette.textfiledin,
                             ),
                           ),
-
-                          SizedBox(height: s(30)),
-
+                    
+                          SizedBox(height: s(31)),
+                    
                           /// EMAIL
                           FieldLabel(text: "Email Address", scale: scale),
                           SizedBox(height: s(9)),
-
+                    
                           SizedBox(
                             height: s(50),
                             child: GlassField(
@@ -97,13 +95,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               scale: scale,
                             ),
                           ),
-
+                    
                           SizedBox(height: s(24)),
-
+                    
                           /// PASSWORD
                           FieldLabel(text: "Password", scale: scale),
                           SizedBox(height: s(9)),
-
+                    
                           SizedBox(
                             height: s(50),
                             child: GlassField(
@@ -113,9 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               obscure: _obscurePassword,
                             ),
                           ),
-
+                    
                           SizedBox(height: s(12)),
-
+                    
                           /// FORGOT PASSWORD
                           Align(
                             alignment: Alignment.centerRight,
@@ -125,32 +123,36 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "Forget Password?",
                                 style: GoogleFonts.lato(
                                   fontSize: s(14),
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0,
                                   color: ColorPalette.background,
                                 ),
                               ),
                             ),
                           ),
-
+                    
                           SizedBox(height: s(30)),
-
+                    
                           /// LOGIN BUTTON
                           PrimaryButton(
                             text: "Login",
                             scale: scale,
                             onTap: () => context.push('/home'),
                           ),
-
-                          SizedBox(height: s(40)),
-
+                    
+                          SizedBox(height: s(44)),
+                    
                           /// DIVIDER
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                width: 58,
+                                width: s(58),
                                 child: Divider(
                                   thickness: 1,
-                                  color: ColorPalette.blacktext.withValues(alpha: .2),
+                                  color: ColorPalette.blacktext.withValues(
+                                    alpha: .2,
+                                  ),
                                 ),
                               ),
                               Padding(
@@ -167,39 +169,49 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                               SizedBox(
-                                width: 58,
+                                width: s(58),
                                 child: Divider(
                                   thickness: 1,
-                                  color: ColorPalette.blacktext.withValues(alpha: .2),
+                                  color: ColorPalette.blacktext.withValues(
+                                    alpha: .2,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-
-                          SizedBox(height: s(30)),
-
+                    
+                          SizedBox(height: s(42)),
+                    
                           /// SOCIAL
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SocialButton(
                                 scale: scale,
-                                child: SvgPicture.asset(
-                                  "assets/images/login/google.svg",
-                                  height: s(24),
+                                child: Padding(
+                                 padding:  EdgeInsets.all(s(18)),
+                                  child: SvgPicture.asset(
+                                    "assets/images/login/google.svg",
+                                    height: s(24),
+                                    width: s(24),
+                                  ),
                                 ),
                               ),
                               SizedBox(width: s(40)),
                               SocialButton(
                                 scale: scale,
-                                child: SvgPicture.asset(
-                                  "assets/images/login/apple.svg",
-                                  height: s(28),
+                                child: Padding(
+                                  padding:  EdgeInsets.all(s(15)),
+                                  child: SvgPicture.asset(
+                                    "assets/images/login/apple.svg",
+                                    height: s(28),
+                                    width: s(24),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-
+                    
                           SizedBox(height: s(40)),
                         ],
                       ),
@@ -215,6 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           "Don't have an account yet? ",
                           style: GoogleFonts.lato(
                             fontSize: s(14),
+                            fontWeight: FontWeight.w400,
                             color: ColorPalette.bottomtext,
                           ),
                         ),
@@ -224,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             "Sign Up",
                             style: GoogleFonts.lato(
                               fontSize: s(14),
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                               color: ColorPalette.background,
                             ),
                           ),

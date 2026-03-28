@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class PanelIdField extends StatelessWidget {
   final double scale;
@@ -26,14 +27,13 @@ class PanelIdField extends StatelessWidget {
           Text(
             'Panel ID*',
             style: GoogleFonts.lato(
-              color: const Color(0xFF282828),
+              color: ColorPalette.bottomtext,
               fontSize: s(16),
               fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: s(14)),
 
-          /// 🔹 INPUT BOX
           Container(
             width: s(362),
             height: s(50),
@@ -45,20 +45,18 @@ class PanelIdField extends StatelessWidget {
 
             child: TextField(
               controller: controller,
-              textAlignVertical: TextAlignVertical.center, // ✅ keeps center
+              textAlignVertical: TextAlignVertical.center, 
 
               decoration: InputDecoration(
                 hintText: hint,
                 border: InputBorder.none,
-
-                // ✅ THIS is the key
                 contentPadding: EdgeInsets.symmetric(
-                  vertical: s(14), // adjust 13–16 based on your design
+                  vertical: s(14),
                   horizontal: s(0),
                 ),
 
                 hintStyle: GoogleFonts.lato(
-                  color: const Color(0xCC484848),
+                  color: ColorPalette.textfiledin.withValues(alpha: .80),
                   fontSize: s(16),
                   fontWeight: FontWeight.w400,
                 ),

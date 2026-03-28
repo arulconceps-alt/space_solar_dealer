@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
 
 class DashboardCard extends StatelessWidget {
   final String title;
@@ -9,6 +8,7 @@ class DashboardCard extends StatelessWidget {
   final String subtitle;
   final Color backgroundColor;
   final String imagePath;
+   final double iconSize;
 
   const DashboardCard({
     super.key,
@@ -16,9 +16,15 @@ class DashboardCard extends StatelessWidget {
     required this.value,
     required this.subtitle,
     required this.backgroundColor,
+    this. iconSize = 24,
     required this.imagePath,
   });
 
+double _getPadding(double iconSize) {
+  if (iconSize >= 28) return 6;   
+  if (iconSize >= 24) return 8;   
+  return 9;                       
+}
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -29,9 +35,9 @@ class DashboardCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(s(16)),
       decoration: ShapeDecoration(
-        color: Colors.white.withOpacity(0.5),
+        color: ColorPalette.whitetext.withOpacity(0.5),
         shape: RoundedRectangleBorder(
-          side: BorderSide(width: s(1), color: Colors.white),
+          side: BorderSide(width: s(1), color: ColorPalette.whitetext),
           borderRadius: BorderRadius.circular(s(20)),
         ),
       ),
@@ -46,11 +52,11 @@ class DashboardCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(s(6)),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(6.0),
+              padding: EdgeInsets.all(s(_getPadding(iconSize))),
               child: Image.asset(
                 imagePath,
-                width: s(28),
-                height: s(28),
+                width: s(iconSize),
+                height: s(iconSize),
               ),
             ),
           ),
@@ -66,8 +72,8 @@ class DashboardCard extends StatelessWidget {
               style: GoogleFonts.lato(
                 fontSize: s(16),
                 fontWeight: FontWeight.w500,
-                height: 1.2,
-                color: ColorPalette.textfiledin,
+                height: 1,
+                color: ColorPalette.textfiledin.withValues(alpha: .80),
               ),
             ),
           ),
@@ -79,7 +85,7 @@ class DashboardCard extends StatelessWidget {
             style: GoogleFonts.lato(
               fontSize: s(18),
               fontWeight: FontWeight.w500,
-              color: ColorPalette.bottomtext// 👈 optional scaling
+              color: ColorPalette.bottomtext
             ),
           ),
 
@@ -91,7 +97,7 @@ class DashboardCard extends StatelessWidget {
                 fontSize: s(16),
                 fontWeight: FontWeight.w500,
                 height: s(1),
-                color: ColorPalette.textfiledin// 👈 optional scaling (safe)
+                 color: ColorPalette.textfiledin.withValues(alpha: .80),
             ),
           ),
         ],

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/common/widgets/app_text_styles.dart';
-
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -18,25 +16,27 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth / 440;
+    double s(double v) => v * scale;
     return SizedBox(
       width: double.infinity,
-      height: scale * 50,
+      height: s(50),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF26A7DF),
+          backgroundColor: ColorPalette.background,
           foregroundColor: ColorPalette.whitetext,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
         onPressed: onTap,
         child: Text(
           text,
           style: GoogleFonts.poppins(
-            fontSize: scale * 16,
+            fontSize: s(16),
             fontWeight: FontWeight.w600,
             color: ColorPalette.whitetext,
+            letterSpacing: 0,
           ),
         ),
       ),

@@ -20,13 +20,11 @@ class _SignupScreenState extends State<SignupScreen> {
   final pass = TextEditingController();
   final confirm = TextEditingController();
 
-  bool hide1 = true;
-  bool hide2 = true;
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final scale = (w / 440).clamp(0.85, 1.2);
+  final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth / 440;
     double s(double v) => v * scale;
 
     return Scaffold(
@@ -40,7 +38,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
           SignupBlurCircle(
             left: s(-146),
-            top: s(-201),
+            top: s(-191),
             size: s(383),
             opacity: 1.0,
           ),
@@ -63,10 +61,7 @@ class _SignupScreenState extends State<SignupScreen> {
               padding: EdgeInsets.symmetric(horizontal: s(20)),
               child: Column(
                 children: [
-                  SizedBox(height: s(60)),
                   Center(child: LogoWidget(scale: scale)),
-
-
                   SizedBox(height: s(55)),
                   Expanded(
                     child: SingleChildScrollView(
@@ -79,17 +74,17 @@ class _SignupScreenState extends State<SignupScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: s(32),
                               fontWeight: FontWeight.w600,
-                              height: 1.19,
                               color: const Color(0xFF282828),
                             ),
                           ),
-
-                          SizedBox(height: s(4)),
+                         SizedBox(height: s(8)),
                           Text(
                             "Enter your personal details",
                             style: GoogleFonts.lato(
                               fontSize: s(16),
-                              color: const Color(0xFF484848),
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0,
+                              color: ColorPalette.textfiledin,
                             ),
                           ),
 
@@ -124,7 +119,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             controller: pass,
                             hint: "Password",
                             scale: scale,
-                            obscure: hide1,
                           ),
 
                           SizedBox(height: s(24)),
@@ -136,7 +130,6 @@ class _SignupScreenState extends State<SignupScreen> {
                             controller: confirm,
                             hint: "Confirm Password",
                             scale: scale,
-                            obscure: hide2,
                           ),
 
                           SizedBox(height: s(40)),
@@ -151,7 +144,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ),
 
-                          SizedBox(height: s(30)),
+                          SizedBox(height: s(40)),
                         ],
                       ),
                     ),
@@ -164,9 +157,10 @@ class _SignupScreenState extends State<SignupScreen> {
                       children: [
                         Text(
                           "Already have an account?",
-                          style: GoogleFonts.lato(
+                         style: GoogleFonts.lato(
                             fontSize: s(14),
-                            color: const Color(0xFF1E1E1E),
+                            fontWeight: FontWeight.w400,
+                            color: ColorPalette.bottomtext,
                           ),
                         ),
                         GestureDetector(
@@ -175,6 +169,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             " Login",
                             style: GoogleFonts.lato(
                               fontSize: s(14),
+                               fontWeight: FontWeight.w400,
                               color: const Color(0xFF26A7DF),
                             ),
                           ),
