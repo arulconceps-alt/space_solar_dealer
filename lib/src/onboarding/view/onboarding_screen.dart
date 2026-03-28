@@ -60,8 +60,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final bottomPadding = screenHeight * 0.055;
 
     return SafeArea(
-      top: false,
-      bottom: false,
+      // top: false,
+      // bottom: false,
       child: Scaffold(
         body: Column(
           children: [

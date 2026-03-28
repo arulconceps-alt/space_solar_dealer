@@ -111,6 +111,7 @@ class _DashboardState extends State<Dashboard> {
   appBar: CommonAppBar(
         scale: scale,
         showBack: false,
+        showNotification: true,
         onBackTap: () {
           context.pop();
         },

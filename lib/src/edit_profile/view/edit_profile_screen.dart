@@ -23,6 +23,7 @@ class EditProfileScreen extends StatelessWidget {
       appBar: CommonAppBar(
         scale: scale,
         showBack: true,
+        showNotification: true,
         onBackTap: () => context.pop(),
       ),
 
