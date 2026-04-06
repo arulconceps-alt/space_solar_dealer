@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
@@ -17,15 +18,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   late final List<Map<String, String>> pages = [
     {
-      "image": "assets/images/onboarding/onboarding1.png",
+      "image": "assets/images/onboarding/onboarding1.webp",
       "desc": "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
     },
     {
-      "image": "assets/images/onboarding/onboarding2.png",
+      "image": "assets/images/onboarding/onboarding2.webp",
       "desc": "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
     },
     {
-      "image": "assets/images/onboarding/onboarding3.png",
+      "image": "assets/images/onboarding/onboarding3.webp",
       "desc": "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
     },
   ];

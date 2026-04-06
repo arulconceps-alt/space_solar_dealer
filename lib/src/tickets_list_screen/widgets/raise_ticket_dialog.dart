@@ -83,12 +83,37 @@ class RaiseTicketDialog extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   Future.delayed(const Duration(milliseconds: 200), () {
-                    showDialog(
-                      context: parentContext,
-                      barrierDismissible: false,
-                      builder: (_) => TicketSuccessDialog(
-                        parentContext: parentContext,
-                      ),
+                    // showDialog(
+                    //   context: parentContext,
+                    //   barrierDismissible: false,
+                    //   builder: (_) => TicketSuccessDialog(
+                    //     parentContext: parentContext,
+                    //   ),
+                    // );
+                    showGeneralDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierLabel: "Ticket Details",
+                      barrierColor: Colors.black54,
+                      transitionDuration: const Duration(milliseconds: 500),
+                      pageBuilder: (context, animation, secondaryAnimation) {
+                        return TicketSuccessDialog(parentContext: context);
+                      },
+                      transitionBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            final curvedAnimation = CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.fastOutSlowIn,
+                            );
+
+                            return Transform.scale(
+                              scale: curvedAnimation.value,
+                              child: Opacity(
+                                opacity: animation.value,
+                                child: child,
+                              ),
+                            );
+                          },
                     );
                   });
                 },

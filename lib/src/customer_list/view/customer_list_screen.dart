@@ -5,7 +5,6 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/widget/customer_item.dart';
 import 'package:space_solar_dealer/src/customer_list/widget/search_box.dart';
-import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
 
 class CustomerList extends StatefulWidget {

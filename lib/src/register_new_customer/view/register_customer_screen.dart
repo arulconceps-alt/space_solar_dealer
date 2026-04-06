@@ -189,17 +189,45 @@ class RegisterCustomerScreen extends StatelessWidget {
 
                 /// 6. SUBMIT BUTTON
               _buildBlueButton("Submit", scale, () {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false, 
-                  builder: (context) {
-                    return Dialog(
-                      backgroundColor: Colors.transparent,
-                      insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                      child: SuccessDialog(scale: scale), 
-                    );
-                  },
-                );
+                // showDialog(
+                //   context: context,
+                //   barrierDismissible: false, 
+                //   builder: (context) {
+                //     return Dialog(
+                //       backgroundColor: Colors.transparent,
+                //       insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                //       child: SuccessDialog(scale: scale), 
+                //     );
+                //   },
+                // );
+                showGeneralDialog(
+  context: context,
+  barrierDismissible: false,
+  barrierLabel: "Success",
+  barrierColor: Colors.black54,
+  transitionDuration: const Duration(milliseconds: 400),
+  pageBuilder: (context, animation, secondaryAnimation) {
+    return const SizedBox(); // required but unused
+  },
+  transitionBuilder: (context, animation, secondaryAnimation, child) {
+    final curvedAnimation = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutBack, // smooth bounce effect
+    );
+
+    return Transform.scale(
+      scale: curvedAnimation.value,
+      child: Opacity(
+        opacity: animation.value,
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
+          child: SuccessDialog(scale: scale),
+        ),
+      ),
+    );
+  },
+);
               }),
                 SizedBox(height: 31 * scale),
               ],

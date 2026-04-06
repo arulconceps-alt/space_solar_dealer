@@ -61,34 +61,31 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                   SizedBox(height: s(24)),
                   Text(
                     'Tickets',
-                      style: GoogleFonts.poppins(
-                        fontSize: s(20),
-                        fontWeight: FontWeight.w600,
-                        color:  ColorPalette.bottomtext,
-                      ),
+                    style: GoogleFonts.poppins(
+                      fontSize: s(20),
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.bottomtext,
+                    ),
                   ),
-                   SizedBox(height: s(4)),
+                  SizedBox(height: s(4)),
+
                   /// SUBTITLE
                   Text(
                     'Track and manage customer issue',
                     style: GoogleFonts.lato(
                       color: ColorPalette.textfiledin.withValues(alpha: .80),
                       fontSize: s(14),
-                       fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-      
+
                   SizedBox(height: s(20)),
-      
-      
+
                   /// SEARCH
-                  CustomSearchBar(
-                    scale: scale,
-                    onChanged: (val) {},
-                  ),
-      
+                  CustomSearchBar(scale: scale, onChanged: (val) {}),
+
                   SizedBox(height: s(16)),
-      
+
                   /// TABS
                   CustomSegmentedTab(
                     scale: scale,
@@ -96,7 +93,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                       "All Active",
                       "Assigned",
                       "In Progress",
-                      "Resolved"
+                      "Resolved",
                     ],
                     selectedTab: _selectedTab,
                     onTabChanged: (newTab) {
@@ -106,8 +103,8 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                 ],
               ),
             ),
-             SizedBox(height: s(16)),
-      
+            SizedBox(height: s(16)),
+
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -116,7 +113,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                 return _buildScrollableTicketList(scale, s);
               },
             ),
-      
+
             SizedBox(height: s(100)), // space for FAB
           ],
         ),
@@ -149,7 +146,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(s(20), 0, s(20), s(100)), 
+      padding: EdgeInsets.fromLTRB(s(20), 0, s(20), s(100)),
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final ticket = filtered[index];
@@ -163,10 +160,43 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
           date: ticket["date"],
           sla: ticket["sla"],
           statusColor: ticket["statusColor"],
+          // onViewDetails: () {
+          //   showDialog(
+          //     context: context,
+          //     builder: (_) => const TicketDetailsDialog(),
+          //   );
+          // },
           onViewDetails: () {
-            showDialog(
+            showGeneralDialog(
               context: context,
-              builder: (_) => const TicketDetailsDialog(),
+              barrierDismissible: true,
+              barrierLabel: "Ticket Details",
+              barrierColor: Colors.black54,
+              transitionDuration: const Duration(milliseconds: 400),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return const SizedBox(); // required
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    final curvedAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutBack,
+                    );
+
+                    return Transform.scale(
+                      scale: curvedAnimation.value,
+                      child: Opacity(
+                        opacity: animation.value,
+                        child: Dialog(
+                          backgroundColor: Colors.transparent,
+                          insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          child: TicketDetailsDialog(),
+                        ),
+                      ),
+                    );
+                  },
             );
           },
         );
@@ -177,11 +207,26 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
   Widget _buildFigmaFAB(double Function(double) s) {
     return GestureDetector(
       onTap: () {
-        showDialog(
-        
+        showGeneralDialog(
           context: context,
-          builder: (dialogContext) =>
-              RaiseTicketDialog(parentContext: context),
+          barrierDismissible: true,
+          barrierLabel: "Ticket Details",
+          barrierColor: Colors.black54,
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return RaiseTicketDialog(parentContext: context);
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutBack,
+            );
+
+            return Transform.scale(
+              scale: curvedAnimation.value,
+              child: Opacity(opacity: animation.value, child: child),
+            );
+          },
         );
       },
       child: Container(
@@ -194,11 +239,12 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-           Image.asset("assets/images/ticket/add_icon.png",
-           height: s(22),
-           width: s(22),
-           color: ColorPalette.whitetext,
-           ),
+            Image.asset(
+              "assets/images/ticket/add_icon.png",
+              height: s(22),
+              width: s(22),
+              color: ColorPalette.whitetext,
+            ),
             SizedBox(width: s(12)),
             Text(
               'Raise Ticket',

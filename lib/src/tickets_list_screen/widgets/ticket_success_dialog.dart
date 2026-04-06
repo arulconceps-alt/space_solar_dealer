@@ -82,10 +82,37 @@ class TicketSuccessDialog extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                showDialog(
-                  context: parentContext,
-                  builder: (_) => TicketDetailsDialog(),
-                );
+                 showGeneralDialog(
+              context: context,
+              barrierDismissible: true,
+              barrierLabel: "Ticket Details",
+              barrierColor: Colors.black54,
+              transitionDuration: const Duration(milliseconds: 400),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return const SizedBox(); // required
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    final curvedAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutBack,
+                    );
+
+                    return Transform.scale(
+                      scale: curvedAnimation.value,
+                      child: Opacity(
+                        opacity: animation.value,
+                        child: Dialog(
+                          backgroundColor: Colors.transparent,
+                          insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          child: TicketDetailsDialog(),
+                        ),
+                      ),
+                    );
+                  },
+            );
               },
               child: Container(
                 width: double.infinity,
