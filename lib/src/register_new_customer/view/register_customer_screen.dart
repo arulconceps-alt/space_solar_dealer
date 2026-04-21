@@ -69,6 +69,13 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     setState(() {});
   }
   bool _validateFields() {
+    print("Name: ${nameController.text}");
+    print("Phone: ${phoneController.text}");
+    print("Email: ${emailController.text}");
+    print("State: ${context.read<NewRegisterBloc>().state.selectedState}");
+    print("District: ${context.read<NewRegisterBloc>().state.selectedDistrict}");
+    print("Panels: $panels");
+
     if (nameController.text.trim().isEmpty) {
       _showError("Enter customer name");
       return false;
@@ -94,14 +101,14 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       return false;
     }
 
-    if (context.read<NewRegisterBloc>().state.selectedState == null ||
-        context.read<NewRegisterBloc>().state.selectedState!.isEmpty) {
+    final blocState = context.read<NewRegisterBloc>().state;
+
+    if (blocState.selectedState == null || blocState.selectedState!.isEmpty) {
       _showError("Select state");
       return false;
     }
 
-    if (context.read<NewRegisterBloc>().state.selectedDistrict == null ||
-        context.read<NewRegisterBloc>().state.selectedDistrict!.isEmpty) {
+    if (blocState.selectedDistrict == null || blocState.selectedDistrict!.isEmpty) {
       _showError("Select district");
       return false;
     }
@@ -283,26 +290,28 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                               ? "Submitting..."
                               : "Submit",
                           scale: scale,
-                          onTap: () {
-                            if (_showLoader) return;
+                            onTap: () {
+                              print("🟡 BUTTON CLICKED");
 
-                            if (!_validateFields()) return; // ✅ STOP if invalid
+                              if (!_validateFields()) return;
 
-                            context.read<NewRegisterBloc>().add(
-                              NewRegisterSubmit(
+                              final bloc = context.read<NewRegisterBloc>();
+
+                              print("🟢 DISPATCHING EVENT");
+
+                              bloc.add(NewRegisterSubmit(
                                 name: nameController.text.trim(),
                                 phone: phoneController.text.trim(),
                                 email: emailController.text.trim(),
                                 address: addressController.text.trim(),
                                 city: pincodeController.text.trim(),
-                                state: context.read<NewRegisterBloc>().state.selectedState ?? "",
-                                district: context.read<NewRegisterBloc>().state.selectedDistrict ?? "",
+                                state: bloc.state.selectedState ?? "",
+                                district: bloc.state.selectedDistrict ?? "",
                                 area: pincodeController.text.trim(),
                                 panels: panels,
                                 parentId: "69e32380bf4cad14a1d4b9b7",
-                              ),
-                            );
-                          },
+                              ));
+                            }
                         ),
 
                         SizedBox(height: s(50)),

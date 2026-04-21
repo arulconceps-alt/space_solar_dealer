@@ -298,12 +298,19 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: s(16)),
         child: TextField(
-          controller: controller,
-          enabled: enabled, // ✅ IMPORTANT
+          controller: controller, // Essential for auto-fill
           maxLines: isAddress ? 3 : 1,
+          textAlign: TextAlign.start,
+          textAlignVertical: isAddress ? TextAlignVertical.top : TextAlignVertical.center,
           decoration: InputDecoration(
             hintText: hint,
             border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(vertical: s(16)),
+            hintStyle: GoogleFonts.lato(
+              color: const Color(0xCC484848).withOpacity(0.80),
+              fontSize: s(16),
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
       ),
@@ -404,7 +411,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
         SizedBox(height: s(14)),
         Container(
           height: s(50),
-          alignment: Alignment.center,
+          alignment: Alignment.center, // Ensures vertical centering
           padding: EdgeInsets.symmetric(horizontal: s(16)),
           decoration: BoxDecoration(
             color: enabled
@@ -423,20 +430,30 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
             ),
             style: GoogleFonts.lato(
               fontSize: s(16),
-              color: enabled
-                  ? ColorPalette.bottomtext
-                  : Colors.grey, // ✅ disabled text color
+              color: ColorPalette.bottomtext,
+              fontWeight: FontWeight.w400,
             ),
             decoration: InputDecoration(
               border: InputBorder.none,
               isDense: true,
               contentPadding: EdgeInsets.zero,
               hintText: hint,
+              hintStyle: GoogleFonts.lato(
+                color: const Color(0xCC484848).withOpacity(0.80),
+                fontSize: s(16),
+                fontWeight: FontWeight.w400,
+              ),
             ),
             items: items.map((e) {
               return DropdownMenuItem(
                 value: e,
-                child: Text(e),
+                child: Text(
+                  e,
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
+                    color: ColorPalette.bottomtext,
+                  ),
+                ),
               );
             }).toList(),
 
