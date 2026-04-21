@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/logo_widget.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_blur_circle.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_field_label.dart';
 import 'package:space_solar_dealer/src/signup/widgets/signup_glass_field.dart';
@@ -74,7 +74,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: s(32),
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF282828),
+                              color: ColorPalette.bottomtext,
                             ),
                           ),
                          SizedBox(height: s(8)),

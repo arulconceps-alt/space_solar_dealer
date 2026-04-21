@@ -1,547 +1,352 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/bloc/alert/alert_state.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/common/widgets/custom_snackbar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
-import 'package:space_solar_dealer/src/register_new_customer/widgets/register_success_dialog.dart';
+import 'package:space_solar_dealer/src/register_new_customer/bloc/new_register_bloc.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/OrDivider.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/added_panel_tile.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/blue_button.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/customer_details_card.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/manual_panel_entry.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/panel_registration_card.dart';
+import 'package:space_solar_dealer/src/register_new_customer/view/widgets/register_success_dialog.dart';
 
-class RegisterCustomerScreen extends StatelessWidget {
+class RegisterCustomerScreen extends StatefulWidget {
   const RegisterCustomerScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final double scale = MediaQuery.of(context).size.width / 440;
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: CommonAppBar(
-        scale: scale,
-        showBack: true,
-        showNotification: true,
-        onBackTap: () {
-          context.pop();
-        },
-      ),
-
-      /// 1. STANDARD APPBAR
-      /*appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: 74 * scale,
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: SizedBox(
-            width: 7.5 * scale,
-            height: 15 * scale,
-            child: Image.asset(
-              'assets/images/new_register/back_arrow.png',
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        title: SvgPicture.asset(
-          "assets/images/login/logo.svg",
-          height: 24 * scale,
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 20 * scale),
-            child: _buildNotificationIcon(scale),
-          )
-        ],
-      ),*/
-      body: AppBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 24 * scale),
-
-                /// TITLE
-                Text(
-                  'Register Customer & Panel IDs',
-                  style: GoogleFonts.poppins(
-                    color: ColorPalette.bottomtext,
-                    fontSize: 20 * scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                SizedBox(height: 20 * scale),
-
-                /// 2. CUSTOMER DETAILS CARD
-                _buildCardContainer(
-                  scale: scale,
-                  title: "Customer Details",
-                  width: 400 * scale,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 29 * scale),
-                      _buildInputField(
-                        "Customer Name*",
-                        "Customer Name",
-                        scale,
-                      ),
-                      SizedBox(height: 16 * scale),
-                      _buildInputField("Phone Number*", "Phone Number", scale),
-                      SizedBox(height: 16 * scale),
-                      _buildInputField("Email*", "Email", scale),
-                      SizedBox(height: 16 * scale),
-                      _buildInputField(
-                        "Address*",
-                        "Enter full installation address",
-                        scale,
-                        isAddress: true,
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 20 * scale),
-
-                /// 3. REGISTER PANEL (DOTTED SCANNER) CARD
-                _registerpanelContainer(
-                  scale: scale,
-                  title: "Register Panel",
-                  height: 436 * scale,
-                  width: 400 * scale,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 33 * scale),
-                      DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          color: Color(0xFF000000).withValues(alpha: .50),
-                          strokeWidth: 1,
-                          dashPattern: const [6, 4],
-                          radius: Radius.circular(10 * scale),
-                        ),
-                        child: Container(
-                          width: 180 * scale,
-                          height: 180 * scale,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.50),
-                            borderRadius: BorderRadius.circular(10 * scale),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(40 * scale),
-                            child: Image.asset(
-                              "assets/images/new_register/qr_scan.png",
-                              width: 100 * scale,
-                              height: 100 * scale,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Icon(
-                                    Icons.qr_code_scanner,
-                                    size: 80 * scale,
-                                    color: const Color(0xFF484848),
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 32 * scale),
-                      Text(
-                        'Position QR code within the frame',
-                        style: GoogleFonts.lato(
-                          fontSize: 14 * scale,
-                          color: const Color(0xCC484848),
-                        ),
-                      ),
-                      SizedBox(height: 32 * scale),
-                      _buildBlueButton("Scan", scale, () {}),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 39 * scale),
-                _buildOrDivider(scale),
-                SizedBox(height: 39 * scale),
-
-                /// 4. MANUAL ENTRY CARD
-                _buildGlassActionContainer(
-                  scale: scale,
-                  title: "Enter Panel ID Manual",
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildSimpleInput("Enter Panel ID", scale),
-                      ),
-                      SizedBox(width: 17 * scale),
-                      _buildSmallAddButton(scale),
-                    ],
-                  ),
-                ),
-
-                /// 5. ADDED PANELS LIST
-                SizedBox(height: 31 * scale),
-                _buildAddedPanelTile("SS-78A00-S001", scale),
-                SizedBox(height: 16 * scale),
-                _buildAddedPanelTile("SS-78A00-S002", scale),
-
-                SizedBox(height: 31 * scale),
-
-                /// 6. SUBMIT BUTTON
-              _buildBlueButton("Submit", scale, () {
-                // showDialog(
-                //   context: context,
-                //   barrierDismissible: false, 
-                //   builder: (context) {
-                //     return Dialog(
-                //       backgroundColor: Colors.transparent,
-                //       insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                //       child: SuccessDialog(scale: scale), 
-                //     );
-                //   },
-                // );
-                showGeneralDialog(
-  context: context,
-  barrierDismissible: false,
-  barrierLabel: "Success",
-  barrierColor: Colors.black54,
-  transitionDuration: const Duration(milliseconds: 400),
-  pageBuilder: (context, animation, secondaryAnimation) {
-    return const SizedBox(); // required but unused
-  },
-  transitionBuilder: (context, animation, secondaryAnimation, child) {
-    final curvedAnimation = CurvedAnimation(
-      parent: animation,
-      curve: Curves.easeOutBack, // smooth bounce effect
-    );
-
-    return Transform.scale(
-      scale: curvedAnimation.value,
-      child: Opacity(
-        opacity: animation.value,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 20 * scale),
-          child: SuccessDialog(scale: scale),
-        ),
-      ),
-    );
-  },
-);
-              }),
-                SizedBox(height: 31 * scale),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassActionContainer({
-    required double scale,
-    required String title,
-    required Widget child,
-  }) {
-    return Container(
-      width: double.infinity,
-      height: 142 * scale,
-      padding: EdgeInsets.all(20 * scale),
-
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(20 * scale),
-        border: Border.all(color: Colors.white),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 18 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF2D2D2D),
-            ),
-          ),
-          SizedBox(height: 16 * scale),
-          child,
-        ],
-      ),
-    );
-  }
-
-  /// --- UI HELPER METHODS ---
-
-  Widget _buildCardContainer({
-    required double scale,
-    required String title,
-    required Widget child,
-    bool centerChild = false,
-
-    double? width,
-    double? height,
-    EdgeInsets? padding,
-    EdgeInsets? margin,
-  }) {
-    return Container(
-      width: width ?? double.infinity,
-      height: height,
-      margin: margin,
-      padding: padding ?? EdgeInsets.all(20 * scale),
-
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(20 * scale),
-        border: Border.all(color: Colors.white),
-      ),
-
-      child: Column(
-        mainAxisSize: height != null ? MainAxisSize.max : MainAxisSize.min,
-        crossAxisAlignment: centerChild
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 18 * scale,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _registerpanelContainer({
-    required double scale,
-    required String title,
-    required Widget child,
-    bool centerChild = false,
-
-    double? width,
-    double? height,
-    EdgeInsets? padding,
-    EdgeInsets? margin,
-  }) {
-    return Container(
-      width: width ?? double.infinity,
-      height: height,
-      margin: margin,
-      padding: padding ?? EdgeInsets.all(20 * scale),
-
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(20 * scale),
-        border: Border.all(color: Colors.white),
-      ),
-
-      child: Column(
-        mainAxisSize: height != null ? MainAxisSize.max : MainAxisSize.min,
-        crossAxisAlignment: centerChild
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontSize: 18 * scale,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputField(
-    String label,
-    String hint,
-    double scale, {
-    bool isAddress = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.lato(
-            fontSize: 16 * scale,
-            fontWeight: FontWeight.w600,
-            color: ColorPalette.bottomtext,
-          ),
-        ),
-        SizedBox(height: 14 * scale),
-        _buildSimpleInput(hint, scale, isAddress: isAddress),
-      ],
-    );
-  }
-
-  Widget _buildSimpleInput(
-  String hint,
-  double scale, {
-  bool isAddress = false,
-}) {
-  return Container(
-    height: isAddress ? 74 * scale : 50 * scale,
-    decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.5),
-      borderRadius: BorderRadius.circular(10 * scale),
-      border: Border.all(color: Colors.white),
-    ),
-
-    child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-      child: TextField(
-        maxLines: isAddress ? 3 : 1,
-        textAlign: TextAlign.start,
-        textAlignVertical: isAddress
-            ? TextAlignVertical.top  
-            : TextAlignVertical.center, 
-
-        decoration: InputDecoration(
-          hintText: hint,
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 16 * scale), 
-
-          hintStyle: GoogleFonts.lato(
-            color: const Color(0xCC484848).withOpacity(0.80),
-            fontSize: 16 * scale,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ),
-    ),
-  );
+  State<RegisterCustomerScreen> createState() => _RegisterCustomerScreenState();
 }
-  Widget _buildBlueButton(String text, double scale, VoidCallback onTap) {
-    return Material(
-      color: const Color(0xFF26A7DF),
-      borderRadius: BorderRadius.circular(10 * scale),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10 * scale),
-        onTap: onTap,
-        child: Container(
-          height: 50 * scale,
-          alignment: Alignment.center,
-          child: Text(
-            text,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w600,
+
+class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
+  final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
+  bool _showLoader = false;
+  bool _dialogShown = false;
+  List<String> panels = [];
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController pincodeController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  final TextEditingController districtController = TextEditingController();
+  final TextEditingController areaController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    context.read<NewRegisterBloc>().add(LoadLocationData());
+  }
+  @override
+  void dispose() {
+    pincodeController.dispose();
+    stateController.dispose();
+    districtController.dispose();
+    areaController.dispose();
+    super.dispose();
+  }
+  void _clearForm() {
+    nameController.clear();
+    phoneController.clear();
+    emailController.clear();
+    addressController.clear();
+    pincodeController.clear();
+    stateController.clear();
+    districtController.clear();
+    areaController.clear();
+
+    panels.clear();
+
+    // 🔥 Reset dropdown state
+    context.read<NewRegisterBloc>().add(SelectState(""));
+    context.read<NewRegisterBloc>().add(SelectDistrict(""));
+
+    setState(() {});
+  }
+  bool _validateFields() {
+    if (nameController.text.trim().isEmpty) {
+      _showError("Enter customer name");
+      return false;
+    }
+
+    if (phoneController.text.trim().isEmpty) {
+      _showError("Enter phone number");
+      return false;
+    }
+
+    if (phoneController.text.trim().length != 10) {
+      _showError("Enter valid 10-digit phone number");
+      return false;
+    }
+
+    if (emailController.text.trim().isEmpty) {
+      _showError("Enter email");
+      return false;
+    }
+
+    if (!emailController.text.contains("@")) {
+      _showError("Enter valid email");
+      return false;
+    }
+
+    if (context.read<NewRegisterBloc>().state.selectedState == null ||
+        context.read<NewRegisterBloc>().state.selectedState!.isEmpty) {
+      _showError("Select state");
+      return false;
+    }
+
+    if (context.read<NewRegisterBloc>().state.selectedDistrict == null ||
+        context.read<NewRegisterBloc>().state.selectedDistrict!.isEmpty) {
+      _showError("Select district");
+      return false;
+    }
+
+    if (pincodeController.text.trim().isEmpty) {
+      _showError("Enter pincode");
+      return false;
+    }
+
+    if (addressController.text.trim().isEmpty) {
+      _showError("Enter address");
+      return false;
+    }
+
+    if (panels.isEmpty) {
+      _showError("Add at least one panel");
+      return false;
+    }
+
+    return true;
+  }
+  void _showError(String message) {
+    CustomSnackBar.show(
+      context,
+      AlertState(
+        message: message,
+        type: AlertType.failure,
+        timestamp: DateTime.now(),
+      ),
+    );
+  }
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth / 440;
+    double s(double v) => v * scale;
+
+    return BlocConsumer<NewRegisterBloc, NewRegisterState>(
+      listener: (context, state) async {
+        if (state.status == NewRegisterStatus.loading) {
+          setState(() {
+            _showLoader = true;
+          });
+        }
+
+        if (state.status == NewRegisterStatus.success && !_dialogShown) {
+          await Future.delayed(const Duration(seconds: 1)); // ✅ delay
+
+          setState(() {
+            _showLoader = false;
+          });
+
+          _dialogShown = true;
+
+          context.read<NewRegisterBloc>().add(const ResetRegisterState());
+
+          _clearForm();
+          customerKey.currentState?.resetToNewCustomer();
+
+          _showSuccessDialog(context, scale);
+        }
+
+        if (state.status == NewRegisterStatus.failure) {
+          await Future.delayed(const Duration(seconds: 1)); // ✅ delay
+
+          setState(() {
+            _showLoader = false;
+          });
+
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.failure,
+              timestamp: DateTime.now(),
             ),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          backgroundColor: Colors.transparent,
+          appBar: CommonAppBar(
+            scale: scale,
+            showBack: true,
+            showNotification: true,
+            onBackTap: () => context.pop(),
           ),
-        ),
-      ),
-    );
-  }
+          body: Stack(
+            children: [
+              AppBackground(
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: s(20)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: s(24)),
+                        Text(
+                          'Register Customer & Panel IDs',
+                          style: GoogleFonts.poppins(
+                            color: ColorPalette.bottomtext,
+                            fontSize: s(20),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
 
-  Widget _buildSmallAddButton(double scale) {
-    return Container(
-      width: 98 * scale,
-      height: 50 * scale,
-      decoration: BoxDecoration(
-        color: ColorPalette.background,
-        borderRadius: BorderRadius.circular(6 * scale),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        "Add",
-        style: GoogleFonts.poppins(
-          fontSize: 16 * scale,
-          color: ColorPalette.whitetext,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+                        SizedBox(height: s(20)),
 
-  Widget _buildAddedPanelTile(String id, double scale) {
-    return Container(
-      height: 50 * scale,
-      padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-      decoration: BoxDecoration(
-        color: ColorPalette.whitetext.withValues(alpha: .50),
-        borderRadius: BorderRadius.circular(10 * scale),
-        border: Border.all(color: Colors.white),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            id,
-            style: GoogleFonts.lato(
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w400,
-              color: ColorPalette.textfiled.withValues(alpha: .80),
-            ),
-          ),
-          Icon(Icons.close, size: 20 * scale, 
-          color: Color(0xFF000000).withValues(alpha: .50),),
-        ],
-      ),
-    );
-  }
+                        CustomerDetailsCard(
+                          key: customerKey,
+                          scale: scale,
+                          nameController: nameController,
+                          phoneController: phoneController,
+                          emailController: emailController,
+                          stateController: stateController,
+                          districtController: districtController,
+                          pincodeController: pincodeController,
+                          addressController: addressController,
+                          onClearPanels: () {
+                            setState(() {
+                              panels.clear();
+                            });
+                          },
+                          onPanelsLoaded: (apiPanels) {
+                            setState(() {
+                              panels = apiPanels; // ✅ UPDATE UI
+                            });
+                          },
+                        ),
 
-  Widget _buildOrDivider(double scale) {
-    return Row(
-      children: [
-        const Expanded(child: Divider(color: Color(0xFF484848), thickness: 1)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10 * scale),
-          child: Text(
-            "OR",
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF484848),
-            ),
-          ),
-        ),
-        const Expanded(child: Divider(color: Color(0xFF484848), thickness: 1)),
-      ],
-    );
-  }
+                        SizedBox(height: s(20)),
+                        PanelRegistrationCard(scale: scale),
 
-  Widget _buildNotificationIcon(double scale) {
-    return Stack(
-      alignment: Alignment.topRight,
-      children: [
-        SvgPicture.asset(
-          "assets/images/home/notification.svg",
-          height: 24 * scale,
-        ),
-        Positioned(
-          right: -2,
-          top: -2,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-            constraints: const BoxConstraints(minWidth: 12, minHeight: 12),
-            child: const Text(
-              '16',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
+                        SizedBox(height: s(30)),
+                        OrDivider(scale: scale),
+                        SizedBox(height: s(30)),
+
+                        ManualPanelEntry(
+                          scale: scale,
+                          panels: panels,
+                          onAdd: (value) {
+                            setState(() {
+                              if (!panels.contains(value)) {
+                                panels.add(value);
+                              }
+                            });
+                          },
+                          onRemove: (value) {
+                            setState(() {
+                              panels.remove(value);
+                            });
+                          },
+                        ),
+                        SizedBox(height: s(31)),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: panels.length,
+                          itemBuilder: (context, index) {
+                            final panel = panels[index];
+
+                            return AddedPanelTile(
+                              id: "SS-78A00-S${panel.toString().padLeft(3, '0')}",
+                              scale: scale,
+                              onRemove: () {
+                                setState(() {
+                                  panels.remove(panel);
+                                });
+                              },
+                            );
+                          },
+                          separatorBuilder: (context, index) => SizedBox(height: s(16)),
+                        ),
+                        SizedBox(height: s(31)),
+                        BlueButton(
+                          text: state.status == NewRegisterStatus.loading
+                              ? "Submitting..."
+                              : "Submit",
+                          scale: scale,
+                          onTap: () {
+                            if (_showLoader) return;
+
+                            if (!_validateFields()) return; // ✅ STOP if invalid
+
+                            context.read<NewRegisterBloc>().add(
+                              NewRegisterSubmit(
+                                name: nameController.text.trim(),
+                                phone: phoneController.text.trim(),
+                                email: emailController.text.trim(),
+                                address: addressController.text.trim(),
+                                city: pincodeController.text.trim(),
+                                state: context.read<NewRegisterBloc>().state.selectedState ?? "",
+                                district: context.read<NewRegisterBloc>().state.selectedDistrict ?? "",
+                                area: pincodeController.text.trim(),
+                                panels: panels,
+                                parentId: "69e32380bf4cad14a1d4b9b7",
+                              ),
+                            );
+                          },
+                        ),
+
+                        SizedBox(height: s(50)),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
+
+              /// ✅ LOADING OVERLAY
+              if (state.status == NewRegisterStatus.loading)
+                Container(
+                  color: Colors.black.withOpacity(0.3),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: ColorPalette.background,),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context, double scale) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: "Success",
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, animation, secondaryAnimation) => const SizedBox(),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return Transform.scale(
+          scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack).value,
+          child: Opacity(
+            opacity: animation.value,
+            child: Dialog(
+              backgroundColor: Colors.transparent,
+              child: RegistrationSuccessScreen(scale: scale),
             ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

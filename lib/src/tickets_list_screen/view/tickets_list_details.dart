@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/widgets/ticket_card.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/widgets/custom_search_bar.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/widgets/custom_Segmented_tab.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/widgets/raise_ticket_dialog.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/widgets/tickets_details_dialog.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/custom_Segmented_tab.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/custom_search_bar.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/raise_ticket_dialog.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/ticket_card.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/tickets_details_dialog.dart';
+
 
 class TicketsListDetails extends StatefulWidget {
   const TicketsListDetails({super.key});

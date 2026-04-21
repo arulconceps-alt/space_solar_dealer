@@ -19,23 +19,17 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
       context.go('/onboarding');
+      // context.go('/total_panel_list');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    // Use the full screen width for the logo scale
     final double logoWidth = size.width * 0.7;
-
-    // Maintain your specific aspect ratio (30 / 281.18)
     final double logoHeight = logoWidth * (30 / 281.18);
-
     return Scaffold(
       backgroundColor: ColorPalette.background,
-      // Removing SafeArea ensures the Center widget
-      // uses the 100% height of the physical screen.
       body: Center(
         child: Image.asset(
           iconLogo,

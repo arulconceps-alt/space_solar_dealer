@@ -43,7 +43,7 @@ class AppTextStyles {
   );
   ///Login heading
   static TextStyle headingScaled(double scale) => TextStyle(
-    color: const Color(0xFF282828),
+    color: ColorPalette.bottomtext,
     fontSize: 32 * scale,
     fontFamily: 'Poppins',
     fontWeight: FontWeight.w600,
@@ -73,7 +73,7 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
   );
   static TextStyle dashTitle() => TextStyle(
-    color: const Color(0xFF282828),
+    color: ColorPalette.bottomtext,
     fontSize: 20,
       fontFamily: 'Poppins',
       fontWeight: FontWeight.w600,
@@ -84,13 +84,13 @@ class AppTextStyles {
   static final heading = GoogleFonts.poppins(
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: const Color(0xFF282828),
+    color: ColorPalette.bottomtext,
   );
 
   static final sectionTitle = GoogleFonts.poppins(
     fontSize: 18,
     fontWeight: FontWeight.w500,
-    color: const Color(0xFF282828),
+    color: ColorPalette.bottomtext,
   );
 
 
@@ -103,7 +103,7 @@ class AppTextStyles {
   static final cardValue = GoogleFonts.lato(
   fontSize: 18,
   fontWeight: FontWeight.w500,
-  color: const Color(0xFF282828),
+  color: ColorPalette.bottomtext,
   );
 
   static final cardSubtitle = GoogleFonts.lato(

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
@@ -79,7 +80,7 @@ class RegistrationSuccessScreen extends StatelessWidget {
           Text(
             'Registered!',
             style: GoogleFonts.poppins(
-              color: const Color(0xFF282828),
+              color: ColorPalette.bottomtext,
               fontSize: 18 * scale,
               fontWeight: FontWeight.w500,
             ),

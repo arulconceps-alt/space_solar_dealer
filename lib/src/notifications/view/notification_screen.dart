@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
-import 'package:space_solar_dealer/src/notifications/widgets/notification_list.dart';
-import 'package:space_solar_dealer/src/notifications/widgets/notification_title.dart';
+import 'package:space_solar_dealer/src/notifications/view/widgets/notification_list.dart';
+import 'package:space_solar_dealer/src/notifications/view/widgets/notification_title.dart';
+
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});

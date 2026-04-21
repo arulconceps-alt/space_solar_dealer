@@ -1,3 +1,5 @@
+import 'package:space_solar_dealer/src/common/constants/store_constants.dart';
+
 import 'app_constants.dart';
 import 'api_constants.dart';
 
@@ -9,6 +11,7 @@ class Constants {
   static const api = ApiConstants();
 
   //Local Store constants
+  static const store = StoreConstants();
 
   static const TEXTFIELD = "text";
 }

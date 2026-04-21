@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
-import 'package:space_solar_dealer/src/customer_list/widget/customer_item.dart';
-import 'package:space_solar_dealer/src/customer_list/widget/search_box.dart';
-
+import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
+import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_state.dart';
+import 'package:space_solar_dealer/src/customer_list/view/widget/customer_item.dart';
+import 'package:space_solar_dealer/src/customer_list/view/widget/search_box.dart';
 
 class CustomerList extends StatefulWidget {
   const CustomerList({super.key});
@@ -17,30 +19,13 @@ class CustomerList extends StatefulWidget {
 class _CustomerListState extends State<CustomerList> {
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> allCustomers = [
-    "Baranee", "Mani", "Rahul", "Mohan", "Rahul", "Mani", "Mani"
-  ];
-
-  List<String> filteredCustomers = [];
 
   @override
   void initState() {
     super.initState();
-    filteredCustomers = allCustomers;
+
   }
 
-  void _searchCustomer(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        filteredCustomers = allCustomers;
-      } else {
-        filteredCustomers = allCustomers
-            .where((customer) =>
-            customer.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,76 +39,92 @@ class _CustomerListState extends State<CustomerList> {
       floatingActionButton: _buildFAB(s),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SafeArea(
-        child: SingleChildScrollView(  
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: s(24)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: s(20)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Customer List",
-                      style: GoogleFonts.poppins(
-                        fontSize: s(20),
-                        fontWeight: FontWeight.w600,
-                        color:  ColorPalette.bottomtext,
-                      ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            SizedBox(height: s(24)),
+
+            /// HEADER
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: s(20)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Customer List",
+                    style: GoogleFonts.poppins(
+                      fontSize: s(20),
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.bottomtext,
                     ),
-                    SizedBox(height: s(4)),
-                    Text(
-                      "Customer Information",
-                      style: GoogleFonts.lato(
-                        fontSize: s(14),
-                        fontWeight: FontWeight.w400,
-                        color:  ColorPalette.textfiledin.withValues(alpha: .80),
-                      ),
+                  ),
+                  SizedBox(height: s(4)),
+                  Text(
+                    "Customer Information",
+                    style: GoogleFonts.lato(
+                      fontSize: s(14),
+                      color: ColorPalette.textfiledin.withValues(alpha: .80),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-      
-              SizedBox(height: s(20)),
-      
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: s(20)),
-                child: SearchBox(
-                  scale: scale,
-                  controller: _searchController,
-                  onChanged: _searchCustomer,
-                ),
+            ),
+
+            SizedBox(height: s(20)),
+
+            /// SEARCH
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: s(20)),
+              child: SearchBox(
+                scale: scale,
+                controller: _searchController,
+                onChanged: (value) {
+                  context.read<CustomerListBloc>().add(SearchCustomers(value));
+                },
               ),
-      
-              SizedBox(height: s(33)),
-      
-              ListView.builder(
-                shrinkWrap: true, 
-                physics: const NeverScrollableScrollPhysics(), 
-                padding: EdgeInsets.symmetric(horizontal: s(20)),
-                itemCount: filteredCustomers.length,
-                itemBuilder: (context, index) {
-                  final customer = filteredCustomers[index];
-                  return CustomerItem(
-                    name: customer,
-                    isFirst: index == 0,
-                    isLast: index == filteredCustomers.length - 1,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CustomerDetailsScreen(name: customer),
-                        ),
+            ),
+
+            SizedBox(height: s(20)),
+
+            /// LIST (IMPORTANT: USE EXPANDED)
+            Expanded(
+              child: BlocBuilder<CustomerListBloc, CustomerListState>(
+                builder: (context, state) {
+
+                  if (state.status == CustomerListStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (state.status == CustomerListStatus.failure) {
+                    return Center(child: Text(state.message));
+                  }
+
+                  if (state.filteredCustomers.isEmpty) {
+                    return const Center(child: Text("No customers found"));
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: s(20)),
+                    itemCount: state.filteredCustomers.length,
+                    itemBuilder: (context, index) {
+                      final customer = state.filteredCustomers[index];
+                      return CustomerItem(
+                        customer: customer, // ✅ pass full object
+                        isFirst: index == 0,
+                        isLast: index == state.filteredCustomers.length - 1,
+                        onTap: () {
+                          context.push('/customer_details', extra: customer);
+                        },
                       );
                     },
                   );
                 },
               ),
-      
-              SizedBox(height: s(80)), 
-            ],
-          ),
+            ),
+
+            SizedBox(height: s(10)),
+          ],
         ),
       ),
     );
@@ -152,8 +153,8 @@ class _CustomerListState extends State<CustomerList> {
 
         child: Padding(
           padding: EdgeInsets.only(
-            left: s(13),   
-            right: s(19), 
+            left: s(13),
+            right: s(19),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -166,7 +167,7 @@ class _CustomerListState extends State<CustomerList> {
                 width: s(22),
               ),
 
-              SizedBox(width: s(12)), 
+              SizedBox(width: s(12)),
 
               /// TEXT
               Text(

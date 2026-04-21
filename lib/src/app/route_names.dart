@@ -2,7 +2,7 @@ mixin RouteName {
   static const splashscreen = "splash";
   static const onboarding = "onboarding";
   static const login = "login";
-  static const otp = "otp";
+  static const otp_verify = "otp_verify";
   static const signup = "signup";
   static const register = "register";
   static const home = "home";
@@ -14,5 +14,6 @@ mixin RouteName {
   static const profile_screen = "profile_screen";
   static const edit_profile_screen = "edit_profile_screen";
   static const notification_screen = "notification_screen";
+  static const total_panel_list = "total_panel_list";
 
 }

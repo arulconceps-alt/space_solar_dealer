@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Icon(
                             Icons.more_vert,
                             size: s(20),
-                            color: const Color(0xFF282828),
+                            color: ColorPalette.bottomtext,
                           ),
                           SizedBox(height: s(4)),
                           LogoutButton(scale: scale),

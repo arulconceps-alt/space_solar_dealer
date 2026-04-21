@@ -57,7 +57,7 @@ class ProfileInfoCard extends StatelessWidget {
                           style: GoogleFonts.lato(
                             fontSize: s(18),
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF282828),
+                            color: ColorPalette.bottomtext,
                           ),
                         ),
 
