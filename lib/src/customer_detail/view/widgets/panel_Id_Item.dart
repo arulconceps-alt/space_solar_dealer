@@ -16,22 +16,20 @@ class PanelIdItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scaling helper local to this widget
     double s(double v) => v * scale;
 
     return Container(
-      height: s(58),
-      alignment: Alignment.centerLeft,
+      width: double.infinity,
+      height: s(70),
       padding: EdgeInsets.symmetric(horizontal: s(16)),
+      alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
-        // Matches the divider design from your image
-        border: isLast
-            ? null
-            : Border(
-          bottom: BorderSide(
-            color: ColorPalette.whitetext.withOpacity(0.5),
-            width: 1,
-          ),
+        color: ColorPalette.whitetext.withOpacity(0.5),
+
+        // ✅ FULL BORDER ALL SIDES
+        border: Border.all(
+          color: ColorPalette.whitetext,
+          width: 1,
         ),
       ),
       child: Text(

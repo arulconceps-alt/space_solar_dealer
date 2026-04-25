@@ -5,6 +5,8 @@ import 'package:space_solar_dealer/src/common/models/customer_model.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
 import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
+import 'package:space_solar_dealer/src/customer_detail/bloc/customer_details_bloc.dart';
+import 'package:space_solar_dealer/src/customer_detail/repo/customer_details_repositary.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
@@ -25,8 +27,6 @@ import 'package:space_solar_dealer/src/registration_success_screen/view/registra
 import 'package:space_solar_dealer/src/signup/view/signup_screen.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/total_panel_List.dart';
-
-
 
 
 class Routes {
@@ -113,10 +113,18 @@ class Routes {
       /// customer details
       GoRoute(
         name: RouteName.customer_detail,
-        path: "/customer_detail",
+        path: '/customer_detail',
         builder: (context, state) {
-          final customer = state.extra as CustomerModel; // ✅ full model
-          return CustomerDetailsScreen(customer: customer);
+          final customer = state.extra as CustomerModel;
+
+          return BlocProvider(
+            create: (context) => CustomerDetailBloc(
+              CustomerDetailsRepositary(
+                context.read<ApiRepository>(),
+              ),
+            ),
+            child: CustomerDetailsScreen(customer: customer),
+          );
         },
       ),
       ///ticket list details

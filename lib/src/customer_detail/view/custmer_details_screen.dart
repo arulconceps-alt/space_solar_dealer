@@ -21,12 +21,29 @@ class CustomerDetailsScreen extends StatefulWidget {
 }
 
 class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
+  List<String> panels = [];
 
   @override
   void initState() {
     super.initState();
-    // Logic to run when the screen first loads
     print("Screen loaded for: ${widget.customer.name}");
+    _loadPanels();
+  }
+
+  void _loadPanels() {
+    final List<String> temp = [];
+
+    for (var order in widget.customer.orders) {
+      for (var item in order.items) {
+        if (item.serialNumber != null && item.serialNumber!.isNotEmpty) {
+          temp.add(item.serialNumber!);
+        }
+      }
+    }
+
+    setState(() {
+      panels = temp;
+    });
   }
 
   @override
@@ -43,9 +60,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       appBar: CommonAppBar(
         scale: scale,
         showBack: true,
-        onBackTap: () {
-          context.pop();
-        },
+        onBackTap: () => context.pop(),
       ),
 
       body: AppBackground(
@@ -59,6 +74,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: s(24)),
+
                       Text(
                         'Customer Detail',
                         style: GoogleFonts.poppins(
@@ -67,7 +83,9 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+
                       SizedBox(height: s(22)),
+
                       Center(
                         child: Column(
                           children: [
@@ -90,7 +108,6 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                                 style: GoogleFonts.lato(
                                   fontSize: s(48),
                                   fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF000000),
                                 ),
                               ),
                             ),
@@ -102,7 +119,6 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                               style: GoogleFonts.lato(
                                 fontSize: s(16),
                                 fontWeight: FontWeight.w600,
-                                color: ColorPalette.bottomtext,
                               ),
                             ),
                           ],
@@ -111,17 +127,23 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
 
                       SizedBox(height: s(30)),
 
-                      /// FIELDS
-                    //  _buildField("Panel ID", "SS-001 to SS-024", scale),
-                      _buildField("Phone Number", "9876543212", scale),
-                      _buildField("Email", "${widget.customer.name.toLowerCase()}123@gmail.com", scale),
+                      _buildField("Phone Number", widget.customer.phone, scale),
+
+                      _buildField(
+                        "Email",
+                        widget.customer.email ?? "-",
+                        scale,
+                      ),
+
                       _buildField(
                         "Address",
-                        "21/22 Raja colony, Ganapathy, Coimbatore",
+                        widget.customer.addressLine1,
                         scale,
                         isAddress: true,
                       ),
-                      SizedBox(height:s(40),),
+
+                      SizedBox(height: s(40)),
+
                       Padding(
                         padding: EdgeInsets.only(right: s(2)),
                         child: Row(
@@ -132,44 +154,32 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                               style: GoogleFonts.lato(
                                 fontSize: s(16),
                                 fontWeight: FontWeight.w600,
-                                color: ColorPalette.bottomtext,
                               ),
                             ),
                             Text(
-                              "Total panels (07)",
+                              "Total panels (${panels.length})",
                               style: GoogleFonts.lato(
                                 fontSize: s(14),
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF4A4A4A),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: s(12)),
-                      Container(
-                        height: s(400), // Fixed height to enable scrolling inside
-                        decoration: BoxDecoration(
-                          color: ColorPalette.whitetext.withOpacity(0.50),
-                          borderRadius: BorderRadius.circular(s(10)),
-                          border: Border.all(color: ColorPalette.whitetext),
-                        ),
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          physics: const ClampingScrollPhysics(),
-                          itemCount: 7,
-                          itemBuilder: (context, index) {
-                            return PanelIdItem(
-                              id: "SS-PNID-00${index + 1}",
-                              scale: scale,
-                              isLast: index == 6, // Prevents bottom border on last item
-                            );
-                          },
-                        )
-                      ),
-                      SizedBox(height: s(40)),
 
+                      SizedBox(height: s(12)),
+
+                      Column(
+                        children: List.generate(panels.length, (index) {
+                          return PanelIdItem(
+                            id: panels[index],
+                            scale: scale,
+                            isLast: index == panels.length - 1,
+                          );
+                        }),
+                      ),
+
+                      SizedBox(height: s(40)),
                     ],
                   ),
                 ),
@@ -181,43 +191,6 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     );
   }
 
-  /// 🔹 Notification Badge (scaled fix)
-  Widget _buildNotificationBadge(double scale) {
-    double s(double v) => v * scale;
-
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.topRight,
-      children: [
-        SvgPicture.asset(
-          "assets/images/home/notification.svg",
-          height: s(24),
-          width: s(24),
-        ),
-        Positioned(
-          right: -s(6), // ✅ scaled
-          top: -s(6),
-          child: Container(
-            padding: EdgeInsets.all(s(4)), // ✅ scaled
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '16',
-              style: TextStyle(
-                fontSize: s(9), // ✅ scaled
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 🔹 FIELD (scaled fix)
   Widget _buildField(
       String title,
       String value,
@@ -227,7 +200,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     double s(double v) => v * scale;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: s(16)), 
+      padding: EdgeInsets.only(bottom: s(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -236,42 +209,18 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             style: GoogleFonts.lato(
               fontSize: s(16),
               fontWeight: FontWeight.w600,
-              color: ColorPalette.bottomtext,
             ),
           ),
-
-          SizedBox(height: s(14)), 
-
+          SizedBox(height: s(14)),
           Container(
             width: double.infinity,
-            height: isAddress ? null : s(50),
-            constraints: isAddress
-                ? BoxConstraints(minHeight: s(71))
-                : null,
-            padding: EdgeInsets.symmetric(
-              horizontal: s(16),
-              vertical: s(14),
-            ),
+            padding: EdgeInsets.all(s(14)),
             decoration: BoxDecoration(
               color: ColorPalette.whitetext.withOpacity(0.50),
               borderRadius: BorderRadius.circular(s(10)),
-              border: Border.all(
-                color: ColorPalette.whitetext,
-                width: s(1),
-              ),
+              border: Border.all(color: ColorPalette.whitetext),
             ),
-
-            child: Align(
-              alignment: isAddress ?Alignment.topLeft : Alignment.centerLeft,
-              child: Text(
-                value,
-                style: GoogleFonts.lato(
-                  fontSize: s(16),
-                  fontWeight: FontWeight.w400,
-                  color: ColorPalette.textfiledin.withValues(alpha: .80),
-                ),
-              ),
-            ),
+            child: Text(value),
           ),
         ],
       ),

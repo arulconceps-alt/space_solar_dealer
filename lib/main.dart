@@ -19,7 +19,7 @@ Future<void> main() async {
   final config = FlavorConfig(
     flavor: Flavor.dev,
     appName: "Space Solar",
-    baseUrl: "http://187.127.131.80:5502/api/v1/",
+    baseUrl: "http://187.127.131.80:5502/",
     useMockApi: false,
   );
   GetIt.I.registerSingleton<FlavorConfig>(config);
@@ -46,11 +46,11 @@ Future<void> main() async {
           ),
         ),
         // 3. Register Customer Repository
-        RepositoryProvider(
+        /*RepositoryProvider(
           create: (context) => CustomerListRepositary(
             context.read<ApiRepository>(),
           ),
-        ),
+        ),*/
       ],
       child: MultiBlocProvider(
         providers: [

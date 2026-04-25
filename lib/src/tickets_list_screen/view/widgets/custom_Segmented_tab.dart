@@ -21,9 +21,9 @@ class CustomSegmentedTab extends StatelessWidget {
     double s(double v) => v * scale;
 
     return Container(
-      width: s(400),
+      width: double.infinity,
       height: s(50),
-      padding: EdgeInsets.all(s(5)), // clean padding
+      padding: EdgeInsets.all(s(5)),
       decoration: BoxDecoration(
         color: ColorPalette.whitetext.withOpacity(0.5),
         borderRadius: BorderRadius.circular(s(20)),
@@ -32,33 +32,36 @@ class CustomSegmentedTab extends StatelessWidget {
           width: s(1),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-        children: tabs.map((tab) {
-          bool isSelected = selectedTab == tab;
 
-          return GestureDetector(
-            onTap: () => onTabChanged(tab),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: s(94),   
-              height: s(36),  
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? ColorPalette.background
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(s(20)), 
-              ),
-              child: Text(
-                tab,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.lato(
+      child: Row(
+        children: tabs.map((tab) {
+          final isSelected = selectedTab == tab;
+
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onTabChanged(tab),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.symmetric(horizontal: s(2)),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
                   color: isSelected
-                      ? ColorPalette.whitetext
-                      : ColorPalette.bottomtext,
-                  fontSize: s(14),
-                  fontWeight: FontWeight.w600,
+                      ? ColorPalette.background
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(s(16)),
+                ),
+                child: Text(
+                  tab,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.lato(
+                    color: isSelected
+                        ? ColorPalette.whitetext
+                        : ColorPalette.bottomtext,
+                    fontSize: s(14),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

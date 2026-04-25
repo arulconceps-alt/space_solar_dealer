@@ -1,31 +1,26 @@
-/*
-part of 'customer_bloc.dart';
 
+import 'package:space_solar_dealer/src/common/models/customer_detail_model.dart';
 
+class CustomerDetailState {
+  final bool isLoading;
+  final CustomerDetailModel? customer;
+  final String error;
 
-enum CustomerStatus { initial, loading, success, failure }
-
-class CustomerDetailsState extends Equatable {
-  const CustomerDetailsState({
-    this.status = CustomerStatus.initial,
-    this.message = '',
+  CustomerDetailState({
+    this.isLoading = false,
+    this.customer,
+    this.error = '',
   });
 
-  final CustomerStatus status;
-  final String message;
-
-  static const initial = CustomerDetailsState();
-
-  CustomerDetailsState copyWith({
-    CustomerStatus? status,
-    String? message,
+  CustomerDetailState copyWith({
+    bool? isLoading,
+    CustomerDetailModel? customer,
+    String? error,
   }) {
-    return CustomerDetailsState(
-      status: status ?? this.status,
-      message: message ?? this.message,
+    return CustomerDetailState(
+      isLoading: isLoading ?? this.isLoading,
+      customer: customer ?? this.customer,
+      error: error ?? this.error,
     );
   }
-
-  @override
-  List<Object?> get props => [status, message];
-}*/
+}

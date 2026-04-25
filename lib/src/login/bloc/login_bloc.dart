@@ -2,7 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:logger/logger.dart';
+import 'package:space_solar_dealer/src/common/error/api_error.dart';
 import 'package:space_solar_dealer/src/common/models/otp_response.dart';
+import 'package:space_solar_dealer/src/common/repos/api_exception.dart';
 
 import 'package:space_solar_dealer/src/login/repo/login_repositary.dart';
 
@@ -47,7 +49,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       );
     } catch (e) {
       _log.e('LoginBloc::_onSubmitLogin::Error: $e');
-      emit(state.copyWith(status: LoginStatus.failure, message: e.toString()));
+
+      if (e is ApiException) { // 👈 Use ApiException
+        emit(state.copyWith(
+          status: LoginStatus.failure,
+          message: e.message,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: LoginStatus.failure,
+          message: "An unexpected error occurred",
+        ));
+      }
     }
   }
 }

@@ -7,53 +7,85 @@ abstract class NewRegisterEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class LoadLocationData extends NewRegisterEvent {}
+
+class SelectState extends NewRegisterEvent {
+  final String name;
+  final int id;
+
+  const SelectState(this.name, this.id);
+
+  @override
+  List<Object?> get props => [name, id];
+}
+
+class SelectDistrict extends NewRegisterEvent {
+  final String name;
+  final int id;
+
+  const SelectDistrict(this.name, this.id);
+
+  @override
+  List<Object?> get props => [name, id];
+}
+
+class SelectPincode extends NewRegisterEvent {
+  final int id;
+  final String code;
+
+  const SelectPincode({
+    required this.id,
+    required this.code,
+  });
+
+  @override
+  List<Object?> get props => [id, code];
+}
+
+class SearchCustomer extends NewRegisterEvent {
+  final String query;
+  const SearchCustomer(this.query);
+}
+
 class NewRegisterSubmit extends NewRegisterEvent {
   final String name;
   final String phone;
-  final String email;
-  final String address;
-  final String city;
-  final String state;
-  final String district;
-  final String area;
+  final String addressLine;
+  final int stateId;
+  final int districtId;
+  final int pincodeId;
   final List<String> panels;
-  final String parentId;
+
+  final String propertyType;
+  final double rooftopArea;
+  final double electricityBill;
 
   const NewRegisterSubmit({
     required this.name,
     required this.phone,
-    required this.email,
-    required this.address,
-    required this.city,
-    required this.state,
-    required this.district,
-    required this.area,
+    required this.addressLine,
+    required this.stateId,
+    required this.districtId,
+    required this.pincodeId,
     required this.panels,
-    required this.parentId,
+    required this.propertyType,
+    required this.rooftopArea,
+    required this.electricityBill,
   });
 
   @override
-  List<Object?> get props =>
-      [name, phone, email, address, city, state, district, area, panels, parentId];
+  List<Object?> get props => [
+    name,
+    phone,
+    addressLine,
+    stateId,
+    districtId,
+    pincodeId,
+    panels,
+    propertyType,
+    rooftopArea,
+    electricityBill,
+  ];
 }
-class LoadLocationData extends NewRegisterEvent {}
-
-class SelectState extends NewRegisterEvent {
-  final String state;
-  const SelectState(this.state);
-}
-
-class SelectDistrict extends NewRegisterEvent {
-  final String district;
-  const SelectDistrict(this.district);
-}
-class SearchCustomer extends NewRegisterEvent {
-  final String query;
-  SearchCustomer(this.query);
-}
-class ResetRegisterState extends NewRegisterEvent {
-  const ResetRegisterState();
-
-  @override
-  List<Object?> get props => [];
-}
+class LoadCustomers extends NewRegisterEvent {}
+class ResetRegisterState extends NewRegisterEvent {}

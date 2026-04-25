@@ -1,4 +1,4 @@
-/*
+import 'package:space_solar_dealer/src/common/models/customer_detail_model.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 
 class CustomerDetailsRepositary {
@@ -6,30 +6,25 @@ class CustomerDetailsRepositary {
 
   CustomerDetailsRepositary(this._apiRepository);
 
-  /// Registers a customer with their details and panel IDs
-  Future<void> registerCustomer({
-    required String name,
-    required String phone,
-    required String email,
-    required String address,
-    required List<String> panelIds,
-  }) async {
-    try {
-      final responseData = await _apiRepository.postRequest(
-        // The endpoint from your requirement
-        url: "admin/customers",
-        data: {
-          "name": name,
-          "phone": phone,
-          "email": email,
-          "address": address,
-          "panel_ids": panelIds, // Assuming the API expects an array
-        },
-      );
+  Future<CustomerDetailModel> getCustomerById(String id) async {
+    final response = await _apiRepository.getRequest("/dealer/customers/$id");
 
-      return responseData;
-    } catch (e) {
-      rethrow;
+    if (response["success"] != true) {
+      throw Exception("Failed to fetch customer detail");
     }
+
+    final data = response["data"];
+    print("API RESPONSE: $response");
+    if (data == null) {
+      throw Exception("No customer data found");
+    }
+
+    final List dataList = response["data"] ?? [];
+
+    final customerJson = dataList.firstWhere(
+          (e) => e["id"] == id,
+    );
+
+    return CustomerDetailModel.fromJson(customerJson);
   }
-}*/
+}

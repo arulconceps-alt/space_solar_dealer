@@ -1,4 +1,4 @@
-class CustomerModel {
+class CustomerDetailModel {
   final String id;
   final String? email;
   final String phone;
@@ -14,7 +14,7 @@ class CustomerModel {
   final List<Order> orders;
   final List<PanelModel> panels;
 
-  CustomerModel({
+  CustomerDetailModel({
     required this.id,
     this.email,
     required this.phone,
@@ -31,8 +31,8 @@ class CustomerModel {
     required this.panels,
   });
 
-  factory CustomerModel.fromJson(Map<String, dynamic> json) {
-    return CustomerModel(
+  factory CustomerDetailModel.fromJson(Map<String, dynamic> json) {
+    return CustomerDetailModel(
       id: json['id'] ?? '',
       email: json['email'],
       phone: json['phone'] ?? '',

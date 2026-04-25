@@ -6,18 +6,24 @@ class CustomerListRepositary {
 
   CustomerListRepositary(this._apiRepository);
 
-  Future<List<Map<String, dynamic>>> fetchAllCustomers() async {
-    final response = await _apiRepository.getRequest("admin/customers");
+  Future<List<Map<String, dynamic>>> fetchAllCustomers({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final response = await _apiRepository.getRequest(
+      "dealer/customers?page=$page&limit=$limit",
+    );
 
-    print("API RESPONSE: $response");
+    print("📥 API RESPONSE: $response");
+
 
     if (response == null || response["success"] != true) {
-      throw Exception("Failed to fetch customers");
+      throw Exception(response["message"] ?? "Failed to fetch customers");
     }
 
-    // ✅ CORRECT (data is LIST)
     final List list = response["data"] ?? [];
-
+    print("🔥 LoadCustomers called");
+    print("🔥 DATA LENGTH: ${list.length}");
     return list.cast<Map<String, dynamic>>();
   }
 }

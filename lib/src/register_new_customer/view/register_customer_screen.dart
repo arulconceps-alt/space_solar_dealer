@@ -26,9 +26,12 @@ class RegisterCustomerScreen extends StatefulWidget {
 
 class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
-  bool _showLoader = false;
   bool _dialogShown = false;
+
+  // Removed 'final' from these as they are updated via BLoC state,
+  // or simply rely on the BLoC state directly during submit.
   List<String> panels = [];
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -37,19 +40,26 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final TextEditingController stateController = TextEditingController();
   final TextEditingController districtController = TextEditingController();
   final TextEditingController areaController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     context.read<NewRegisterBloc>().add(LoadLocationData());
   }
+
   @override
   void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    emailController.dispose();
+    addressController.dispose();
     pincodeController.dispose();
     stateController.dispose();
     districtController.dispose();
     areaController.dispose();
     super.dispose();
   }
+
   void _clearForm() {
     nameController.clear();
     phoneController.clear();
@@ -59,86 +69,28 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     stateController.clear();
     districtController.clear();
     areaController.clear();
-
     panels.clear();
-
-    // 🔥 Reset dropdown state
-    context.read<NewRegisterBloc>().add(SelectState(""));
-    context.read<NewRegisterBloc>().add(SelectDistrict(""));
-
     setState(() {});
   }
+
   bool _validateFields() {
-    print("Name: ${nameController.text}");
-    print("Phone: ${phoneController.text}");
-    print("Email: ${emailController.text}");
-    print("State: ${context.read<NewRegisterBloc>().state.selectedState}");
-    print("District: ${context.read<NewRegisterBloc>().state.selectedDistrict}");
-    print("Panels: $panels");
-
-    if (nameController.text.trim().isEmpty) {
-      _showError("Enter customer name");
-      return false;
-    }
-
-    if (phoneController.text.trim().isEmpty) {
-      _showError("Enter phone number");
-      return false;
-    }
-
-    if (phoneController.text.trim().length != 10) {
-      _showError("Enter valid 10-digit phone number");
-      return false;
-    }
-
-    if (emailController.text.trim().isEmpty) {
-      _showError("Enter email");
-      return false;
-    }
-
-    if (!emailController.text.contains("@")) {
-      _showError("Enter valid email");
-      return false;
-    }
-
     final blocState = context.read<NewRegisterBloc>().state;
 
-    if (blocState.selectedState == null || blocState.selectedState!.isEmpty) {
-      _showError("Select state");
-      return false;
-    }
-
-    if (blocState.selectedDistrict == null || blocState.selectedDistrict!.isEmpty) {
-      _showError("Select district");
-      return false;
-    }
-
-    if (pincodeController.text.trim().isEmpty) {
-      _showError("Enter pincode");
-      return false;
-    }
-
-    if (addressController.text.trim().isEmpty) {
-      _showError("Enter address");
-      return false;
-    }
-
-    if (panels.isEmpty) {
-      _showError("Add at least one panel");
-      return false;
-    }
+    if (nameController.text.trim().isEmpty) return _showError("Enter customer name");
+    if (phoneController.text.trim().length != 10) return _showError("Enter valid 10-digit phone number");
+    if (!emailController.text.contains("@")) return _showError("Enter valid email");
+    if (blocState.selectedStateId == null) return _showError("Select state");
+    if (blocState.selectedDistrictId == null) return _showError("Select district");
+    if (blocState.selectedPincodeId == null) return _showError("Select pincode");
+    if (addressController.text.trim().isEmpty) return _showError("Enter address");
+    if (panels.isEmpty) return _showError("Add at least one panel");
 
     return true;
   }
-  void _showError(String message) {
-    CustomSnackBar.show(
-      context,
-      AlertState(
-        message: message,
-        type: AlertType.failure,
-        timestamp: DateTime.now(),
-      ),
-    );
+
+  bool _showError(String message) {
+    CustomSnackBar.show(context, AlertState(message: message, type: AlertType.failure, timestamp: DateTime.now()));
+    return false;
   }
   @override
   Widget build(BuildContext context) {
@@ -147,43 +99,18 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     double s(double v) => v * scale;
 
     return BlocConsumer<NewRegisterBloc, NewRegisterState>(
-      listener: (context, state) async {
-        if (state.status == NewRegisterStatus.loading) {
-          setState(() {
-            _showLoader = true;
-          });
-        }
-
+      listener: (context, state) {
         if (state.status == NewRegisterStatus.success && !_dialogShown) {
-          await Future.delayed(const Duration(seconds: 1)); // ✅ delay
-
-          setState(() {
-            _showLoader = false;
-          });
-
           _dialogShown = true;
-
-          context.read<NewRegisterBloc>().add(const ResetRegisterState());
-
-          _clearForm();
-          customerKey.currentState?.resetToNewCustomer();
-
           _showSuccessDialog(context, scale);
+          _clearForm();
+          context.read<NewRegisterBloc>().add(ResetRegisterState());
         }
-
         if (state.status == NewRegisterStatus.failure) {
-          await Future.delayed(const Duration(seconds: 1)); // ✅ delay
-
-          setState(() {
-            _showLoader = false;
-          });
-
-          CustomSnackBar.show(
-            context,
-            AlertState(
-              message: state.message,
-              type: AlertType.failure,
-              timestamp: DateTime.now(),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error: ${state.message}"),
+              backgroundColor: Colors.red,
             ),
           );
         }
@@ -191,7 +118,6 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       builder: (context, state) {
         return Scaffold(
           extendBodyBehindAppBar: true,
-          backgroundColor: Colors.transparent,
           appBar: CommonAppBar(
             scale: scale,
             showBack: true,
@@ -216,7 +142,6 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-
                         SizedBox(height: s(20)),
 
                         CustomerDetailsCard(
@@ -229,21 +154,12 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           districtController: districtController,
                           pincodeController: pincodeController,
                           addressController: addressController,
-                          onClearPanels: () {
-                            setState(() {
-                              panels.clear();
-                            });
-                          },
-                          onPanelsLoaded: (apiPanels) {
-                            setState(() {
-                              panels = apiPanels; // ✅ UPDATE UI
-                            });
-                          },
+                          onClearPanels: () => setState(() => panels.clear()),
+                          onPanelsLoaded: (apiPanels) => setState(() => panels = apiPanels),
                         ),
 
                         SizedBox(height: s(20)),
                         PanelRegistrationCard(scale: scale),
-
                         SizedBox(height: s(30)),
                         OrDivider(scale: scale),
                         SizedBox(height: s(30)),
@@ -265,13 +181,13 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           },
                         ),
                         SizedBox(height: s(31)),
+
                         ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: panels.length,
                           itemBuilder: (context, index) {
                             final panel = panels[index];
-
                             return AddedPanelTile(
                               id: "SS-78A00-S${panel.toString().padLeft(3, '0')}",
                               scale: scale,
@@ -285,35 +201,33 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           separatorBuilder: (context, index) => SizedBox(height: s(16)),
                         ),
                         SizedBox(height: s(31)),
+
                         BlueButton(
                           text: state.status == NewRegisterStatus.loading
                               ? "Submitting..."
                               : "Submit",
                           scale: scale,
                             onTap: () {
-                              print("🟡 BUTTON CLICKED");
-
                               if (!_validateFields()) return;
 
-                              final bloc = context.read<NewRegisterBloc>();
+                              final blocState = context.read<NewRegisterBloc>().state;
 
-                              print("🟢 DISPATCHING EVENT");
-
-                              bloc.add(NewRegisterSubmit(
-                                name: nameController.text.trim(),
-                                phone: phoneController.text.trim(),
-                                email: emailController.text.trim(),
-                                address: addressController.text.trim(),
-                                city: pincodeController.text.trim(),
-                                state: bloc.state.selectedState ?? "",
-                                district: bloc.state.selectedDistrict ?? "",
-                                area: pincodeController.text.trim(),
-                                panels: panels,
-                                parentId: "69e32380bf4cad14a1d4b9b7",
-                              ));
-                            }
+                              context.read<NewRegisterBloc>().add(
+                                NewRegisterSubmit(
+                                  name: nameController.text.trim(),
+                                  phone: phoneController.text.trim(),
+                                  addressLine: addressController.text.trim(),
+                                  stateId: blocState.selectedStateId!,
+                                  districtId: blocState.selectedDistrictId!,
+                                  pincodeId: blocState.selectedPincodeId!,
+                                  panels: panels,
+                                  propertyType: "commercial",
+                                  rooftopArea: 2500,
+                                  electricityBill: 12000,
+                                ),
+                              );
+                            },
                         ),
-
                         SizedBox(height: s(50)),
                       ],
                     ),
@@ -326,7 +240,9 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 Container(
                   color: Colors.black.withOpacity(0.3),
                   child: const Center(
-                    child: CircularProgressIndicator(color: ColorPalette.background,),
+                    child: CircularProgressIndicator(
+                      color: ColorPalette.background,
+                    ),
                   ),
                 ),
             ],

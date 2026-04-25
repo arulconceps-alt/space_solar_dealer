@@ -1,6 +1,8 @@
-// Change this import to point to your LoginResponse model
+// src/otp_screen/repo/otp_repositary.dart
+
 import 'package:space_solar_dealer/src/common/constants/constansts.dart';
 import 'package:space_solar_dealer/src/common/models/login_response.dart';
+import 'package:space_solar_dealer/src/common/repos/api_exception.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
 
@@ -16,46 +18,63 @@ class OtpRepositary {
   }) async {
     try {
       final responseData = await _apiRepository.postRequest(
-        url: "auth/verify-otp",
+        url: "auth/otp/verify",
         data: {
-          "phone": mobileNumber,
+          "phone": "+91$mobileNumber",
           "otp": otp,
         },
+        includeRequester: false,
       );
 
       final loginResponse = LoginResponse.fromJson(responseData);
 
       if (loginResponse.success && loginResponse.data != null) {
-        // 1. Fetch tokens from the response
-        final accessToken = loginResponse.data!.tokens.accessToken;
+        final accessToken = loginResponse.data!.accessToken;
+        final refreshToken = loginResponse.data!.refreshToken;
         final userId = loginResponse.data!.user.id;
 
-        // 2. Save to SharedPreferences using your Constants
+        // ✅ SAVE TOKENS
         await _preferencesRepository.setPreference(
-          Constants.store.AUTH_TOKEN, // Use your constant here
+          Constants.store.AUTH_TOKEN,
           accessToken,
+        );
+        final savedToken = _preferencesRepository.getPreference(Constants.store.AUTH_TOKEN);
+        print("📦 STORED TOKEN (after save) => $savedToken");
+        await _preferencesRepository.setPreference(
+          Constants.store.REFRESH_TOKEN,
+          refreshToken,
         );
 
         await _preferencesRepository.setPreference(
-          Constants.store.USER_ID,    // Use your constant here
+          Constants.store.USER_ID,
           userId,
         );
-       _apiRepository.updateToken(accessToken);
+
+        // ✅ UPDATE DIO HEADER
+        _apiRepository.updateToken(accessToken);
+
+        print("✅ ACCESS TOKEN SAVED => $accessToken");
 
         return loginResponse;
       } else {
-        throw Exception(loginResponse.message);
+        throw ApiException(loginResponse.message);
       }
     } catch (e) {
-      rethrow;
+      if (e is ApiException) rethrow;
+      throw ApiException("OTP verification failed.");
     }
   }
+
   Future<void> resendOtp(String phone) async {
-    await _apiRepository.postRequest(
-      url: "auth/otp",
-      data: {
-        "phone": phone,
-      },
-    );
+    try {
+      await _apiRepository.postRequest(
+        url: "auth/otp/send", // Using the correct resend endpoint
+        data: {"phone": "+91$phone"},
+        includeRequester: false,
+      );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException("Could not resend OTP. Please try again.");
+    }
   }
 }

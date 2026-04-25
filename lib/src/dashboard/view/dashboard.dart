@@ -16,6 +16,9 @@ import 'package:space_solar_dealer/src/dashboard/view/widgets/dashboard_card_des
 import 'package:space_solar_dealer/src/dashboard/view/widgets/action_card.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/activity_tile.dart';
 import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_event.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 
 import 'widgets/app_background.dart';
@@ -142,71 +145,7 @@ class _DashboardState extends State<Dashboard> {
                       },
                     ),
                   ),
-                  /*Padding(
-                    padding: EdgeInsets.symmetric(horizontal: s(20)),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: 4,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: s(16),
-                        mainAxisSpacing: s(16),
-                        childAspectRatio: s(192) / s(177),
-                      ),
-                      itemBuilder: (context, index) {
-                        final items = [
-                          {
-                            "title": "Total Panels Sold",
-                            "value": "251000",
-                            "subtitle": "",
-                            "color": ColorPalette.background,
-                            "icon": "assets/images/dashboard/solar_panel.png",
-                            "iconsize": iconLarge,
-                          },
-                          {
-                            "title": "Total Customers",
-                            "value": "5000",
-                            "subtitle": "",
-                            "color": ColorPalette.pending,
-                            "icon": "assets/images/dashboard/people.png",
-                            "iconsize": iconMedium,
-                          },
-                          {
-                            "title": "Active Warranties",
-                            "value": "105",
-                            "subtitle": "Registered",
-                            "color": ColorPalette.active,
-                            "icon":
-                            "assets/images/dashboard/active_shield.png",
-                            "iconsize": iconSmall,
-                          },
-                          {
-                            "title": "Tickets",
-                            "value": "8",
-                            "subtitle": "2 Pending",
-                            "color": ColorPalette.alert,
-                            "icon":  "assets/images/dashboard/tickets_notify_icon.png",
-                            "iconsize": iconMedium,
-                          },
-                        ];
-
-                        final item = items[index];
-
-                        return DashboardCard(
-                          title: item["title"] as String,
-                          value: item["value"] as String,
-                          subtitle: item["subtitle"] as String,
-                          backgroundColor: item["color"] as Color,
-                          imagePath: item["icon"] as String,
-                          iconSize: item["iconsize"] as double? ?? iconMedium,
-                        );
-                      },
-                    ),
-                  ),*/
-
                   SizedBox(height: s(16)),
-
                   /// QUICK ACTIONS
                   Container(
                     height: s(208),
@@ -334,7 +273,14 @@ class _DashboardState extends State<Dashboard> {
               )..add(LoadCustomers()),
               child: const CustomerList(),
             ),
-            const TicketsListDetails(),
+            BlocProvider(
+              create: (context) => TicketListDetailsBloc(
+                TicketListDetailsRepositary(
+                  context.read<ApiRepository>(),
+                ),
+              )..add(LoadTicketsEvent(status: "OPEN")),
+              child: const TicketsListDetails(),
+            ),
             const ProfileScreen(),
           ],
         ),

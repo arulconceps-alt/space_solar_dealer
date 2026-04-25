@@ -1,12 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_event.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_state.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/custom_Segmented_tab.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/custom_search_bar.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/raise_ticket_dialog.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/ticket_card.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/tickets_details_dialog.dart';
-
 
 class TicketsListDetails extends StatefulWidget {
   const TicketsListDetails({super.key});
@@ -17,29 +23,16 @@ class TicketsListDetails extends StatefulWidget {
 
 class _TicketsListDetailsState extends State<TicketsListDetails> {
   String _selectedTab = "All Active";
+  Timer? _debounce;
 
-  final List<Map<String, dynamic>> tickets = [
-    {
-      "ticketId": "TKT-001",
-      "customerName": "Rohit Sharma",
-      "status": "Assigned",
-      "issue": "Panel not generating power",
-      "panelId": "SS-00012",
-      "date": "2025-11-13",
-      "sla": "2 hours remaining",
-      "statusColor": const Color(0xFF26A7DF),
-    },
-    {
-      "ticketId": "TKT-002",
-      "customerName": "Ajith Kumar",
-      "status": "Pending",
-      "issue": "Low Power Output",
-      "panelId": "SS-00012",
-      "date": "2025-11-13",
-      "sla": "2 hours remaining",
-      "statusColor": const Color(0xFFEA1F27),
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+
+    context.read<TicketListDetailsBloc>().add(
+      LoadTicketsEvent(status: "OPEN"),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,184 +43,185 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: s(20)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: s(24)),
-                  Text(
-                    'Tickets',
-                    style: GoogleFonts.poppins(
-                      fontSize: s(20),
-                      fontWeight: FontWeight.w600,
-                      color: ColorPalette.bottomtext,
-                    ),
-                  ),
-                  SizedBox(height: s(4)),
+      body: BlocBuilder<TicketListDetailsBloc, TicketListDetailsState>(
+        builder: (context, state) {
 
-                  /// SUBTITLE
-                  Text(
-                    'Track and manage customer issue',
-                    style: GoogleFonts.lato(
-                      color: ColorPalette.textfiledin.withValues(alpha: .80),
-                      fontSize: s(14),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
+          if (state.status == TicketListDetailsStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                  SizedBox(height: s(20)),
+          if (state.status == TicketListDetailsStatus.failure) {
+            return Center(child: Text(state.message));
+          }
 
-                  /// SEARCH
-                  CustomSearchBar(scale: scale, onChanged: (val) {}),
+          if (state.status == TicketListDetailsStatus.success) {
+            return _buildUI(context, state.tickets, scale, s);
+          }
 
-                  SizedBox(height: s(16)),
-
-                  /// TABS
-                  CustomSegmentedTab(
-                    scale: scale,
-                    tabs: const [
-                      "All Active",
-                      "Assigned",
-                      "In Progress",
-                      "Resolved",
-                    ],
-                    selectedTab: _selectedTab,
-                    onTabChanged: (newTab) {
-                      setState(() => _selectedTab = newTab);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: s(16)),
-
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 1,
-              itemBuilder: (context, index) {
-                return _buildScrollableTicketList(scale, s);
-              },
-            ),
-
-            SizedBox(height: s(100)), // space for FAB
-          ],
-        ),
+          return const SizedBox();
+        },
       ),
-
-      floatingActionButton: _buildFigmaFAB(s),
+      floatingActionButton: _buildFigmaFAB(scale, s),
     );
   }
 
-  Widget _buildScrollableTicketList(double scale, double Function(double) s) {
+  // ---------------- UI ----------------
+
+  Widget _buildUI(
+      BuildContext context,
+      List<TicketModel> tickets,
+      double scale,
+      double Function(double) s,
+      ) {
     final filtered = tickets.where((t) {
       if (_selectedTab == "All Active") return true;
-      if (_selectedTab == "In Progress") return t["status"] == "Pending";
-      return t["status"] == _selectedTab;
+      if (_selectedTab == "In Progress") return t.status == "Pending";
+      return t.status == _selectedTab;
     }).toList();
 
-    if (filtered.isEmpty) {
-      return Center(
-        child: Text(
-          "No records found",
-          style: GoogleFonts.lato(
-            color: const Color(0xCC484848),
-            fontSize: s(14),
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      );
-    }
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: s(20)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: s(24)),
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(s(20), 0, s(20), s(100)),
-      itemCount: filtered.length,
-      itemBuilder: (context, index) {
-        final ticket = filtered[index];
-        return TicketCard(
-          scale: scale,
-          ticketId: ticket["ticketId"],
-          customerName: ticket["customerName"],
-          status: ticket["status"],
-          issue: ticket["issue"],
-          panelId: ticket["panelId"],
-          date: ticket["date"],
-          sla: ticket["sla"],
-          statusColor: ticket["statusColor"],
-          // onViewDetails: () {
-          //   showDialog(
-          //     context: context,
-          //     builder: (_) => const TicketDetailsDialog(),
-          //   );
-          // },
-          onViewDetails: () {
-            showGeneralDialog(
-              context: context,
-              barrierDismissible: true,
-              barrierLabel: "Ticket Details",
-              barrierColor: Colors.black54,
-              transitionDuration: const Duration(milliseconds: 400),
-              pageBuilder: (context, animation, secondaryAnimation) {
-                return const SizedBox(); // required
-              },
-              transitionBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    final curvedAnimation = CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutBack,
-                    );
+                Text(
+                  'Tickets',
+                  style: GoogleFonts.poppins(
+                    fontSize: s(20),
+                    fontWeight: FontWeight.w600,
+                    color: ColorPalette.bottomtext,
+                  ),
+                ),
 
-                    return Transform.scale(
-                      scale: curvedAnimation.value,
-                      child: Opacity(
-                        opacity: animation.value,
-                        child: Dialog(
-                          backgroundColor: Colors.transparent,
-                          insetPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
+                SizedBox(height: s(4)),
+
+                Text(
+                  'Track and manage customer issue',
+                  style: GoogleFonts.lato(
+                    color: ColorPalette.textfiledin.withOpacity(0.8),
+                    fontSize: s(14),
+                  ),
+                ),
+
+                SizedBox(height: s(20)),
+
+                CustomSearchBar(
+                  scale: scale,
+                    onChanged: (val) {
+                      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+                      _debounce = Timer(const Duration(milliseconds: 500), () {
+                        context.read<TicketListDetailsBloc>().add(
+                          LoadTicketsEvent(
+                            status: "OPEN",
+                            search: val,
                           ),
-                          child: TicketDetailsDialog(),
-                        ),
-                      ),
-                    );
+                        );
+                      });
+                    }
+                ),
+
+                SizedBox(height: s(16)),
+
+                CustomSegmentedTab(
+                  scale: scale,
+                  tabs: const [
+                    "All Active",
+                    "Assigned",
+                    "In Progress",
+                    "Resolved",
+                  ],
+                  selectedTab: _selectedTab,
+                  onTabChanged: (tab) {
+                    setState(() => _selectedTab = tab);
                   },
-            );
-          },
-        );
-      },
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: s(16)),
+
+          filtered.isEmpty
+              ? Center(
+            child: Padding(
+              padding: EdgeInsets.all(s(30)),
+              child: Text(
+                "No records found",
+                style: GoogleFonts.lato(
+                  fontSize: s(14),
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          )
+              : ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: s(20)),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              final ticket = filtered[index];
+
+              return TicketCard(
+                scale: scale,
+                ticketId: ticket.ticketId,
+                customerName: ticket.customerName,
+                status: ticket.status,
+                issue: ticket.issue,
+                panelId: ticket.panelId,
+                date: ticket.date,
+                sla: ticket.sla,
+                statusColor: Colors.blue,
+                onViewDetails: () {
+                  showGeneralDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    barrierColor: Colors.black54,
+                    transitionDuration:
+                    const Duration(milliseconds: 300),
+                    pageBuilder: (_, __, ___) => const SizedBox(),
+                    transitionBuilder:
+                        (context, animation, _, child) {
+                      return Transform.scale(
+                        scale: animation.value,
+                        child: Opacity(
+                          opacity: animation.value,
+                          child: const TicketDetailsDialog(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+
+          SizedBox(height: s(100)),
+        ],
+      ),
     );
   }
 
-  Widget _buildFigmaFAB(double Function(double) s) {
+  // ---------------- FAB ----------------
+
+  Widget _buildFigmaFAB(
+      double scale, double Function(double) s) {
     return GestureDetector(
       onTap: () {
         showGeneralDialog(
           context: context,
           barrierDismissible: true,
-          barrierLabel: "Ticket Details",
           barrierColor: Colors.black54,
-          transitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return RaiseTicketDialog(parentContext: context);
-          },
-          transitionBuilder: (context, animation, secondaryAnimation, child) {
-            final curvedAnimation = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutBack,
-            );
-
-            return Transform.scale(
-              scale: curvedAnimation.value,
-              child: Opacity(opacity: animation.value, child: child),
-            );
-          },
+          transitionDuration: const Duration(milliseconds: 300),
+          pageBuilder: (_, __, ___) =>
+              RaiseTicketDialog(parentContext: context),
         );
       },
       child: Container(
@@ -240,19 +234,13 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              "assets/images/ticket/add_icon.png",
-              height: s(22),
-              width: s(22),
-              color: ColorPalette.whitetext,
-            ),
-            SizedBox(width: s(12)),
+            const Icon(Icons.add, color: Colors.white),
+            SizedBox(width: s(10)),
             Text(
-              'Raise Ticket',
+              "Raise Ticket",
               style: GoogleFonts.poppins(
-                color: ColorPalette.whitetext,
+                color: Colors.white,
                 fontSize: s(16),
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],

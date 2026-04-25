@@ -19,11 +19,11 @@ class CustomerList extends StatefulWidget {
 class _CustomerListState extends State<CustomerList> {
   final TextEditingController _searchController = TextEditingController();
 
-
   @override
   void initState() {
     super.initState();
-
+    _searchController.clear();
+    context.read<CustomerListBloc>().add(LoadCustomers());
   }
 
 
@@ -114,7 +114,7 @@ class _CustomerListState extends State<CustomerList> {
                         isFirst: index == 0,
                         isLast: index == state.filteredCustomers.length - 1,
                         onTap: () {
-                          context.push('/customer_details', extra: customer);
+                          context.push('/customer_detail', extra: customer);
                         },
                       );
                     },

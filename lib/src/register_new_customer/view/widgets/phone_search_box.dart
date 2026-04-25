@@ -7,8 +7,8 @@ class PhoneSearchBox extends StatefulWidget {
   final double scale;
   final TextEditingController controller;
   final Function(String) onSearch;
-  final List<String> suggestions; // Pass API results here
-  final Function(String) onSelected;
+  final List<Map<String, dynamic>> suggestions;
+  final Function(Map<String, dynamic>) onSelected;
 
   const PhoneSearchBox({
     super.key,
@@ -26,19 +26,31 @@ class PhoneSearchBox extends StatefulWidget {
 class _PhoneSearchBoxState extends State<PhoneSearchBox> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
-  bool _isShowing = false;
 
   void _showOverlay() {
-    if (_overlayEntry != null) _overlayEntry!.remove();
+    _hideOverlay();
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
-    setState(() => _isShowing = true);
   }
 
   void _hideOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    if (mounted) setState(() => _isShowing = false);
+  }
+
+  @override
+  void didUpdateWidget(covariant PhoneSearchBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 🔥 AUTO REFRESH overlay when API results change
+    if (widget.suggestions != oldWidget.suggestions) {
+      if (widget.suggestions.isNotEmpty &&
+          widget.controller.text.isNotEmpty) {
+        _showOverlay();
+      } else {
+        _hideOverlay();
+      }
+    }
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -47,42 +59,62 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
     double s(double v) => v * widget.scale;
 
     return OverlayEntry(
-      builder: (context) => Positioned(
-        width: size.width,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: Offset(0, size.height + s(8)),
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(s(12)),
-            color: Colors.white.withOpacity(0.9),
-            child: Container(
-              padding: EdgeInsets.all(s(4)),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(s(12)),
-                border: Border.all(color: Colors.white),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: widget.suggestions.map((user) {
-                  return ListTile(
-                    title: Text(
-                      user,
-                      style: GoogleFonts.lato(fontSize: s(16), color: const Color(0xFF484848)),
+      builder: (context) => GestureDetector(
+        onTap: _hideOverlay, // 🔥 tap outside closes
+        behavior: HitTestBehavior.translucent,
+        child: Stack(
+          children: [
+            Positioned(
+              width: size.width,
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                offset: Offset(0, size.height + s(8)),
+                child: Material(
+                  elevation: 6,
+                  borderRadius: BorderRadius.circular(s(12)),
+                  child: Container(
+                    constraints: BoxConstraints(maxHeight: s(200)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(s(12)),
                     ),
-                    onTap: () {
-                      widget.onSelected(user);
-                      _hideOverlay();
-                    },
-                  );
-                }).toList(),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: widget.suggestions.length,
+                      itemBuilder: (context, index) {
+                        final user = widget.suggestions[index];
+
+                        return ListTile(
+                          dense: true,
+                          title: Text(
+                            "${user['name'] ?? ''} - ${user['phone'] ?? ''}",
+                            style: GoogleFonts.lato(
+                              fontSize: s(14),
+                              color: const Color(0xFF484848),
+                            ),
+                          ),
+                          onTap: () {
+                            widget.onSelected(user); // ✅ full map passed
+                            _hideOverlay();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _hideOverlay();
+    super.dispose();
   }
 
   @override
@@ -96,34 +128,25 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.5),
           borderRadius: BorderRadius.circular(s(10)),
-          border: Border.all(width: s(1),color: Colors.white),
+          border: Border.all(width: s(1), color: Colors.white),
         ),
         child: Row(
           children: [
             Padding(
-                padding:  EdgeInsets.only(left: s(16)),
-              child: SizedBox(
-              width: s(24),
-              height: s(24),
+              padding: EdgeInsets.only(left: s(16)),
               child: Image.asset(
                 'assets/images/customer/search_icon.png',
-                fit: BoxFit.contain,
+                width: s(24),
+                height: s(24),
                 color: const Color(0xFF484848),
               ),
-                        ),
             ),
-            SizedBox(width: s(8.4),),
+            SizedBox(width: s(8.4)),
+
             Expanded(
               child: TextField(
                 controller: widget.controller,
-                onChanged: (val) {
-                  widget.onSearch(val);
-                  if (val.isNotEmpty && widget.suggestions.isNotEmpty) {
-                    _showOverlay();
-                  } else {
-                    _hideOverlay();
-                  }
-                },
+                onChanged: widget.onSearch,
                 style: TextStyle(
                   fontSize: s(16),
                   color: ColorPalette.bottomtext,
@@ -133,11 +156,9 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                   hintText: "Search by Phone Number",
                   hintStyle: GoogleFonts.lato(
                     fontSize: s(16),
-                    fontWeight: FontWeight.w400,
                     color: ColorPalette.textfiled,
                   ),
                   border: InputBorder.none,
-                  isDense: true,
                 ),
               ),
             ),

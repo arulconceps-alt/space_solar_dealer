@@ -25,46 +25,52 @@ class LoginResponse extends Equatable {
 
 class LoginData extends Equatable {
   final UserModel user;
-  final TokenModel tokens;
+  final String accessToken;
+  final String refreshToken;
 
-  const LoginData({required this.user, required this.tokens});
+  const LoginData({
+    required this.user,
+    required this.accessToken,
+    required this.refreshToken,
+  });
 
   factory LoginData.fromJson(Map<String, dynamic> json) {
+    final accessToken = json['accessToken'];
+    final refreshToken = json['refreshToken'];
+
+    // 🔥 Important safety check
+    if (accessToken == null || accessToken.toString().isEmpty) {
+      throw Exception("AccessToken missing in response");
+    }
+
+    if (refreshToken == null || refreshToken.toString().isEmpty) {
+      throw Exception("RefreshToken missing in response");
+    }
+
     return LoginData(
       user: UserModel.fromJson(json['user'] ?? {}),
-      tokens: TokenModel.fromJson(json['tokens'] ?? {}),
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     );
   }
 
   @override
-  List<Object?> get props => [user, tokens];
+  List<Object?> get props => [user, accessToken, refreshToken];
 }
 
 class UserModel extends Equatable {
   final String id;
   final String email;
   final String phone;
-  final String role;
-  final String rank;
-  final String region;
-  final String district;
-  final String kycStatus;
-  final String fullName;
-  final num walletBalance;
-  final String status;
+  final String name;
+  final String roleType;
 
   const UserModel({
     required this.id,
     required this.email,
     required this.phone,
-    required this.role,
-    required this.rank,
-    required this.region,
-    required this.district,
-    required this.kycStatus,
-    required this.fullName,
-    required this.walletBalance,
-    required this.status,
+    required this.name,
+    required this.roleType,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -72,37 +78,11 @@ class UserModel extends Equatable {
       id: json['id'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
-      role: json['role'] ?? '',
-      rank: json['rank'] ?? '',
-      region: json['region'] ?? '',
-      district: json['district'] ?? '',
-      kycStatus: json['kycStatus'] ?? '',
-      fullName: json['fullName'] ?? '',
-      walletBalance: json['walletBalance'] ?? 0,
-      status: json['status'] ?? '',
+      name: json['name'] ?? '',
+      roleType: json['roleType'] ?? '',
     );
   }
 
   @override
-  List<Object?> get props => [
-    id, email, phone, role, rank, region,
-    district, kycStatus, fullName, walletBalance, status
-  ];
-}
-
-class TokenModel extends Equatable {
-  final String accessToken;
-  final String refreshToken;
-
-  const TokenModel({required this.accessToken, required this.refreshToken});
-
-  factory TokenModel.fromJson(Map<String, dynamic> json) {
-    return TokenModel(
-      accessToken: json['accessToken'] ?? '',
-      refreshToken: json['refreshToken'] ?? '',
-    );
-  }
-
-  @override
-  List<Object?> get props => [accessToken, refreshToken];
+  List<Object?> get props => [id, email, phone, name, roleType];
 }
