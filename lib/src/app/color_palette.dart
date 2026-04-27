@@ -9,12 +9,17 @@ class ColorPalette {
   static const Color whitetext = Color(0xFFFFFFFF);
   static const Color bottomtext = Color(0xFF282828);
   static const Color textfiledin = Color(0xFF484848);
+  static const Color textfiled = Color(0xCC484848);//80%
   static const Color bordertextbox = Color(0xFFE2E2E2);
   static const Color active = Color(0xFF00C951);
   static const Color alert = Color(0xFFFF6900);
   static const Color pending = Color(0xFFEA1F27);
+  static const Color cardBorder = Color(0x4D000000); // 30% black
+  static const Color hintText = Color(0x80484848); 
+  static const Color blacktext = Color(0xFF1E1E1E);   // 50%
 
-
+  static const Color notificationstatusback = Color(0x4CEA1F27);
+  static const Color notificationstatus = Color(0xFFEA1F27);
   // Brand - Gold accent (buttons, active dot)
   static const Color primary = Color(0xFFDFC55C); // Vector Fill gold
 

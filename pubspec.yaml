@@ -48,6 +48,8 @@ dependencies:
   google_fonts: ^8.0.2
   flutter_launcher_icons: ^0.14.4
   dotted_border: ^3.1.0
+  shared_preferences: ^2.5.5
+  pinput: ^6.0.2
 
 dev_dependencies:
   flutter_test:
@@ -94,6 +96,10 @@ flutter:
     - assets/images/bottom_navigation/
     - assets/images/new_register/
     - assets/images/success/
+    - assets/images/customer/
+    - assets/images/ticket/
+    - assets/images/profile/
+    - assets/images/notification/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

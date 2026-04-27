@@ -1,14 +1,18 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/login/widgets/blur_circle.dart';
-import 'package:space_solar_dealer/src/login/widgets/field_label.dart';
-import 'package:space_solar_dealer/src/login/widgets/glass_field.dart';
-import 'package:space_solar_dealer/src/login/widgets/logo_widget.dart';
-import 'package:space_solar_dealer/src/login/widgets/primary_button.dart';
-import 'package:space_solar_dealer/src/login/widgets/social_button.dart';
+import 'package:space_solar_dealer/src/common/bloc/alert/alert_state.dart';
+import 'package:space_solar_dealer/src/common/widgets/custom_snackbar.dart';
+import 'package:space_solar_dealer/src/login/bloc/login_bloc.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/blur_circle.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/field_label.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/glass_field.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/logo_widget.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/primary_button.dart';
+import 'package:space_solar_dealer/src/login/view/widgets/social_button.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -19,289 +23,170 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _mobileNumberController = TextEditingController();
+  final FocusNode _mobileFocusNode = FocusNode();
 
-  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // 2. Request focus after the first frame is drawn
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_mobileFocusNode);
+    });
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _mobileNumberController.dispose();
+    _mobileFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    // Figma design width is 440
     final scale = screenWidth / 440;
-
     double s(double v) => v * scale;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: ColorPalette.scaffoldGradient,
+    return BlocConsumer<LoginBloc, LoginState>(
+      listener: (context, state) {
+        if (state.status == LoginStatus.success) {
+          // 1. Show the success snackbar
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.success,
+              timestamp: DateTime.now(),
             ),
-          ),
+          );
 
-          /// Blur circles
-          BlurCircle(
-            left: s(-146),
-            top: s(-201),
-            size: s(383),
-            opacity: 1,
-          ),
+          context.go('/otp_verify', extra: _mobileNumberController.text.trim());
+        }
 
-          BlurCircle(
-            left: s(399),
-            top: s(44),
-            size: s(383),
-            opacity: 1,
-          ),
+        if (state.status == LoginStatus.failure) {
+          // Use your custom static method here
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.failure,
+              timestamp: DateTime.now(),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state.status == LoginStatus.loading;
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: [
+              // Background & Blurs
+              Container(decoration: BoxDecoration(gradient: ColorPalette.scaffoldGradient)),
+              BlurCircle(left: s(-146), top: s(-191), size: s(383), opacity: 1),
+              BlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1),
+              BlurCircle(left: s(-241), top: s(580), size: s(383), opacity: .4),
 
-          BlurCircle(
-            left: s(-241),
-            top: s(580),
-            size: s(383),
-            opacity: .4,
-          ),
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: s(24)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: s(40)),
 
-          SafeArea(
-            child: Stack(
-              children: [
-                Positioned(
-                  top: s(86),
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: LogoWidget(scale: scale),
+                      // ✅ LOGO (FIXED TOP)
+                      Center(child: LogoWidget(scale: scale)),
+
+                      SizedBox(height: s(40)),
+
+                      // ✅ TEXT
+                      Text(
+                        'Phone Number',
+                        style: GoogleFonts.poppins(
+                          fontSize: s(28),
+                          fontWeight: FontWeight.w600,
+                          color: ColorPalette.bottomtext,
+                        ),
+                      ),
+                      SizedBox(height: s(8)),
+
+                      Text(
+                        "We will send you an One Time Password on this mobile number",
+                        style: GoogleFonts.lato(
+                          fontSize: s(16),
+                          fontWeight: FontWeight.w400,
+                          color: ColorPalette.textfiledin,
+                        ),
+                      ),
+
+                      SizedBox(height: s(18)),
+
+                      // ✅ INPUT FIELD
+                      SizedBox(
+                        width: double.infinity,
+                        height: s(64),
+                        child: GlassField(
+                          controller: _mobileNumberController,
+                          hint: "+91 813526365",
+                          focusNode: _mobileFocusNode,
+                          scale: scale,
+                        ),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom + s(16),
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: PrimaryButton(
+                            text: "Get OTP",
+                            scale: scale,
+                            onTap: () {
+                              final mobileNumber = _mobileNumberController.text.trim();
+                              if (mobileNumber.isEmpty || mobileNumber.length < 10) {
+                                CustomSnackBar.show(
+                                  context,
+                                  AlertState(
+                                    message: "Please enter a valid 10-digit mobile number",
+                                    type: AlertType.failure,
+                                    timestamp: DateTime.now(),
+                                  ),
+                                );
+                                return;
+                              }
+                              context.read<LoginBloc>().add(
+                                OtpGenerate(mobileNumber: mobileNumber),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
 
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: s(20)),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: s(86 + 20.5644 + 55)),
-
-                        /// Title
-                        Text(
-                          'Welcome Back!',
-                          style: GoogleFonts.poppins(
-                            fontSize: s(32),
-                            fontWeight: FontWeight.w600,
-                            color: ColorPalette.bottomtext,
-                            height: 1.19,
-                          ),
-                        ),
-
-                        SizedBox(height: s(4)),
-
-                        /// Subtitle
-                        Text(
-                          'Enter your Login Information',
-                          style: GoogleFonts.lato(
-                            fontSize: s(16),
-                            fontWeight: FontWeight.w400,
-                            color: ColorPalette.textfiledin,
-                            height: 1.40,
-                          ),
-                        ),
-
-                        SizedBox(height: s(31)),
-
-                        /// Email
-                        FieldLabel(
-                          text: "Email Address",
-                          scale: scale,
-                        ),
-
-                        SizedBox(height: s(9)),
-
-                        SizedBox(
-                          height: s(50),
-                          child: GlassField(
-                            controller: _emailController,
-                            hint: "Email Address",
-                            scale: scale,
-                          ),
-                        ),
-
-                        SizedBox(height: s(24)),
-
-                        /// Password
-                        FieldLabel(
-                          text: "Password",
-                          scale: scale,
-                        ),
-
-                        SizedBox(height: s(9)),
-
-                        SizedBox(
-                          height: s(50),
-                          child: GlassField(
-                            controller: _passwordController,
-                            hint: "Password",
-                            scale: scale,
-                            obscure: _obscurePassword,
-                          ),
-                        ),
-                        SizedBox(height:12),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.only(
-                                top: s(12),
-                                bottom: s(4),
-                              ),
-                              minimumSize: Size.zero,
-                              tapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            onPressed: () {},
-                            child: Text(
-                              'Forget Password?',
-                              style: GoogleFonts.lato(
-                                fontSize: s(16),
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF26A7DF),
-                                height: 1.40,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: s(30)),
-
-                        /// Login button
-                        PrimaryButton(
-                          text: "Login",
-                          scale: scale,
-                          onTap: () {
-                            context.push('/home');
-                          },
-                        ),
-
-                        SizedBox(height: s(44)),
-
-                        /// OR
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: s(58),
-                              height: 1,
-                              color: const Color(0x331E1E1E),
-                            ),
-                            Padding(
-                              padding:
-                              EdgeInsets.symmetric(horizontal: s(10)),
-                              child: Text(
-                                'Or Continue with',
-                                style: GoogleFonts.lato(
-                                  fontSize: s(12),
-                                  fontWeight: FontWeight.w400,
-                                  color: const Color(0xFF1E1E1E),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: s(58),
-                              height: 1,
-                              color: const Color(0x331E1E1E),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: s(40)),
-
-                        /// Social
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.center,
-                          children: [
-                            SocialButton(
-                              scale: scale,
-                              child: SizedBox(
-                                width: scale * 192.7461,
-                                height: s(24),
-                                child: SvgPicture.asset(
-                                  "assets/images/login/google.svg",
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(width: s(40)),
-
-                            SocialButton(
-                              scale: scale,
-                              child: SizedBox(
-                                width: scale * 192.7461,
-                                height: s(30),
-                                child: SvgPicture.asset(
-                                  "assets/images/login/apple.svg",
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: s(80)),
-                      ],
+              if (isLoading)
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.35),
+                      child: Center(
+                        child: CircularProgressIndicator(color: ColorPalette.background),
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
-
-          /// bottom signup
-          Positioned(
-            bottom: s(35),
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Don't have an account yet? ",
-                  style: GoogleFonts.lato(
-                    fontSize: s(14),
-                    color: ColorPalette.bottomtext,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    context.push('/signup');
-                  },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize:
-                    MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    "Sign Up",
-                    style: GoogleFonts.lato(
-                      fontSize: s(14),
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF26A7DF),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
