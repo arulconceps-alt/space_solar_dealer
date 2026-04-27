@@ -50,6 +50,7 @@ class SearchCustomer extends NewRegisterEvent {
 class NewRegisterSubmit extends NewRegisterEvent {
   final String name;
   final String phone;
+  final String email; // ✅ ADD THIS
   final String addressLine;
   final int stateId;
   final int districtId;
@@ -63,6 +64,7 @@ class NewRegisterSubmit extends NewRegisterEvent {
   const NewRegisterSubmit({
     required this.name,
     required this.phone,
+    required this.email, // ✅ ADD
     required this.addressLine,
     required this.stateId,
     required this.districtId,
@@ -77,6 +79,7 @@ class NewRegisterSubmit extends NewRegisterEvent {
   List<Object?> get props => [
     name,
     phone,
+    email, // ✅ ADD
     addressLine,
     stateId,
     districtId,
@@ -89,3 +92,10 @@ class NewRegisterSubmit extends NewRegisterEvent {
 }
 class LoadCustomers extends NewRegisterEvent {}
 class ResetRegisterState extends NewRegisterEvent {}
+class SelectExistingCustomer extends NewRegisterEvent {
+  final String? id;
+  const SelectExistingCustomer(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}

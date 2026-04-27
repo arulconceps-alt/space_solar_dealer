@@ -89,14 +89,15 @@ class _ManualPanelEntryState extends State<ManualPanelEntry> {
                   borderRadius: BorderRadius.circular(s(6)),
                   onTap: () {
                     final value = panelController.text.trim();
+                    if (value.isEmpty) return;
                     if (widget.panels.contains(value)) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Panel already added")),
                       );
                       return;
                     }
-
                     widget.onAdd(value);
+                    setState(() {}); // ✅ IMPORTANT (refresh UI)
                     panelController.clear();
                   },
                   child: Container(

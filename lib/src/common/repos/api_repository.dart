@@ -76,7 +76,9 @@ class ApiRepository {
         await Future.delayed(const Duration(milliseconds: 500));
         return {"success": true, "message": "Mocked response", "data": {}};
       }
-
+      log.i("🌍 URL => ${_dio.options.baseUrl}$url");
+      log.i("📤 METHOD => $method");
+      log.i("📦 DATA => $data");
       final response = await _dio.request(
         url,
         data: data,
@@ -85,7 +87,7 @@ class ApiRepository {
           extra: {'includeRequester': includeRequester},
         ),
       );
-
+      log.i("📥 RAW RESPONSE => ${response.data}");
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);

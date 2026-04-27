@@ -30,7 +30,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
     super.initState();
 
     context.read<TicketListDetailsBloc>().add(
-      LoadTicketsEvent(status: "OPEN"),
+      LoadTicketsEvent(),
     );
   }
 
@@ -119,7 +119,6 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                       _debounce = Timer(const Duration(milliseconds: 500), () {
                         context.read<TicketListDetailsBloc>().add(
                           LoadTicketsEvent(
-                            status: "OPEN",
                             search: val,
                           ),
                         );
@@ -128,7 +127,6 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                 ),
 
                 SizedBox(height: s(16)),
-
                 CustomSegmentedTab(
                   scale: scale,
                   tabs: const [
@@ -175,9 +173,9 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                 customerName: ticket.customerName,
                 status: ticket.status,
                 issue: ticket.issue,
-                panelId: ticket.panelId,
+               // panelId: ticket.panelId,
                 date: ticket.date,
-                sla: ticket.sla,
+              //  sla: ticket.sla,
                 statusColor: Colors.blue,
                 onViewDetails: () {
                   showGeneralDialog(
@@ -218,10 +216,23 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         showGeneralDialog(
           context: context,
           barrierDismissible: true,
+          barrierLabel: "Ticket Details",
           barrierColor: Colors.black54,
-          transitionDuration: const Duration(milliseconds: 300),
-          pageBuilder: (_, __, ___) =>
-              RaiseTicketDialog(parentContext: context),
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return RaiseTicketDialog(parentContext: context);
+          },
+          transitionBuilder: (context, animation, secondaryAnimation, child) {
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutBack,
+            );
+
+            return Transform.scale(
+              scale: curvedAnimation.value,
+              child: Opacity(opacity: animation.value, child: child),
+            );
+          },
         );
       },
       child: Container(
@@ -234,13 +245,19 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.add, color: Colors.white),
-            SizedBox(width: s(10)),
+            Image.asset(
+              "assets/images/ticket/add_icon.png",
+              height: s(22),
+              width: s(22),
+              color: ColorPalette.whitetext,
+            ),
+            SizedBox(width: s(12)),
             Text(
-              "Raise Ticket",
+              'Raise Ticket',
               style: GoogleFonts.poppins(
-                color: Colors.white,
+                color: ColorPalette.whitetext,
                 fontSize: s(16),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

@@ -4,12 +4,46 @@ import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_deta
 import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 
 
-class TicketListDetailsBloc extends Bloc<TicketListDetailsEvent, TicketListDetailsState> {
+class TicketListDetailsBloc
+    extends Bloc<TicketListDetailsEvent, TicketListDetailsState> {
+
   final TicketListDetailsRepositary repository;
 
-  TicketListDetailsBloc(this.repository) : super(const TicketListDetailsState()) {
+  TicketListDetailsBloc(this.repository)
+      : super(const TicketListDetailsState()) {
     on<LoadTicketsEvent>(_onLoadTickets);
     on<RefreshTicketsEvent>(_onRefreshTickets);
+    on<CreateTicketEvent>(_onCreateTicket);
+    on<LoadPanelsEvent>((event, emit) async {
+      final data = await repository.getPanelIds();
+      emit(state.copyWith(panels: data));
+    });
+  }
+
+  Future<void> _onCreateTicket(
+      CreateTicketEvent event,
+      Emitter<TicketListDetailsState> emit,
+      ) async {
+    try {
+      final data = event.ticketData;
+
+      await repository.createTicket(
+        customerId: data["customerId"],
+        title: data["title"],
+        description: data["description"],
+        category: data["category"],
+        priority: data["priority"],
+        scheduledAt: data["scheduledAt"],
+        products: List<Map<String, dynamic>>.from(data["products"]),
+      );
+
+      add(LoadTicketsEvent());
+    } catch (e) {
+      emit(state.copyWith(
+        status: TicketListDetailsStatus.failure,
+        message: e.toString(),
+      ));
+    }
   }
 
   Future<void> _onLoadTickets(
@@ -20,7 +54,6 @@ class TicketListDetailsBloc extends Bloc<TicketListDetailsEvent, TicketListDetai
       emit(state.copyWith(status: TicketListDetailsStatus.loading));
 
       final tickets = await repository.fetchTickets(
-        status: event.status,
         page: event.page,
       );
 

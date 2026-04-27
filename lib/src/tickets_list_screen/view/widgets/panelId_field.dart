@@ -1,74 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
+import '../../../common/models/panel_model.dart';
 
-class PanelIdField extends StatelessWidget {
+class PanelIdField extends StatefulWidget {
   final double scale;
-  final String hint;
-  final TextEditingController? controller;
+  final Function(PanelModel) onSelected;
+  final TicketListDetailsRepositary repository;
 
   const PanelIdField({
     super.key,
     required this.scale,
-    this.hint = "Enter Panel ID",
-    this.controller,
+    required this.onSelected,
+    required this.repository,
   });
 
   @override
+  State<PanelIdField> createState() => _PanelIdFieldState();
+}
+
+class _PanelIdFieldState extends State<PanelIdField> {
+  List<PanelModel> panels = [];
+  PanelModel? selectedPanel;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPanels();
+  }
+
+  Future<void> fetchPanels() async {
+    try {
+      final data = await widget.repository.getPanelIds();
+
+      setState(() {
+        panels = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      print("❌ PANEL ERROR: $e");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double s(double v) => v * scale;
+    double s(double v) => v * widget.scale;
 
-    return SizedBox(
-      width: s(362),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// 🔹 LABEL
-         /* Text(
-            'Panel ID*',
-            style: GoogleFonts.lato(
-              color: ColorPalette.bottomtext,
-              fontSize: s(16),
-              fontWeight: FontWeight.w600,
-            ),
+    return Container(
+      height: s(50),
+      padding: EdgeInsets.symmetric(horizontal: s(12)),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(s(10)),
+        border: Border.all(color: Colors.white),
+      ),
+      child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : DropdownButtonHideUnderline(
+        child: DropdownButton<PanelModel>(
+          value: panels.contains(selectedPanel) ? selectedPanel : null,
+          hint: Text(
+            panels.isEmpty ? "No Panels Found" : "Select Panel ID",
+            style: TextStyle(fontSize: s(16)),
           ),
-          SizedBox(height: s(14)),*/
+          isExpanded: true,
+          icon: const Icon(Icons.keyboard_arrow_down),
 
-          Container(
-            width: s(362),
-            height: s(50),
-            padding: EdgeInsets.symmetric(horizontal: s(16)),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF6F6F6),
-              borderRadius: BorderRadius.circular(s(10)),
-            ),
-
-            child: TextField(
-              controller: controller,
-              textAlignVertical: TextAlignVertical.center, 
-
-              decoration: InputDecoration(
-                hintText: hint,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: s(14),
-                  horizontal: s(0),
-                ),
-
-                hintStyle: GoogleFonts.lato(
-                  color: ColorPalette.textfiledin.withValues(alpha: .80),
-                  fontSize: s(16),
-                  fontWeight: FontWeight.w400,
-                ),
+          items: panels.map((panel) {
+            return DropdownMenuItem<PanelModel>(
+              value: panel,
+              child: Text(
+                panel.serialNumber.toString(),
+                style: TextStyle(fontSize: s(14)),
               ),
+            );
+          }).toList(),
 
-              style: GoogleFonts.lato(
-                fontSize: s(16),
-                fontWeight: FontWeight.w400,
-              ),
-            )
-          ),
-        ],
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                selectedPanel = value;
+              });
+
+              widget.onSelected(value);
+            }
+          },
+        ),
       ),
     );
   }

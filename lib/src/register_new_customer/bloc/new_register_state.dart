@@ -20,6 +20,9 @@ class NewRegisterState extends Equatable {
   final int? selectedDistrictId;
   final int? selectedPincodeId;
 
+  // ✅ Added to track existing customer selection
+  final String? selectedCustomerId;
+
   const NewRegisterState({
     this.status = NewRegisterStatus.initial,
     this.message = '',
@@ -28,13 +31,13 @@ class NewRegisterState extends Equatable {
     this.pincodesList = const [],
     this.searchResults = const [],
     this.allCustomers = const [],
-
     this.selectedState,
     this.selectedDistrict,
     this.selectedPincode,
     this.selectedStateId,
     this.selectedDistrictId,
     this.selectedPincodeId,
+    this.selectedCustomerId,
   });
 
   factory NewRegisterState.initial() => const NewRegisterState();
@@ -42,38 +45,34 @@ class NewRegisterState extends Equatable {
   NewRegisterState copyWith({
     NewRegisterStatus? status,
     String? message,
-
     List<Map<String, dynamic>>? states,
     List<Map<String, dynamic>>? districts,
     List<Map<String, dynamic>>? pincodesList,
     List<Map<String, dynamic>>? searchResults,
     List<Map<String, dynamic>>? allCustomers,
-
     String? selectedState,
     String? selectedDistrict,
     String? selectedPincode,
-
     int? selectedStateId,
     int? selectedDistrictId,
     int? selectedPincodeId,
+    String? selectedCustomerId, // ✅ Added
   }) {
     return NewRegisterState(
       status: status ?? this.status,
       message: message ?? this.message,
-
       states: states ?? this.states,
       districts: districts ?? this.districts,
       pincodesList: pincodesList ?? this.pincodesList,
       searchResults: searchResults ?? this.searchResults,
       allCustomers: allCustomers ?? this.allCustomers,
-
       selectedState: selectedState ?? this.selectedState,
       selectedDistrict: selectedDistrict ?? this.selectedDistrict,
       selectedPincode: selectedPincode ?? this.selectedPincode,
-
       selectedStateId: selectedStateId ?? this.selectedStateId,
       selectedDistrictId: selectedDistrictId ?? this.selectedDistrictId,
       selectedPincodeId: selectedPincodeId ?? this.selectedPincodeId,
+      selectedCustomerId: selectedCustomerId ?? this.selectedCustomerId, // ✅ Added
     );
   }
 
@@ -92,5 +91,6 @@ class NewRegisterState extends Equatable {
     selectedStateId,
     selectedDistrictId,
     selectedPincodeId,
+    selectedCustomerId, // ✅ Added
   ];
 }

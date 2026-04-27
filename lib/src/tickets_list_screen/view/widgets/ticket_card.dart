@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class TicketCard extends StatelessWidget {
-  final String ticketId, customerName, status, issue, panelId, date, sla;
+  final String ticketId, customerName, status, issue, date;
   final Color statusColor;
   final VoidCallback onViewDetails;
   final double scale;
@@ -14,9 +14,9 @@ class TicketCard extends StatelessWidget {
     required this.customerName,
     required this.status,
     required this.issue,
-    required this.panelId,
+   // required this.panelId,
     required this.date,
-    required this.sla,
+  //  required this.sla,
     required this.statusColor,
     required this.onViewDetails,
     required this.scale,
@@ -88,7 +88,8 @@ class TicketCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Panel ID : $panelId',
+                     // 'Panel ID : $panelId',
+                    'Panel ID :',
                       style: GoogleFonts.lato(
                         color: ColorPalette.textfiledin,
                         fontSize: s(14),
@@ -118,7 +119,8 @@ class TicketCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'SLA : $sla',
+                 // 'SLA : $sla',
+                  'SLA :',
                   style: GoogleFonts.lato(
                     color: ColorPalette.textfiledin,
                     fontSize: s(14),

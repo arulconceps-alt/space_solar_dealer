@@ -265,22 +265,8 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-            BlocProvider(
-              create: (context) => CustomerListBloc(
-                repository: CustomerListRepositary(
-                  context.read<ApiRepository>(),
-                ),
-              )..add(LoadCustomers()),
-              child: const CustomerList(),
-            ),
-            BlocProvider(
-              create: (context) => TicketListDetailsBloc(
-                TicketListDetailsRepositary(
-                  context.read<ApiRepository>(),
-                ),
-              )..add(LoadTicketsEvent(status: "OPEN")),
-              child: const TicketsListDetails(),
-            ),
+            const CustomerList(),
+            const TicketsListDetails(),
             const ProfileScreen(),
           ],
         ),

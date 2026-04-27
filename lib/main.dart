@@ -11,6 +11,9 @@ import 'package:space_solar_dealer/src/login/repo/login_repositary.dart';
 import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart'; // 1. Import Repo
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart'; // 2. Import Bloc
 import 'package:space_solar_dealer/src/login/bloc/login_bloc.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_event.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 import 'src/app/app.dart';
 
 Future<void> main() async {
@@ -46,11 +49,16 @@ Future<void> main() async {
           ),
         ),
         // 3. Register Customer Repository
-        /*RepositoryProvider(
+       RepositoryProvider(
           create: (context) => CustomerListRepositary(
             context.read<ApiRepository>(),
           ),
-        ),*/
+        ),
+        RepositoryProvider(
+          create: (context) => TicketListDetailsRepositary(
+            context.read<ApiRepository>(),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -64,6 +72,11 @@ Future<void> main() async {
             create: (context) => CustomerListBloc(
               repository: context.read<CustomerListRepositary>(),
             ),
+          ),
+          BlocProvider(
+            create: (context) => TicketListDetailsBloc(
+              context.read<TicketListDetailsRepositary>(),
+            )..add(LoadTicketsEvent()),
           ),
         ],
         child: const App(),

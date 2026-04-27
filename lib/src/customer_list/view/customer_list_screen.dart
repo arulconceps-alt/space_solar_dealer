@@ -23,7 +23,9 @@ class _CustomerListState extends State<CustomerList> {
   void initState() {
     super.initState();
     _searchController.clear();
-    context.read<CustomerListBloc>().add(LoadCustomers());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CustomerListBloc>().add(LoadCustomers());
+    });
   }
 
 
@@ -91,33 +93,42 @@ class _CustomerListState extends State<CustomerList> {
             Expanded(
               child: BlocBuilder<CustomerListBloc, CustomerListState>(
                 builder: (context, state) {
+                  return Stack(
+                    children: [
 
-                  if (state.status == CustomerListStatus.loading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+                      /// ✅ MAIN CONTENT (always visible)
+                      if (state.filteredCustomers.isNotEmpty)
+                        ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: s(20)),
+                          itemCount: state.filteredCustomers.length,
+                          itemBuilder: (context, index) {
+                            final customer = state.filteredCustomers[index];
+                            return CustomerItem(
+                              customer: customer,
+                              isFirst: index == 0,
+                              isLast: index == state.filteredCustomers.length - 1,
+                              onTap: () {
+                                context.push('/customer_detail', extra: customer);
+                              },
+                            );
+                          },
+                        )
+                      else if (state.status == CustomerListStatus.success)
+                        const Center(child: Text("No customers found")),
 
-                  if (state.status == CustomerListStatus.failure) {
-                    return Center(child: Text(state.message));
-                  }
+                      /// ✅ LOADER OVERLAY
+                      if (state.status == CustomerListStatus.loading)
+                        Container(
+                          color: Colors.black.withOpacity(0.2), // dim background
+                          child: const Center(
+                            child: CircularProgressIndicator(color: ColorPalette.background,),
+                          ),
+                        ),
 
-                  if (state.filteredCustomers.isEmpty) {
-                    return const Center(child: Text("No customers found"));
-                  }
-
-                  return ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: s(20)),
-                    itemCount: state.filteredCustomers.length,
-                    itemBuilder: (context, index) {
-                      final customer = state.filteredCustomers[index];
-                      return CustomerItem(
-                        customer: customer, // ✅ pass full object
-                        isFirst: index == 0,
-                        isLast: index == state.filteredCustomers.length - 1,
-                        onTap: () {
-                          context.push('/customer_detail', extra: customer);
-                        },
-                      );
-                    },
+                      /// ❌ ERROR
+                      if (state.status == CustomerListStatus.failure)
+                        Center(child: Text(state.message)),
+                    ],
                   );
                 },
               ),

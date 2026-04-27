@@ -188,12 +188,18 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           itemCount: panels.length,
                           itemBuilder: (context, index) {
                             final panel = panels[index];
+
+                            /// ✅ Detect if already formatted or manual
+                            final displayId = panel.startsWith("SS-78A00-S")
+                                ? panel
+                                : "SS-78A00-S${panel.padLeft(3, '0')}";
+
                             return AddedPanelTile(
-                              id: "SS-78A00-S${panel.toString().padLeft(3, '0')}",
+                              id: displayId, // ✅ show correct ID
                               scale: scale,
                               onRemove: () {
                                 setState(() {
-                                  panels.remove(panel);
+                                  panels.removeAt(index); // ✅ safer than remove(panel)
                                 });
                               },
                             );
@@ -216,6 +222,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                                 NewRegisterSubmit(
                                   name: nameController.text.trim(),
                                   phone: phoneController.text.trim(),
+                                  email: emailController.text,
                                   addressLine: addressController.text.trim(),
                                   stateId: blocState.selectedStateId!,
                                   districtId: blocState.selectedDistrictId!,

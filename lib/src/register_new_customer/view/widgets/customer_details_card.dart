@@ -39,6 +39,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   String selectedCustomerType = "New Customer";
   late TextEditingController _searchController;
   bool isUserSelected = false;
+  Map<String, dynamic>? selectedCustomerData;
 
   @override
   void initState() {
@@ -52,20 +53,75 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     super.dispose();
   }
 
-  void _onUserSelected(Map<String, dynamic> customer) {
+  Future<void> _onUserSelected(Map<String, dynamic> customer) async {
+    final bloc = context.read<NewRegisterBloc>();
+
     setState(() {
       isUserSelected = true;
       _searchController.clear();
 
       widget.nameController.text = customer["name"] ?? "";
-      widget.phoneController.text = customer["phone"] ?? "";
+      widget.phoneController.text =
+          (customer["phone"] ?? "").replaceAll("+91", "");
       widget.emailController.text = customer["email"] ?? "";
-      widget.addressController.text = customer["address"] ?? "";
-
-      widget.onPanelsLoaded(
-        (customer["panels"] as List?)?.map((e) => e.toString()).toList() ?? [],
-      );
+      widget.addressController.text = customer["addressLine1"] ?? "";
     });
+
+    /// ✅ STEP 1: SET STATE
+    final stateObj = bloc.state.states.firstWhere(
+          (e) => e["id"] == customer["stateId"],
+      orElse: () => {},
+    );
+
+    if (stateObj.isNotEmpty) {
+      bloc.add(SelectState(stateObj["name"], stateObj["id"]));
+    }
+
+    /// ✅ WAIT until districts are loaded
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final districtObj = bloc.state.districts.firstWhere(
+          (e) => e["id"] == customer["districtId"],
+      orElse: () => {},
+    );
+
+    if (districtObj.isNotEmpty) {
+      bloc.add(SelectDistrict(districtObj["name"], districtObj["id"]));
+    }
+
+    /// ✅ WAIT until pincodes are loaded
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final pincodeObj = bloc.state.pincodesList.firstWhere(
+          (e) => e["id"] == customer["pincodeId"],
+      orElse: () => {},
+    );
+
+    if (pincodeObj.isNotEmpty) {
+      bloc.add(
+        SelectPincode(
+          id: pincodeObj["id"],
+          code: pincodeObj["code"].toString(),
+        ),
+      );
+    }
+
+    /// ✅ EXTRACT PANELS
+    final orders = customer["orders"] ?? [];
+    List<String> existingPanels = [];
+
+    for (var order in orders) {
+      final items = order["items"] ?? [];
+      for (var item in items) {
+        final serial = item["serialNumber"];
+        if (serial != null) {
+          existingPanels.add(serial.toString());
+        }
+      }
+    }
+
+    /// ✅ SEND TO PARENT SCREEN
+    widget.onPanelsLoaded(existingPanels);
   }
 
   void resetToNewCustomer() {
@@ -318,12 +374,15 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       onTap: () {
         setState(() {
           selectedCustomerType = label;
+
           if (label == "New Customer") {
             isUserSelected = false;
+
             widget.nameController.clear();
             widget.phoneController.clear();
             widget.emailController.clear();
             widget.addressController.clear();
+
             widget.onClearPanels();
           }
         });
