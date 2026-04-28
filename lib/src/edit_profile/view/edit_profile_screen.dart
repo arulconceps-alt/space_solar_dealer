@@ -5,8 +5,18 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
-class EditProfileScreen extends StatelessWidget {
+class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
+
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final addressController = TextEditingController();
+  final companyController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

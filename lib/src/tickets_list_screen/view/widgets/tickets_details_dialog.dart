@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 
 class TicketDetailsDialog extends StatelessWidget {
-  const TicketDetailsDialog({super.key});
+  final TicketModel ticket;
+  const TicketDetailsDialog({super.key, required this.ticket});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class TicketDetailsDialog extends StatelessWidget {
 
             SizedBox(height: s(21)),
             Text(
-              "TKT-001",
+              ticket.ticketNumber,
               style: GoogleFonts.lato(
                 fontSize: s(16),
                 fontWeight: FontWeight.w400,
@@ -70,7 +72,7 @@ class TicketDetailsDialog extends StatelessWidget {
                   _infoRow(
                     "assets/images/ticket/noun_profile_icon.png",
                     "Customer Name",
-                    "Rohit Sharma",
+                    ticket.customerName,
                     scale,
                     24,
                     17,
@@ -79,7 +81,7 @@ class TicketDetailsDialog extends StatelessWidget {
                   _infoRow(
                     "assets/images/ticket/solar_panel.png",
                     "Panel ID",
-                    "SS-2025-001",
+                    ticket.panelId,
                     scale,
                      28,
                      15,
@@ -88,7 +90,7 @@ class TicketDetailsDialog extends StatelessWidget {
                   _infoRow(
                     "assets/images/ticket/exclamation_icon.png",
                     "Issue Type",
-                    "Low Power Output",
+                    ticket.issue,
                     scale,
                      22,
                      19,
@@ -219,7 +221,7 @@ class TicketDetailsDialog extends StatelessWidget {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Text(
-                  "Panel showing reduced efficiency after\nrecent dust storm.",
+                  ticket.description ?? "No description provided.",
                   style: GoogleFonts.lato(
                     fontSize: s(16),
                     fontWeight: FontWeight.w400,

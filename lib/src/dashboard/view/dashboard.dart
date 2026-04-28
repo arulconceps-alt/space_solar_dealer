@@ -1,25 +1,23 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
-import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/common/widgets/custom_bottom_navigationbar.dart';
-import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
-import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/dashboard_card_design.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/action_card.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/activity_tile.dart';
 import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_event.dart';
-import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
+import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_bloc.dart';
+import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_event.dart'
+as panel;
+
 
 import 'widgets/app_background.dart';
 
@@ -36,6 +34,11 @@ class _DashboardState extends State<Dashboard> {
   double iconMedium = 24.0;
   double iconLarge = 28.0;
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<TotalPanelBloc>().add(panel.LoadPanelsEvent());
+  }
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -127,11 +130,7 @@ class _DashboardState extends State<Dashboard> {
 
                         return GestureDetector(
                           onTap: () {
-                            final title = item["title"];
-
-                            if (title == "Total Panels Sold") {
-                              context.pushNamed(RouteName.total_panel_list);
-                            }
+                            context.goNamed(RouteName.total_panel_list);
                           },
                           child: DashboardCard(
                             title: item["title"] as String,

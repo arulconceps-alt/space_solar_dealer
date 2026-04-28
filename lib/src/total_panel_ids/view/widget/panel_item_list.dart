@@ -5,6 +5,7 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/widget/panel_details_dialog.dart';
 
 class PanelItemList extends StatelessWidget {
+  final dynamic panel;
   final String name;
   final bool isFirst;
   final bool isLast;
@@ -12,6 +13,7 @@ class PanelItemList extends StatelessWidget {
 
   const PanelItemList({
     super.key,
+    required this.panel,
     required this.name,
     required this.onTap,
     this.isFirst = false,
@@ -71,9 +73,8 @@ class PanelItemList extends StatelessWidget {
                     onTap: () {
                       showDialog(
                         context: context,
-                        builder: (context) => PanelDetailsDialog(
-                          parentContext: context,
-                          panelId: name,
+                        builder: (_) => PanelDetailsDialog(
+                          panel: panel,
                         ),
                       );
                     },

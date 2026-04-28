@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/profile/widget/profile_info_row.dart';
+import 'package:space_solar_dealer/src/common/models/profile_model.dart';
+import 'package:space_solar_dealer/src/profile/bloc/profile_bloc.dart';
+import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
+import 'package:space_solar_dealer/src/profile/view/widget/profile_info_row.dart';
+
 
 class ProfileInfoCard extends StatelessWidget {
   final double scale;
   final bool isActive;
+  final ProfileModel? profile; // 👈 ADD THIS
 
   const ProfileInfoCard({
     super.key,
     required this.scale,
     required this.isActive,
+    required this.profile,
   });
 
   @override
@@ -53,7 +60,7 @@ class ProfileInfoCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Kavin Kumar",
+                          profile?.name ?? "No Name",
                           style: GoogleFonts.lato(
                             fontSize: s(18),
                             fontWeight: FontWeight.w500,
@@ -124,7 +131,7 @@ class ProfileInfoCard extends StatelessWidget {
                       s: s,
                       iconSize: 18,
                       iconPath: "assets/images/profile/call.svg",
-                      text: '+91 98745 63210',
+                      text: profile?.phone ?? "-",
                     ),
 
                     SizedBox(height: s(13)),
@@ -133,7 +140,7 @@ class ProfileInfoCard extends StatelessWidget {
                       s: s,
                       iconSize: 18,
                       iconPath: "assets/images/profile/mail.svg",
-                      text: 'kumar@gmail.com',
+                      text: profile?.email ?? "-",
                     ),
 
                     SizedBox(height: s(13)),
@@ -142,7 +149,7 @@ class ProfileInfoCard extends StatelessWidget {
                       s: s,
                       iconSize: 20,
                       iconPath: "assets/images/profile/location.svg",
-                      text: '40 Ganapathy , Coimbatore- 642108',
+                      text: "${profile?.district?.name ?? 'Unknown District'}, ${profile?.state?.name ?? 'Unknown State'}",
                     ),
                   ],
                 ),
@@ -163,7 +170,7 @@ class ProfileInfoCard extends StatelessWidget {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Member Since',
+                      text: 'Member Since :',
                       style: GoogleFonts.lato(
                         fontSize: s(14),
                         fontWeight: FontWeight.w400,
@@ -171,10 +178,10 @@ class ProfileInfoCard extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: ' : Nov 2005',
+                      text: profile?.createdAt?.substring(0, 10) ?? "-",
                       style: GoogleFonts.lato(
                         fontSize: s(14),
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w600,
                         color: ColorPalette.bottomtext,
                       ),
                     ),
@@ -183,8 +190,11 @@ class ProfileInfoCard extends StatelessWidget {
               ),
               SizedBox(width: s(30)),
               GestureDetector(
-                onTap: () {
-                  context.push('/edit_profile_screen');
+                onTap: () async {
+                  await context.push('/edit_profile_screen');
+
+                  /// 🔄 RELOAD PROFILE
+                  context.read<ProfileBloc>().add(LoadProfileEvent());
                 },
                 child: Container(
                   height: s(37),

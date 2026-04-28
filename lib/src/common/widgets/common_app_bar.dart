@@ -30,12 +30,13 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: showBack
           ? IconButton(
-        onPressed: onBackTap ??
-                () {
-              if (context.canPop()) {
-                context.pop();
-              }
-            },
+        onPressed: () {
+          if (onBackTap != null) {
+            onBackTap!();
+          } else if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        },
         icon: Image.asset(
           'assets/images/new_register/back_arrow.png',
           width: s(20),

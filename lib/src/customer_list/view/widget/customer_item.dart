@@ -23,7 +23,6 @@ class CustomerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final scale = w / 440;
-
     double s(double v) => v * scale;
     return Material(
       color: Colors.transparent,
@@ -126,7 +125,10 @@ class CustomerItem extends StatelessWidget {
                   /// EDIT ICON
                   InkWell(
                     onTap: () {
-                      context.push('/editCustomer');
+                      context.push(
+                        '/customer_detail',
+                        extra: customer,
+                      );
                     },
                     child: Padding(
                       padding: EdgeInsets.all(s(6)),

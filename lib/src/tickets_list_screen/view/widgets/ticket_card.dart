@@ -3,21 +3,25 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 
 class TicketCard extends StatelessWidget {
-  final String ticketId, customerName, status, issue, date;
+  final String ticketNumber, customerName, status, issue, date;
   final Color statusColor;
+  final Color statusBgColor;
   final VoidCallback onViewDetails;
   final double scale;
+  final String panelId;
+  final String sla;
 
   const TicketCard({
     super.key,
-    required this.ticketId,
+    required this.ticketNumber,
     required this.customerName,
     required this.status,
     required this.issue,
-   // required this.panelId,
+    required this.panelId,
     required this.date,
-  //  required this.sla,
+    required this.sla,
     required this.statusColor,
+    required this.statusBgColor,
     required this.onViewDetails,
     required this.scale,
   });
@@ -25,7 +29,6 @@ class TicketCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double s(double v) => v * scale;
-
     return Container(
       width: s(400),
       margin: EdgeInsets.only(bottom: s(16)),
@@ -47,7 +50,7 @@ class TicketCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      ticketId,
+                      ticketNumber,
                       style: GoogleFonts.lato(
                         color: ColorPalette.textfiledin,
                         fontSize: s(14),
@@ -88,8 +91,8 @@ class TicketCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                     // 'Panel ID : $panelId',
-                    'Panel ID :',
+                      'Panel ID : $panelId',
+                    //'Panel ID :',
                       style: GoogleFonts.lato(
                         color: ColorPalette.textfiledin,
                         fontSize: s(14),
@@ -119,8 +122,7 @@ class TicketCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                 // 'SLA : $sla',
-                  'SLA :',
+                 'SLA : $sla',
                   style: GoogleFonts.lato(
                     color: ColorPalette.textfiledin,
                     fontSize: s(14),
@@ -161,9 +163,9 @@ class TicketCard extends StatelessWidget {
     return Container(
       width: s(72), 
       height: s(20), 
-      alignment: Alignment.center, 
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.30),
+        color: statusBgColor, // ✅ Use the passed background color
         borderRadius: BorderRadius.circular(s(10)),
       ),
       child: Text(

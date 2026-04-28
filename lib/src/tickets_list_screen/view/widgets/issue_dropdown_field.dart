@@ -32,12 +32,12 @@ class _IssueDropdownFieldState extends State<IssueDropdownField> {
       height: s(50),
       padding: EdgeInsets.symmetric(horizontal: s(12)),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
+        color: const Color(0xFFF6F6F6), // Match design background
         borderRadius: BorderRadius.circular(s(10)),
-        border: Border.all(color: Colors.white),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
+          dropdownColor: const Color(0xFFF6F6F6),
           value: selectedIssue,
           hint: Text(
             "Select Issue Type",

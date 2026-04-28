@@ -53,9 +53,8 @@ class _PanelIdFieldState extends State<PanelIdField> {
       height: s(50),
       padding: EdgeInsets.symmetric(horizontal: s(12)),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
+        color: const Color(0xFFF6F6F6), // Match design background
         borderRadius: BorderRadius.circular(s(10)),
-        border: Border.all(color: Colors.white),
       ),
       child: isLoading
           ? const Center(child: CircularProgressIndicator())

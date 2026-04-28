@@ -4,17 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:space_solar_dealer/src/app/flavor_config.dart';
+import 'package:space_solar_dealer/src/app/app.dart';
+
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
+
 import 'package:space_solar_dealer/src/login/repo/login_repositary.dart';
-import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart'; // 1. Import Repo
-import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart'; // 2. Import Bloc
 import 'package:space_solar_dealer/src/login/bloc/login_bloc.dart';
+
+import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
+import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
+
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_event.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
-import 'src/app/app.dart';
+
+import 'package:space_solar_dealer/src/profile/bloc/profile_bloc.dart';
+import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
+import 'package:space_solar_dealer/src/profile/repo/profile_repositary.dart';
+import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_bloc.dart';
+import 'package:space_solar_dealer/src/total_panel_ids/repo/total_panel_repositary.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +36,7 @@ Future<void> main() async {
     baseUrl: "http://187.127.131.80:5502/",
     useMockApi: false,
   );
+
   GetIt.I.registerSingleton<FlavorConfig>(config);
 
   final dio = Dio();
@@ -34,7 +46,7 @@ Future<void> main() async {
     MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (context) => PreferencesRepository(sharedPreferences),
+          create: (_) => PreferencesRepository(sharedPreferences),
         ),
         RepositoryProvider(
           create: (context) => ApiRepository(
@@ -48,14 +60,23 @@ Future<void> main() async {
             context.read<PreferencesRepository>(),
           ),
         ),
-        // 3. Register Customer Repository
-       RepositoryProvider(
+        RepositoryProvider(
           create: (context) => CustomerListRepositary(
             context.read<ApiRepository>(),
           ),
         ),
         RepositoryProvider(
           create: (context) => TicketListDetailsRepositary(
+            context.read<ApiRepository>(),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => ProfileRepository(
+            context.read<ApiRepository>(),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => TotalPanelRepositary(
             context.read<ApiRepository>(),
           ),
         ),
@@ -67,7 +88,6 @@ Future<void> main() async {
               repository: context.read<LoginRepository>(),
             ),
           ),
-          // 4. Register Customer Bloc
           BlocProvider(
             create: (context) => CustomerListBloc(
               repository: context.read<CustomerListRepositary>(),
@@ -77,6 +97,16 @@ Future<void> main() async {
             create: (context) => TicketListDetailsBloc(
               context.read<TicketListDetailsRepositary>(),
             )..add(LoadTicketsEvent()),
+          ),
+          BlocProvider(
+            create: (context) => ProfileBloc(
+              context.read<ProfileRepository>(),
+            )..add(LoadProfileEvent()),
+          ),
+          BlocProvider(
+            create: (context) => TotalPanelBloc(
+              context.read<TotalPanelRepositary>(),
+            ),
           ),
         ],
         child: const App(),

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/ticket_success_animated_tick.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/tickets_details_dialog.dart';
 
 
 class TicketSuccessDialog extends StatelessWidget {
+  final TicketModel ticket;
   final BuildContext parentContext;
 
   const TicketSuccessDialog({
     super.key,
     required this.parentContext,
+    required this.ticket,
   });
 
   @override
@@ -71,7 +74,7 @@ class TicketSuccessDialog extends StatelessWidget {
       
             /// 🔹 DESCRIPTION
             Text(
-              "Your Ticket has been created.\nYour Ticket ID is #SS-00120",
+              "Your Ticket has been created.\nYour Ticket ID is ${ticket.ticketId}",
               textAlign: TextAlign.center,
               style: GoogleFonts.lato(
                 color: ColorPalette.textfiledin.withValues(alpha: .80),
@@ -83,37 +86,29 @@ class TicketSuccessDialog extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                 showGeneralDialog(
-              context: context,
-              barrierDismissible: true,
-              barrierLabel: "Ticket Details",
-              barrierColor: Colors.black54,
-              transitionDuration: const Duration(milliseconds: 400),
-              pageBuilder: (context, animation, secondaryAnimation) {
-                return const SizedBox(); // required
-              },
-              transitionBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    final curvedAnimation = CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutBack,
-                    );
+                showGeneralDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  barrierLabel: "Ticket Details", // ✅ ADD THIS
+                  barrierColor: Colors.black54,
+                  transitionDuration: const Duration(milliseconds: 300),
 
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return Center(
+                      child: TicketDetailsDialog(ticket: ticket),
+                    );
+                  },
+
+                  transitionBuilder: (context, animation, secondaryAnimation, child) {
                     return Transform.scale(
-                      scale: curvedAnimation.value,
+                      scale: animation.value,
                       child: Opacity(
                         opacity: animation.value,
-                        child: Dialog(
-                          backgroundColor: Colors.transparent,
-                          insetPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: TicketDetailsDialog(),
-                        ),
+                        child: child,
                       ),
                     );
                   },
-            );
+                );
               },
               child: Container(
                 width: double.infinity,

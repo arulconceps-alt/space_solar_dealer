@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/bloc/alert/alert_state.dart';
 import 'package:space_solar_dealer/src/common/models/issue_model.dart';
+import 'package:space_solar_dealer/src/common/widgets/custom_snackbar.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_state.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/description_field.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/dropdown_field.dart';
@@ -44,7 +47,52 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     final scale = w / 440;
     double s(double v) => v * scale;
 
-    return Dialog(
+    return BlocListener<TicketListDetailsBloc, TicketListDetailsState>(
+      listener: (context, state) {
+
+        /// ✅ SUCCESS (CREATE)
+        if (state.status == TicketListDetailsStatus.create) {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context); // close form dialog only
+          }
+
+          final newTicket = state.tickets.first;
+
+          /// ✅ CLEAR FIELDS
+          descriptionController.clear();
+          selectedPanel = null;
+          selectedIssue = null;
+
+          /// ✅ SHOW SUCCESS DIALOG
+          showGeneralDialog(
+            context: widget.parentContext,
+            barrierDismissible: true,
+            barrierLabel: "Success",
+            barrierColor: Colors.black54,
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder: (_, __, ___) {
+              return TicketSuccessDialog(
+                parentContext: widget.parentContext,
+                ticket: newTicket,
+              );
+            },
+          );
+        }
+
+        /// ❌ ERROR
+        if (state.status == TicketListDetailsStatus.failure) {
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.failure,
+              timestamp: DateTime.now(),
+            ),
+          );
+        }
+      },
+
+        child: Dialog(   // 👈 YOUR EXISTING UI GOES HERE Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(horizontal: s(20)),
       child: Container(
@@ -87,7 +135,11 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
                 scale: scale,
                 repository: context.read<TicketListDetailsRepositary>(),
                 onSelected: (panel) {
-                  selectedPanel = panel;
+                  setState(() {
+                    selectedPanel = panel;
+                    // ✅ This ensures the 'serialNo' in your API request matches the selected panel
+                    print("Selected Serial: ${panel.serialNumber}");
+                  });
                 },
               ),
               SizedBox(height: s(16)),
@@ -105,196 +157,44 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
                 controller: descriptionController,
               ),
               SizedBox(height: s(16)),
-
               UploadField(
                 scale: scale,
                 onTap: () {
                   print("Upload clicked");
                 },
               ),
-
               SizedBox(height: s(40)),
-
-             /* GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                  Future.delayed(const Duration(milliseconds: 200), () {
-                    // showDialog(
-                    //   context: parentContext,
-                    //   barrierDismissible: false,
-                    //   builder: (_) => TicketSuccessDialog(
-                    //     parentContext: parentContext,
-                    //   ),
-                    // );
-                    showGeneralDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      barrierLabel: "Ticket Details",
-                      barrierColor: Colors.black54,
-                      transitionDuration: const Duration(milliseconds: 500),
-                      pageBuilder: (context, animation, secondaryAnimation) {
-                        return TicketSuccessDialog(parentContext: context);
-                      },
-                      transitionBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            final curvedAnimation = CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.fastOutSlowIn,
-                            );
-
-                            return Transform.scale(
-                              scale: curvedAnimation.value,
-                              child: Opacity(
-                                opacity: animation.value,
-                                child: child,
-                              ),
-                            );
-                          },
-                    );
-                  });
-                },
-                 child:  GestureDetector(
-                    onTap: () {
-                      // ✅ Validation
-                      if (selectedPanel == null) {
-                        print("❌ Select Panel");
-                        return;
-                      }
-
-                      if (selectedIssue == null) {
-                        print("❌ Select Issue Type");
-                        return;
-                      }
-
-                      if (descriptionController.text.trim().isEmpty) {
-                        print("❌ Enter Description");
-                        return;
-                      }
-
-                      // ✅ API CALL (Bloc Event)
-                      context.read<TicketListDetailsBloc>().add(
-                        CreateTicketEvent({
-                          "customerId": selectedPanel!.customerId,
-                          "title": selectedIssue!.title, // issue title
-                          "description": descriptionController.text.trim(),
-                          "category": "MAINTENANCE",
-                          "priority": "HIGH",
-                          "scheduledAt": selectedDate.toIso8601String(),
-                          "products": [
-                            {
-                              "productId": selectedPanel!.productId,
-                              "serialNo": selectedPanel!.serialNumber,
-                              "quantity": 1
-                            }
-                          ]
-                        }),
-                      );
-
-                      // ✅ Close dialog
-                      Navigator.pop(context);
-
-                      // ✅ Optional success UI
-                      Future.delayed(const Duration(milliseconds: 200), () {
-                        showGeneralDialog(
-                          context: widget.parentContext,
-                          barrierDismissible: true,
-                          barrierColor: Colors.black54,
-                          transitionDuration: const Duration(milliseconds: 400),
-                          pageBuilder: (_, __, ___) => const SizedBox(),
-                          transitionBuilder: (context, animation, _, child) {
-                            return Transform.scale(
-                              scale: animation.value,
-                              child: Opacity(
-                                opacity: animation.value,
-                                child: TicketSuccessDialog(parentContext: context),
-                              ),
-                            );
-                          },
-                        );
-                      });
-                    },
-
-                    child: Container(
-                      width: s(362),
-                      height: s(50),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF26A7DF),
-                        borderRadius: BorderRadius.circular(s(10)),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Done',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFFFFFFFF),
-                          fontSize: s(16),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  )
-              ),*/
               GestureDetector(
                 onTap: () {
-                  // ✅ Validation
-                  if (selectedPanel == null) {
-                    print("❌ Select Panel");
-                    return;
-                  }
+                  if (selectedPanel == null) return;
+                  if (selectedIssue == null) return;
+                  if (descriptionController.text.trim().isEmpty) return;
 
-                  if (selectedIssue == null) {
-                    print("❌ Select Issue Type");
-                    return;
-                  }
-
-                  if (descriptionController.text.trim().isEmpty) {
-                    print("❌ Enter Description");
-                    return;
-                  }
-
-                  // ✅ CALL API VIA BLOC
                   context.read<TicketListDetailsBloc>().add(
                     CreateTicketEvent({
-                      "customerId": selectedPanel!.customerId,
-                      "title": selectedIssue!.title,
+                      "customerId": selectedPanel?.customerId ?? "",
+                      "title": selectedIssue?.title ?? "",
                       "description": descriptionController.text.trim(),
-                      "category": selectedCategory,
-                      "priority": selectedPriority,
-                      "scheduledAt": selectedDate.toIso8601String(),
+                      "scheduledAt": selectedDate.toUtc().toIso8601String(),
                       "products": [
                         {
-                          "productId": selectedPanel!.productId,
-                          "serialNo": selectedPanel!.serialNumber,
+                          "productId": selectedPanel?.productId ?? 0,
+                          "serialNo": selectedPanel?.serialNumber ?? "",
                           "quantity": 1
                         }
                       ]
                     }),
                   );
 
-                  // ❌ CLOSE CURRENT DIALOG
-                  Navigator.pop(context);
+                  print("📤 SENDING DATA:");
+                  print("customerId: ${selectedPanel?.customerId}");
+                  print("productId: ${selectedPanel?.productId}");
+                  print("serialNo: ${selectedPanel?.serialNumber}");
+                  print("issue: ${selectedIssue?.title}");
 
-                  // ✅ SHOW SUCCESS AFTER SMALL DELAY
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    showGeneralDialog(
-                      context: widget.parentContext,
-                      barrierDismissible: true,
-                      barrierColor: Colors.black54,
-                      transitionDuration: const Duration(milliseconds: 400),
-                      pageBuilder: (_, __, ___) {
-                        return  TicketSuccessDialog(parentContext: context);
-                      },
-                      transitionBuilder: (context, animation, _, child) {
-                        return Transform.scale(
-                          scale: animation.value,
-                          child: Opacity(
-                            opacity: animation.value,
-                            child: child,
-                          ),
-                        );
-                      },
-                    );
-                  });
+                  // ❌ REMOVED Future.delayed BLOCK
                 },
+
                 child: Container(
                   width: s(362),
                   height: s(50),
@@ -317,6 +217,7 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
           ),
         ),
       ),
+        ),
     );
   }
 }

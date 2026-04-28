@@ -20,8 +20,10 @@ class NewRegisterState extends Equatable {
   final int? selectedDistrictId;
   final int? selectedPincodeId;
 
-  // ✅ Added to track existing customer selection
   final String? selectedCustomerId;
+
+  // ✅ ADD THIS (IMPORTANT)
+  final bool isExistingCustomer;
 
   const NewRegisterState({
     this.status = NewRegisterStatus.initial,
@@ -38,6 +40,9 @@ class NewRegisterState extends Equatable {
     this.selectedDistrictId,
     this.selectedPincodeId,
     this.selectedCustomerId,
+
+    // ✅ ADD DEFAULT VALUE
+    this.isExistingCustomer = false,
   });
 
   factory NewRegisterState.initial() => const NewRegisterState();
@@ -56,7 +61,10 @@ class NewRegisterState extends Equatable {
     int? selectedStateId,
     int? selectedDistrictId,
     int? selectedPincodeId,
-    String? selectedCustomerId, // ✅ Added
+    String? selectedCustomerId,
+
+    // ✅ ADD THIS
+    bool? isExistingCustomer,
   }) {
     return NewRegisterState(
       status: status ?? this.status,
@@ -66,13 +74,19 @@ class NewRegisterState extends Equatable {
       pincodesList: pincodesList ?? this.pincodesList,
       searchResults: searchResults ?? this.searchResults,
       allCustomers: allCustomers ?? this.allCustomers,
+
       selectedState: selectedState ?? this.selectedState,
       selectedDistrict: selectedDistrict ?? this.selectedDistrict,
       selectedPincode: selectedPincode ?? this.selectedPincode,
+
       selectedStateId: selectedStateId ?? this.selectedStateId,
       selectedDistrictId: selectedDistrictId ?? this.selectedDistrictId,
       selectedPincodeId: selectedPincodeId ?? this.selectedPincodeId,
-      selectedCustomerId: selectedCustomerId ?? this.selectedCustomerId, // ✅ Added
+
+      selectedCustomerId: selectedCustomerId ?? this.selectedCustomerId,
+
+      // ✅ FIX HERE (IMPORTANT)
+      isExistingCustomer: isExistingCustomer ?? this.isExistingCustomer,
     );
   }
 
@@ -91,6 +105,9 @@ class NewRegisterState extends Equatable {
     selectedStateId,
     selectedDistrictId,
     selectedPincodeId,
-    selectedCustomerId, // ✅ Added
+    selectedCustomerId,
+
+    // ✅ ADD THIS
+    isExistingCustomer,
   ];
 }

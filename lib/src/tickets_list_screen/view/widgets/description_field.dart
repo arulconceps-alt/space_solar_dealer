@@ -41,33 +41,31 @@
               height: s(90),
               padding: EdgeInsets.symmetric(horizontal: s(16)),
               decoration: BoxDecoration(
-                color: const Color(0xFFF6F6F6),
+                color: const Color(0xFFF6F6F6), // Match design background
                 borderRadius: BorderRadius.circular(s(10)),
               ),
 
               child: TextField(
                 controller: controller,
-                maxLines: 5,
-                minLines: 3,
-                expands: true, // ✅ fills full height
-                textAlignVertical: TextAlignVertical.top, // ✅ start from top
+                // 🔹 ADD THESE TWO LINES 🔹
+                maxLines: null,
+                minLines: null,
 
+                expands: true, // ✅ fills full height
+                textAlignVertical: TextAlignVertical.top,
+                keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
                   hintText: hint,
                   border: InputBorder.none,
-
-                  /// 🔹 top padding to match Figma (top: 49)
                   contentPadding: EdgeInsets.only(
                     top: s(12),
                   ),
-
                   hintStyle: GoogleFonts.lato(
                     color: const Color(0xCC484848),
                     fontSize: s(16),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-
                 style: GoogleFonts.lato(
                   fontSize: s(16),
                   fontWeight: FontWeight.w400,

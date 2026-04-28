@@ -21,11 +21,16 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     on<LoadCustomers>(_onLoadCustomers);
     on<NewRegisterSubmit>(_onSubmit);
     on<SelectExistingCustomer>((event, emit) {
-      emit(state.copyWith(selectedCustomerId: event.id));
+      emit(state.copyWith(
+        selectedCustomerId: event.id,
+        isExistingCustomer: true, // ✅ ADD THIS
+      ));
     });
     on<ResetRegisterState>((event, emit) {
       _allCustomers.clear();
-      emit(NewRegisterState.initial());
+      emit(NewRegisterState.initial().copyWith(
+        isExistingCustomer: false,
+      ));
     });
 
   }
@@ -161,26 +166,30 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
 
   // ✅ SUBMIT
   Future<void> _onSubmit(
-      NewRegisterSubmit event, Emitter<NewRegisterState> emit) async {
+      NewRegisterSubmit event,
+      Emitter<NewRegisterState> emit,
+      ) async {
     emit(state.copyWith(status: NewRegisterStatus.loading));
 
     try {
-      if (state.selectedCustomerId != null) {
-        // ✅ API Path for Existing Customer (Add Orders)
+      final isExisting = state.selectedCustomerId != null;
+
+      if (isExisting) {
+        // 👤 EXISTING CUSTOMER → ONLY ORDER API
         await _repository.addOrderToExistingCustomer(
           customerId: state.selectedCustomerId!,
           panels: event.panels,
         );
       } else {
-        // ✅ API Path for New Customer Registration
+        // 🆕 NEW CUSTOMER → REGISTER API
         await _repository.registerCustomer(
           name: event.name,
           phone: event.phone,
           email: event.email,
           countryId: 1,
-          stateId: event.stateId,
-          districtId: event.districtId,
-          pincodeId: event.pincodeId,
+          stateId: state.selectedStateId!,
+          districtId: state.selectedDistrictId!,
+          pincodeId: state.selectedPincodeId!,
           addressLine: event.addressLine,
           panels: event.panels,
           propertyType: event.propertyType,

@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/profile/widget/profile_toggle.dart';
+import 'package:space_solar_dealer/src/profile/view/widget/profile_toggle.dart';
+
 
 class ActiveStatusCard extends StatelessWidget {
     final double scale;

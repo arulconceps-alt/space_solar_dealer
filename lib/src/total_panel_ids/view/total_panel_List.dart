@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_bloc.dart';
+import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_state.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/widget/pagination_footer.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/widget/panel_Id_search_box.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/widget/panel_item_list.dart';
+
+import '../bloc/total_panel_event.dart';
 
 class TotalPanelList extends StatefulWidget {
   const TotalPanelList({super.key});
@@ -17,46 +22,13 @@ class TotalPanelList extends StatefulWidget {
 
 class _TotalPanelListState extends State<TotalPanelList> {
   final TextEditingController _searchController = TextEditingController();
-  final List<Map<String, String>> panelData = [
-    {"name": "Baranee", "id": "SS-PNID-001"},
-    {"name": "Mani", "id": "SS-PNID-002"},
-    {"name": "Rahul", "id": "SS-PNID-003"},
-    {"name": "Mohan", "id": "SS-PNID-004"},
-    {"name": "Rahul", "id": "SS-PNID-005"},
-    {"name": "Mani", "id": "SS-PNID-006"},
-    {"name": "Mani", "id": "SS-PNID-007"},
-    {"name": "Mani", "id": "SS-PNID-008"},
-    {"name": "Mani", "id": "SS-PNID-009"},
-    {"name": "Mani", "id": "SS-PNID-006"},
-    {"name": "Mani", "id": "SS-PNID-007"},
-    {"name": "Mani", "id": "SS-PNID-008"},
-    {"name": "Mani", "id": "SS-PNID-009"},
-  ];
-  List<Map<String, String>> filteredData = [];
-  // Pagination State
-  int currentPage = 1;
+
   final int itemsPerPage = 8;
 
   @override
   void initState() {
     super.initState();
-    filteredData = panelData;
-  }
-
-  // Search Logic
-  void _performSearch(String query) {
-    setState(() {
-      currentPage = 1; // Reset to page 1 on new search
-      if (query.isEmpty) {
-        filteredData = panelData;
-      } else {
-        filteredData = panelData.where((item) {
-          final nameMatch = item["name"]!.toLowerCase().contains(query.toLowerCase());
-          final idMatch = item["id"]!.toLowerCase().contains(query.toLowerCase());
-          return nameMatch || idMatch;
-        }).toList();
-      }
-    });
+    context.read<TotalPanelBloc>().add(LoadPanelsEvent());
   }
 
   @override
@@ -64,14 +36,6 @@ class _TotalPanelListState extends State<TotalPanelList> {
     final w = MediaQuery.of(context).size.width;
     final scale = w / 440;
     double s(double v) => v * scale;
-    final bool isEmpty = filteredData.isEmpty;
-    final int startIndex = (currentPage - 1) * itemsPerPage;
-    final int endIndex = startIndex + itemsPerPage;
-    final int totalPages =
-    (filteredData.length / itemsPerPage).ceil();
-    final List<Map<String, String>> pagedData = filteredData.length > startIndex
-        ? filteredData.sublist(startIndex, endIndex > filteredData.length ? filteredData.length : endIndex)
-        : [];
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -80,89 +44,132 @@ class _TotalPanelListState extends State<TotalPanelList> {
         scale: scale,
         showBack: true,
         showNotification: false,
-        onBackTap: () => context.pop(),
+        onBackTap: () {
+          context.go('/dashboard'); // safer than pop
+        },
       ),
       body: AppBackground(
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: s(20)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: s(20)),
-                        child: PanelIdSearchBox(
-                          scale: scale,
-                          controller: _searchController,
-                          onChanged: _performSearch,
-                        ),
-                      ),
-                      Text(
-                        "Panels",
-                        style: GoogleFonts.poppins(
-                          fontSize: s(20),
-                          fontWeight: FontWeight.w600,
-                          color: ColorPalette.bottomtext,
-                        ),
-                      ),
-                      isEmpty
-                          ? Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: s(80)),
-                          child: Text(
-                            "No Panels Found",
-                            style: GoogleFonts.poppins(
-                              fontSize: s(16),
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      )
-                          : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(vertical: s(20)),
-                        itemCount: pagedData.length,
-                        itemBuilder: (context, index) {
-                          final panel = pagedData[index];
-                          return PanelItemList(
-                            name: panel["id"]!,
-                            isFirst: index == 0,
-                            isLast: index == pagedData.length - 1,
-                            onTap: () {},
-                          );
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: s(63), top: s(40)),
-                        child: Center(
-                          child: PaginationFooter(
-                            totalItems: filteredData.length,
-                            currentPage: currentPage,
-                            onPageChanged: (page) {
-                              if (page > totalPages) return;
+          child: BlocBuilder<TotalPanelBloc, TotalPanelState>(
+            builder: (context, state) {
 
-                              setState(() {
-                                currentPage = page;
-                              });
+              if (state.status == TotalPanelStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state.status == TotalPanelStatus.failure) {
+                return Center(child: Text(state.message));
+              }
+
+              /// 🔍 FILTER DATA
+              final filtered = state.panels.where((panel) {
+                final q = state.searchQuery.toLowerCase();
+                return panel.serialNumber.toLowerCase().contains(q);
+              }).toList();
+
+              /// 📄 PAGINATION
+              final start = (state.currentPage - 1) * itemsPerPage;
+              final end = start + itemsPerPage;
+
+              final paged = filtered.length > start
+                  ? filtered.sublist(start, end > filtered.length ? filtered.length : end)
+                  : [];
+
+              final totalPages = (filtered.length / itemsPerPage).ceil();
+
+              return Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(horizontal: s(20)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          SizedBox(height: s(20)),
+
+                          /// SEARCH
+                          PanelIdSearchBox(
+                            scale: scale,
+                            controller: _searchController,
+                            onChanged: (value) {
+                              context.read<TotalPanelBloc>().add(
+                                SearchPanelEvent(value),
+                              );
                             },
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // FIXED FOOTER PLACEMENT
 
-            ], // End of Column children
-          ), // End of SafeArea Column
-        ), // End of SafeArea
-      ), // End of AppBackground
-    ); // End of Scaffold
+                          SizedBox(height: s(20)),
+
+                          Text(
+                            "Panels",
+                            style: GoogleFonts.poppins(
+                              fontSize: s(20),
+                              fontWeight: FontWeight.w600,
+                              color: ColorPalette.bottomtext,
+                            ),
+                          ),
+
+                          /// LIST
+                          paged.isEmpty
+                              ? Padding(
+                            padding: EdgeInsets.only(top: s(80)),
+                            child: Center(
+                              child: Text(
+                                "No Panels Found",
+                                style: GoogleFonts.poppins(
+                                  fontSize: s(16),
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          )
+                              : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.symmetric(vertical: s(20)),
+                            itemCount: paged.length,
+                            itemBuilder: (context, index) {
+                              final panel = paged[index];
+
+                              return PanelItemList(
+                                panel: panel,
+                                name: panel.serialNumber, // 👈 FIXED
+                                isFirst: index == 0,
+                                isLast: index == paged.length - 1,
+                                onTap: () {},
+                              );
+                            },
+                          ),
+
+                          SizedBox(height: s(30)),
+
+                          /// PAGINATION
+                          Center(
+                            child: PaginationFooter(
+                              totalItems: filtered.length,
+                              currentPage: state.currentPage,
+                              onPageChanged: (page) {
+                                if (page > totalPages || page < 1) return;
+
+                                context.read<TotalPanelBloc>().add(
+                                  LoadPanelsEvent(page: page),
+                                );
+                              },
+                            ),
+                          ),
+
+                          SizedBox(height: s(60)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

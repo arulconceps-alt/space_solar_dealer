@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
@@ -33,7 +34,32 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
       LoadTicketsEvent(),
     );
   }
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'assigned':
+        return const Color(0xFF26A7DF); // Blue from your FAB
+      case 'pending':
+      case 'in progress':
+        return const Color(0xFFEF5350); // Red/Pink
+      case 'resolved':
+        return const Color(0xFF4CAF50); // Green
+      default:
+        return Colors.grey;
+    }
+  }
 
+  Color _getStatusTextColor(String status) {
+    switch (status) {
+      case 'Assigned':
+        return const Color(0xFF26A7DF);
+      case 'Pending':
+        return const Color(0xFFF44336);
+      case 'Resolved':
+        return const Color(0xFF4CAF50);
+      default:
+        return Colors.grey;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -167,32 +193,31 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
             itemBuilder: (context, index) {
               final ticket = filtered[index];
 
+              // Status color mapping
+              final statusColor = _getStatusTextColor(ticket.status);
+              final statusBgColor = _getStatusColor(ticket.status);
+
               return TicketCard(
                 scale: scale,
-                ticketId: ticket.ticketId,
-                customerName: ticket.customerName,
+                ticketNumber: ticket.ticketNumber,
+                customerName: ticket.customerName ?? "N/A",
                 status: ticket.status,
-                issue: ticket.issue,
-               // panelId: ticket.panelId,
-                date: ticket.date,
-              //  sla: ticket.sla,
-                statusColor: Colors.blue,
+                issue: ticket.issue ?? "No Issue",
+                panelId: ticket.panelId  ?? "N/A",
+                date: DateFormat('yyyy-MM-dd').format(ticket.createdAt),
+                sla: getSla(ticket.createdAt, ticket.priority ?? "Low"),
+                statusColor: _getStatusColor(ticket.status),
+                statusBgColor: _getStatusColor(ticket.status).withOpacity(0.15),
                 onViewDetails: () {
-                  showGeneralDialog(
+                  print("CLICKED VIEW DETAILS");
+                  showDialog(
                     context: context,
                     barrierDismissible: true,
-                    barrierColor: Colors.black54,
-                    transitionDuration:
-                    const Duration(milliseconds: 300),
-                    pageBuilder: (_, __, ___) => const SizedBox(),
-                    transitionBuilder:
-                        (context, animation, _, child) {
-                      return Transform.scale(
-                        scale: animation.value,
-                        child: Opacity(
-                          opacity: animation.value,
-                          child: const TicketDetailsDialog(),
-                        ),
+                    builder: (context) {
+                      return Dialog(
+                        backgroundColor: Colors.transparent,
+                        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: TicketDetailsDialog(ticket: ticket),
                       );
                     },
                   );
@@ -264,5 +289,16 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         ),
       ),
     );
+  }
+
+  String getSla(DateTime createdAt, String priority) {
+    // Example: Adjust duration based on ticket priority
+    final hours = priority.toLowerCase() == 'high' ? 2 : 24;
+    final expiry = createdAt.add(Duration(hours: hours));
+    final diff = expiry.difference(DateTime.now());
+
+    if (diff.isNegative) return "SLA Breached";
+
+    return "${diff.inHours}h ${diff.inMinutes % 60}m remaining";
   }
 }

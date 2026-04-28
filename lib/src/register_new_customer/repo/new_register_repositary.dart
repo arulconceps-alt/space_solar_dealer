@@ -133,7 +133,7 @@ class NewRegisterRepositary {
           "serialNumber": serial,
         }).toList(),
         "paymentMethod": "CASH",
-        "deliveryNotes": "Extra panels added",
+        "deliveryNotes": "Urgent order",
       }
     };
 
@@ -143,7 +143,7 @@ class NewRegisterRepositary {
     );
 
     if (response == null || response["success"] != true) {
-      throw Exception(response?["message"] ?? "Failed to add panels to existing customer");
+      throw Exception(response?["message"] ?? "Failed to add order");
     }
   }
 }
