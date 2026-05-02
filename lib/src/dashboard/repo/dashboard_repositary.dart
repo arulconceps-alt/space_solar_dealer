@@ -4,6 +4,7 @@ import 'package:gb_lottery/src/common/models/category_model.dart';
 import 'package:gb_lottery/src/common/models/game_model.dart';
 import 'package:gb_lottery/src/common/repos/api_repository.dart';
 import 'package:gb_lottery/src/home/data/home_mock_data.dart';
+import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 
 class HomeRepo {
   final ApiRepository _apiRepository;

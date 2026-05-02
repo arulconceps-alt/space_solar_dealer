@@ -7,8 +7,10 @@ abstract class NewRegisterEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// ✅ LOAD LOCATION
 class LoadLocationData extends NewRegisterEvent {}
 
+// ✅ STATE
 class SelectState extends NewRegisterEvent {
   final String name;
   final int id;
@@ -19,6 +21,7 @@ class SelectState extends NewRegisterEvent {
   List<Object?> get props => [name, id];
 }
 
+// ✅ DISTRICT
 class SelectDistrict extends NewRegisterEvent {
   final String name;
   final int id;
@@ -29,6 +32,7 @@ class SelectDistrict extends NewRegisterEvent {
   List<Object?> get props => [name, id];
 }
 
+// ✅ PINCODE
 class SelectPincode extends NewRegisterEvent {
   final int id;
   final String code;
@@ -42,15 +46,44 @@ class SelectPincode extends NewRegisterEvent {
   List<Object?> get props => [id, code];
 }
 
+// ✅ SEARCH CUSTOMER
 class SearchCustomer extends NewRegisterEvent {
   final String query;
   const SearchCustomer(this.query);
+
+  @override
+  List<Object?> get props => [query];
 }
 
+// ✅ LOAD CUSTOMERS
+class LoadCustomers extends NewRegisterEvent {}
+
+// ✅ RESET
+class ResetRegisterState extends NewRegisterEvent {}
+
+// ✅ ✅ FIXED EXISTING CUSTOMER EVENT
+class SelectExistingCustomer extends NewRegisterEvent {
+  final String id;
+  final int stateId;
+  final int districtId;
+  final int pincodeId;
+
+  const SelectExistingCustomer({
+    required this.id,
+    required this.stateId,
+    required this.districtId,
+    required this.pincodeId,
+  });
+
+  @override
+  List<Object?> get props => [id, stateId, districtId, pincodeId];
+}
+
+// ✅ SUBMIT
 class NewRegisterSubmit extends NewRegisterEvent {
   final String name;
   final String phone;
-  final String email; // ✅ ADD THIS
+  final String email;
   final String addressLine;
   final int stateId;
   final int districtId;
@@ -64,7 +97,7 @@ class NewRegisterSubmit extends NewRegisterEvent {
   const NewRegisterSubmit({
     required this.name,
     required this.phone,
-    required this.email, // ✅ ADD
+    required this.email,
     required this.addressLine,
     required this.stateId,
     required this.districtId,
@@ -79,7 +112,7 @@ class NewRegisterSubmit extends NewRegisterEvent {
   List<Object?> get props => [
     name,
     phone,
-    email, // ✅ ADD
+    email,
     addressLine,
     stateId,
     districtId,
@@ -89,13 +122,4 @@ class NewRegisterSubmit extends NewRegisterEvent {
     rooftopArea,
     electricityBill,
   ];
-}
-class LoadCustomers extends NewRegisterEvent {}
-class ResetRegisterState extends NewRegisterEvent {}
-class SelectExistingCustomer extends NewRegisterEvent {
-  final String? id;
-  const SelectExistingCustomer(this.id);
-
-  @override
-  List<Object?> get props => [id];
 }

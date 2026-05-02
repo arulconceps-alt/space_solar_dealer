@@ -28,29 +28,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       emit(state.copyWith(status: LoginStatus.loading));
 
-      final startTime = DateTime.now();
-
-      // Updated to use loginWithMobile and event.mobileNumber
       final result = await _repository.loginWithMobile(
         mobileNumber: event.mobileNumber,
       );
 
-      final elapsed = DateTime.now().difference(startTime);
-      if (elapsed < const Duration(seconds: 1)) {
-        await Future.delayed(const Duration(seconds: 1) - elapsed);
-      }
+      final otp = result.data?.otp; // ✅ ADD THIS
 
       emit(
         state.copyWith(
           status: LoginStatus.success,
           loginDetails: result,
+          otp: otp, // ✅ ADD THIS (you must add field in state)
           message: "OTP Sent successfully",
         ),
       );
     } catch (e) {
-      _log.e('LoginBloc::_onSubmitLogin::Error: $e');
-
-      if (e is ApiException) { // 👈 Use ApiException
+      if (e is ApiException) {
         emit(state.copyWith(
           status: LoginStatus.failure,
           message: e.message,

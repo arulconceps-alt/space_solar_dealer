@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
@@ -8,26 +7,36 @@ class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  State<OnboardingScreen> createState() =>
+      _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController controller = PageController();
+class _OnboardingScreenState
+    extends State<OnboardingScreen> {
+
+  final PageController controller =
+  PageController();
 
   int currentIndex = 0;
 
   late final List<Map<String, String>> pages = [
     {
-      "image": "assets/images/onboarding/onboarding1.webp",
-      "desc": "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
+      "image":
+      "assets/images/onboarding/onboarding1.webp",
+      "desc":
+      "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
     },
     {
-      "image": "assets/images/onboarding/onboarding2.webp",
-      "desc": "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
+      "image":
+      "assets/images/onboarding/onboarding2.webp",
+      "desc":
+      "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
     },
     {
-      "image": "assets/images/onboarding/onboarding3.webp",
-      "desc": "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
+      "image":
+      "assets/images/onboarding/onboarding3.webp",
+      "desc":
+      "Lorem ipsum dolor sit amet,\nadipiscing elit. Fusce quam tortor,",
     },
   ];
 
@@ -36,7 +45,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       context.go('/login');
     } else {
       controller.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration:
+        const Duration(milliseconds: 300),
         curve: Curves.ease,
       );
     }
@@ -44,147 +54,192 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
+
+    final w =
+        MediaQuery.of(context).size.width;
+
+    final h =
+        MediaQuery.of(context).size.height;
+
     final scale = w / 440;
+
     double s(double v) => v * scale;
 
-    final iconLogo = "assets/images/splash/logo.png";
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    final logoWidth = screenWidth * 0.659;
+    final logoWidth = w * 0.659;
     final logoHeight = logoWidth * 0.1067;
 
-    final leftPadding = screenWidth * 0.049;
-    final rightPadding = screenWidth * 0.051;
-    final bottomPadding = screenHeight * 0.055;
+    return Scaffold(
+      body: Stack(
+        children: [
 
-    return SafeArea(
-      // top: false,
-      // bottom: false,
-      child: Scaffold(
-        body: Column(
-          children: [
-            Expanded(
-              child: Stack(
+          /// PAGEVIEW
+          PageView.builder(
+            controller: controller,
+            itemCount: pages.length,
+
+            onPageChanged: (index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
+
+            itemBuilder: (context, index) {
+
+              return Stack(
+                fit: StackFit.expand,
                 children: [
-                  PageView.builder(
-                    controller: controller,
-                    itemCount: pages.length,
-                    onPageChanged: (i) {
-                      setState(() {
-                        currentIndex = i;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return Stack(
-                        fit: StackFit.expand,
+
+                  /// BACKGROUND IMAGE
+                  Image.asset(
+                    pages[index]["image"]!,
+                    fit: BoxFit.cover,
+                  ),
+
+                  /// SAFE CONTENT
+                  SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: s(20),
+                      ),
+
+                      child: Column(
                         children: [
-                          Image.asset(
-                            pages[index]["image"]!,
-                            fit: BoxFit.cover,
+
+                          SizedBox(
+                            height: s(74),
                           ),
-      
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  SizedBox(height: s(74.29)),
-                                  Image.asset(
-                                    iconLogo,
-                                    width: logoWidth,
-                                    height: logoHeight,
-                                    fit: BoxFit.contain,
-                                  ),
-      
-                                  SizedBox(height: s(29.3)),
-      
-                                  SizedBox(
-                                    width: s(293),
-                                    child: Text(
-                                      pages[index]["desc"]!,
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.poppins(
-                                        color: ColorPalette.whitetext,
-                                        fontSize: s(16),
-                                        fontWeight: FontWeight.w400,
-                                        height: 1.43,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+
+                          /// LOGO
+                          Image.asset(
+                            "assets/images/splash/logo.png",
+                            width: logoWidth,
+                            height: logoHeight,
+                            fit: BoxFit.contain,
+                          ),
+
+                          SizedBox(
+                            height: s(30),
+                          ),
+
+                          /// DESCRIPTION
+                          SizedBox(
+                            width: s(293),
+
+                            child: Text(
+                              pages[index]["desc"]!,
+                              textAlign:
+                              TextAlign.center,
+
+                              style:
+                              GoogleFonts.poppins(
+                                color:
+                                ColorPalette.whitetext,
+                                fontSize: s(16),
+                                fontWeight:
+                                FontWeight.w400,
+                                height: 1.43,
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-      
-                  Positioned(
-                    bottom: bottomPadding,
-                    left: leftPadding,
-                    right: rightPadding,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
+
+                          const Spacer(),
+
+                          /// NEXT BUTTON
+                          Align(
+                            alignment:
+                            Alignment.centerRight,
+
+                            child: GestureDetector(
                               onTap: nextPage,
+
                               child: Container(
                                 width: s(50),
                                 height: s(50),
-                                decoration: BoxDecoration(
-                                  color: ColorPalette.whitetext.withOpacity(0.2),
-                                  shape: BoxShape.circle,
+
+                                decoration:
+                                BoxDecoration(
+                                  color:
+                                  ColorPalette.whitetext
+                                      .withOpacity(0.2),
+
+                                  shape:
+                                  BoxShape.circle,
+
                                   border: Border.all(
-                                    color: ColorPalette.whitetext.withOpacity(0.1),
-                                    width: 1,
+                                    color:
+                                    ColorPalette.whitetext
+                                        .withOpacity(0.1),
                                   ),
                                 ),
-                                child:  Center(
+
+                                child: Center(
                                   child: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: ColorPalette.whitetext,
-                                    size: s(26),
+                                    Icons
+                                        .arrow_forward_ios,
+                                    color:
+                                    ColorPalette.whitetext,
+                                    size: s(22),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-      
-                        SizedBox(height: s(8)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(
-                            pages.length,
-                            (index) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: EdgeInsets.only(right: s(7)),
-                              width: currentIndex == index ? s(89) : s(30),
-                              height: s(2.5),
-                              decoration: BoxDecoration(
-                                color: currentIndex == index
-                                    ? ColorPalette.whitetext
-                                    : ColorPalette.whitetext.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(s(2)),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+
+                          SizedBox(height: s(18)),
+
+                          /// PAGINATION
+                          Row(
+                            children: List.generate(
+                              pages.length,
+
+                                  (i) =>
+                                  AnimatedContainer(
+                                    duration:
+                                    const Duration(
+                                      milliseconds: 300,
+                                    ),
+
+                                    margin:
+                                    EdgeInsets.only(
+                                      right: s(7),
+                                    ),
+
+                                    width:
+                                    currentIndex == i
+                                        ? s(89)
+                                        : s(30),
+
+                                    height: s(2.5),
+
+                                    decoration:
+                                    BoxDecoration(
+                                      color:
+                                      currentIndex == i
+                                          ? ColorPalette
+                                          .whitetext
+                                          : ColorPalette
+                                          .whitetext
+                                          .withOpacity(0.3),
+
+                                      borderRadius:
+                                      BorderRadius.circular(
+                                        s(2),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                          ),
+
+                          SizedBox(height: h * 0.04),
+                        ],
+                      ),
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

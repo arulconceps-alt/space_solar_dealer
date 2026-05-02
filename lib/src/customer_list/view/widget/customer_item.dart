@@ -27,6 +27,7 @@ class CustomerItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.only(
           topLeft: isFirst ? Radius.circular(s(10)) : Radius.zero,
           topRight: isFirst ? Radius.circular(s(10)) : Radius.zero,
@@ -44,7 +45,10 @@ class CustomerItem extends StatelessWidget {
             child: Container(
               height: s(70),
               width: s(400),
-              padding: EdgeInsets.symmetric(horizontal: s(10), vertical: s(10)),
+              padding: EdgeInsets.symmetric(
+                horizontal: s(10),
+                vertical: s(10),
+              ),
               decoration: BoxDecoration(
                 color: ColorPalette.whitetext.withOpacity(0.50),
                 border: Border.all(
@@ -61,11 +65,15 @@ class CustomerItem extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: ColorPalette.whitetext.withOpacity(0.50),
                       shape: BoxShape.circle,
-                      border: Border.all(color: ColorPalette.whitetext),
+                      border: Border.all(
+                        color: ColorPalette.whitetext,
+                      ),
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      customer.name.isNotEmpty ? customer.name[0] : "?",
+                      customer.name.isNotEmpty
+                          ? customer.name[0]
+                          : "?",
                       style: GoogleFonts.lato(
                         fontSize: s(24),
                         fontWeight: FontWeight.w500,
@@ -79,8 +87,10 @@ class CustomerItem extends StatelessWidget {
                   /// TEXT
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment:
+                      MainAxisAlignment.center,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
                         Text(
                           customer.name,
@@ -95,7 +105,8 @@ class CustomerItem extends StatelessWidget {
                           customer.phone,
                           style: GoogleFonts.lato(
                             fontSize: s(14),
-                            color: ColorPalette.textfiledin.withValues(alpha: .80),
+                            color: ColorPalette.textfiledin
+                                .withValues(alpha: .80),
                           ),
                         ),
                       ],

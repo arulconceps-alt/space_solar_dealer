@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/models/customer_model.dart';
+import 'package:space_solar_dealer/src/common/models/profile_model.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
 import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
@@ -11,6 +12,7 @@ import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_scre
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
+import 'package:space_solar_dealer/src/dashboard/bloc/dashboard_bloc.dart';
 import 'package:space_solar_dealer/src/dashboard/view/dashboard.dart';
 import 'package:space_solar_dealer/src/edit_profile/view/edit_profile_screen.dart';
 import 'package:space_solar_dealer/src/login/view/login_screen.dart';
@@ -58,7 +60,11 @@ class Routes {
         name: RouteName.otp_verify,
         path: "/otp_verify",
         builder: (context, state) {
-          final phone = state.extra as String;
+
+          final extra = state.extra as Map<String, dynamic>;
+
+          final phone = extra['phone'] as String;
+          final otp = extra['otp'] as String?;
 
           return BlocProvider(
             create: (context) => OtpBloc(
@@ -67,7 +73,10 @@ class Routes {
                 context.read<PreferencesRepository>(),
               ),
             ),
-            child: OtpScreen(phoneNumber: phone),
+            child: OtpScreen(
+              phoneNumber: phone,
+              initialOtp: otp, // ✅ pass OTP
+            ),
           );
         },
       ),
@@ -81,7 +90,12 @@ class Routes {
       GoRoute(
         name: RouteName.home,
         path: "/home",
-        builder: (context, state) => const Dashboard(),
+        builder: (context, state) {
+          return BlocProvider(
+            create: (_) => DashboardBloc(),
+            child: const Dashboard(),
+          );
+        },
       ),
       /// new_customer_register
       GoRoute(
@@ -143,7 +157,11 @@ class Routes {
       GoRoute(
         name: RouteName.edit_profile_screen,
         path: "/edit_profile_screen",
-        builder: (context, state) => const EditProfileScreen(),
+        builder: (context, state) {
+          final profile = state.extra as ProfileModel;
+
+          return EditProfileScreen(profile: profile);
+        },
       ),
       ///notification screen
       GoRoute(

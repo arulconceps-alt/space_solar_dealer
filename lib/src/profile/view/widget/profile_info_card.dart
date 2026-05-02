@@ -178,7 +178,9 @@ class ProfileInfoCard extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: profile?.createdAt?.substring(0, 10) ?? "-",
+                      text: profile?.createdAt != null
+                          ? profile!.createdAt!.substring(0, 10)
+                          : "-",
                       style: GoogleFonts.lato(
                         fontSize: s(14),
                         fontWeight: FontWeight.w600,
@@ -191,7 +193,10 @@ class ProfileInfoCard extends StatelessWidget {
               SizedBox(width: s(30)),
               GestureDetector(
                 onTap: () async {
-                  await context.push('/edit_profile_screen');
+                  await context.push(
+                    '/edit_profile_screen',
+                    extra: profile,
+                  );
 
                   /// 🔄 RELOAD PROFILE
                   context.read<ProfileBloc>().add(LoadProfileEvent());

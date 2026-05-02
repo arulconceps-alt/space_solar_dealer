@@ -12,8 +12,6 @@ import 'package:space_solar_dealer/src/login/view/widgets/field_label.dart';
 import 'package:space_solar_dealer/src/login/view/widgets/glass_field.dart';
 import 'package:space_solar_dealer/src/login/view/widgets/logo_widget.dart';
 import 'package:space_solar_dealer/src/login/view/widgets/primary_button.dart';
-import 'package:space_solar_dealer/src/login/view/widgets/social_button.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // 2. Request focus after the first frame is drawn
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_mobileFocusNode);
     });
@@ -46,14 +43,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Figma design width is 440
     final scale = screenWidth / 440;
     double s(double v) => v * scale;
-
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          // 1. Show the success snackbar
           CustomSnackBar.show(
             context,
             AlertState(
@@ -62,12 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
               timestamp: DateTime.now(),
             ),
           );
-
-          context.go('/otp_verify', extra: _mobileNumberController.text.trim());
+          context.go('/otp_verify', extra: {
+            'phone': _mobileNumberController.text.trim(),
+            'otp': state.otp, // Pass the message containing the OTP
+          });
         }
-
         if (state.status == LoginStatus.failure) {
-          // Use your custom static method here
           CustomSnackBar.show(
             context,
             AlertState(
@@ -84,12 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
           resizeToAvoidBottomInset: false,
           body: Stack(
             children: [
-              // Background & Blurs
               Container(decoration: BoxDecoration(gradient: ColorPalette.scaffoldGradient)),
               BlurCircle(left: s(-146), top: s(-191), size: s(383), opacity: 1),
               BlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1),
               BlurCircle(left: s(-241), top: s(580), size: s(383), opacity: .4),
-
               SafeArea(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: s(24)),
@@ -97,13 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: s(40)),
-
-                      // ✅ LOGO (FIXED TOP)
                       Center(child: LogoWidget(scale: scale)),
-
                       SizedBox(height: s(40)),
-
-                      // ✅ TEXT
                       Text(
                         'Phone Number',
                         style: GoogleFonts.poppins(
@@ -113,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: s(8)),
-
                       Text(
                         "We will send you an One Time Password on this mobile number",
                         style: GoogleFonts.lato(
@@ -122,10 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: ColorPalette.textfiledin,
                         ),
                       ),
-
                       SizedBox(height: s(18)),
-
-                      // ✅ INPUT FIELD
                       SizedBox(
                         width: double.infinity,
                         height: s(64),
@@ -136,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           scale: scale,
                         ),
                       ),
-                      const Spacer(),
+                      SizedBox(height: s(104)),
                       Padding(
                         padding: EdgeInsets.only(
                           bottom: MediaQuery.of(context).viewInsets.bottom + s(16),
@@ -170,7 +153,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-
               if (isLoading)
                 Positioned.fill(
                   child: BackdropFilter(

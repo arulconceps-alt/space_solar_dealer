@@ -24,7 +24,6 @@ class ActiveStatusCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal:  s(16), vertical: s(24)),
       decoration: BoxDecoration(
-        // ignore: deprecated_member_use
         color:   ColorPalette.whitetext.withValues(alpha: .50), 
         borderRadius: BorderRadius.circular( s(20)),
         border: Border.all(color: ColorPalette.whitetext),

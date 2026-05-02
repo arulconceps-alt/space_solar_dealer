@@ -7,23 +7,27 @@ class LoginState extends Equatable {
     this.status = LoginStatus.initial,
     this.loginDetails,
     this.message = '',
+    this.otp,
+
   });
 
   final LoginStatus status;
   final OtpResponse? loginDetails;
   final String message;
-
+  final String? otp;
   static const initial = LoginState();
 
   LoginState copyWith({
     LoginStatus? status,
     OtpResponse? loginDetails,
     String? message,
+    String? otp,
   }) {
     return LoginState(
       status: status ?? this.status,
       loginDetails: loginDetails ?? this.loginDetails,
       message: message ?? this.message,
+      otp: otp ?? this.otp,
     );
   }
 
@@ -32,5 +36,6 @@ class LoginState extends Equatable {
     status,
     loginDetails,
     message,
+    otp, // ✅ ADD THIS
   ];
 }

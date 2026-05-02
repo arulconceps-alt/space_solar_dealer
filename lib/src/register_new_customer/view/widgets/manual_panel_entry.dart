@@ -60,22 +60,36 @@ class _ManualPanelEntryState extends State<ManualPanelEntry> {
               Expanded(
                 child: Container(
                   height: s(50),
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(s(10)),
                     border: Border.all(color: Colors.white),
                   ),
                   padding: EdgeInsets.symmetric(horizontal: s(16)),
+
                   child: TextField(
-                    controller: panelController, // ✅ FIX
+                    controller: panelController,
                     keyboardType: TextInputType.number,
+
+                    textAlignVertical: TextAlignVertical.center,
+                    style: GoogleFonts.lato(
+                      fontSize: s(16),
+                      color: const Color(0xFF484848),
+                    ),
+
                     decoration: InputDecoration(
-                      hintText: "Enter Panel ID",
+                      isCollapsed: true, // 🔥 important
+                      isDense: true,     // 🔥 important
                       border: InputBorder.none,
+
+                      hintText: "Enter Panel ID",
                       hintStyle: GoogleFonts.lato(
-                        color: const Color(0xCC484848),
                         fontSize: s(16),
+                        color: const Color(0x66484848),
                       ),
+
+                      contentPadding: EdgeInsets.zero, // 🔥 removes misalignment
                     ),
                   ),
                 ),
@@ -89,17 +103,22 @@ class _ManualPanelEntryState extends State<ManualPanelEntry> {
                   borderRadius: BorderRadius.circular(s(6)),
                   onTap: () {
                     final value = panelController.text.trim();
+
                     if (value.isEmpty) return;
+
                     if (widget.panels.contains(value)) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Panel already added")),
                       );
                       return;
                     }
+
                     widget.onAdd(value);
-                    setState(() {}); // ✅ IMPORTANT (refresh UI)
+
+                    setState(() {}); // refresh UI
                     panelController.clear();
                   },
+
                   child: Container(
                     width: s(98),
                     height: s(50),
@@ -108,6 +127,7 @@ class _ManualPanelEntryState extends State<ManualPanelEntry> {
                       color: const Color(0xFF26A7DF),
                       borderRadius: BorderRadius.circular(s(6)),
                     ),
+
                     child: Text(
                       "Add",
                       style: GoogleFonts.poppins(

@@ -110,9 +110,15 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                           onTap: () {
                             _hideOverlay();
 
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              widget.onSelected(user);
-                            });
+                            final phone = user["phone"] ?? "";
+
+                            widget.controller.text = phone; // ✅ THIS updates search box
+
+                            widget.controller.selection = TextSelection.fromPosition(
+                              TextPosition(offset: phone.length),
+                            );
+
+                            widget.onSelected(user);
                           },
                         );
                       },
@@ -164,11 +170,16 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                 controller: widget.controller,
 
                 onChanged: (val) {
-                  if (val.length < 5) {
+                  widget.onSearch(val);
+
+                  if (val.isEmpty) {
                     _hideOverlay();
                     return;
                   }
-                  widget.onSearch(val);
+
+                  if (widget.suggestions.isNotEmpty) {
+                    _showOverlay();
+                  }
                 },
 
                 onTap: () {

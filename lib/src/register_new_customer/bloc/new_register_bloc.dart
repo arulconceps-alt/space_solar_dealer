@@ -20,11 +20,49 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     on<SearchCustomer>(_onSearchCustomer);
     on<LoadCustomers>(_onLoadCustomers);
     on<NewRegisterSubmit>(_onSubmit);
-    on<SelectExistingCustomer>((event, emit) {
+    on<SelectExistingCustomer>((event, emit) async {
       emit(state.copyWith(
         selectedCustomerId: event.id,
-        isExistingCustomer: true, // ✅ ADD THIS
+        isExistingCustomer: true,
+        selectedStateId: event.stateId,
+        selectedDistrictId: event.districtId,
+        selectedPincodeId: event.pincodeId,
       ));
+
+      try {
+        // ✅ LOAD DISTRICTS
+        final districts = await _repository.fetchDistricts(event.stateId);
+
+        final selectedDistrict = districts.firstWhere(
+              (e) => e["id"] == event.districtId,
+          orElse: () => {},
+        );
+
+        // ✅ LOAD PINCODES
+        final pincodes = await _repository.fetchPincodes(event.districtId);
+
+        final selectedPincode = pincodes.firstWhere(
+              (e) => e["id"] == event.pincodeId,
+          orElse: () => {},
+        );
+
+        emit(state.copyWith(
+          districts: districts,
+          pincodesList: pincodes,
+
+          selectedDistrict: selectedDistrict["name"],
+          selectedPincode: selectedPincode["code"].toString(),
+
+          // state name from already loaded states list
+          selectedState: state.states
+              .firstWhere((e) => e["id"] == event.stateId)["name"],
+        ));
+      } catch (e) {
+        emit(state.copyWith(
+          status: NewRegisterStatus.failure,
+          message: "Failed to load location for customer",
+        ));
+      }
     });
     on<ResetRegisterState>((event, emit) {
       _allCustomers.clear();
@@ -144,7 +182,7 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
       final query = event.query.trim().toLowerCase();
 
       if (query.isEmpty) {
-        emit(state.copyWith(searchResults: []));
+        emit(state.copyWith(searchResults: _allCustomers));
         return;
       }
 

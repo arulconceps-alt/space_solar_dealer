@@ -10,6 +10,7 @@ import 'package:space_solar_dealer/src/app/app.dart';
 
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
+import 'package:space_solar_dealer/src/common/services/network_listener.dart';
 
 import 'package:space_solar_dealer/src/login/repo/login_repositary.dart';
 import 'package:space_solar_dealer/src/login/bloc/login_bloc.dart';
@@ -109,7 +110,9 @@ Future<void> main() async {
             ),
           ),
         ],
-        child: const App(),
+        child: const NetworkListener(
+          child: App(),
+        ),
       ),
     ),
   );

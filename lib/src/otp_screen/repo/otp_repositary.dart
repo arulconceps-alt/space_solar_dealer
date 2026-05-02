@@ -1,7 +1,7 @@
-// src/otp_screen/repo/otp_repositary.dart
 
 import 'package:space_solar_dealer/src/common/constants/constansts.dart';
 import 'package:space_solar_dealer/src/common/models/login_response.dart';
+import 'package:space_solar_dealer/src/common/models/otp_response.dart';
 import 'package:space_solar_dealer/src/common/repos/api_exception.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
@@ -65,16 +65,23 @@ class OtpRepositary {
     }
   }
 
-  Future<void> resendOtp(String phone) async {
+  Future<String?> resendOtp(String phone) async {
     try {
-      await _apiRepository.postRequest(
-        url: "auth/otp/send", // Using the correct resend endpoint
+      final response = await _apiRepository.postRequest(
+        url: "auth/otp/send",
         data: {"phone": "+91$phone"},
         includeRequester: false,
       );
+
+      final message = response['data']?['message'] ?? '';
+
+      final regex = RegExp(r'\d{6}');
+      final match = regex.firstMatch(message);
+
+      return match?.group(0);
+
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException("Could not resend OTP. Please try again.");
+      rethrow;
     }
   }
 }

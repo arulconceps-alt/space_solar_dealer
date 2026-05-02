@@ -1,6 +1,6 @@
 import 'package:space_solar_dealer/src/common/models/profile_model.dart';
 
-enum ProfileStatus { initial, loading, success, failure }
+enum ProfileStatus { initial, loading, success, failure,updating }
 
 class ProfileState {
   final ProfileStatus status;

@@ -136,7 +136,8 @@ class NewRegisterRepositary {
         "deliveryNotes": "Urgent order",
       }
     };
-
+    print("📤 EXISTING ORDER REQUEST:");
+    print(body);
     final response = await _apiRepository.postRequest(
       url: "dealer/orders",
       data: body,

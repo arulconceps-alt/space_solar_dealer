@@ -67,61 +67,32 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       widget.addressController.text = customer["addressLine1"] ?? "";
     });
 
-    /// ✅ STEP 1: SET STATE
-    final stateObj = bloc.state.states.firstWhere(
-          (e) => e["id"] == customer["stateId"],
-      orElse: () => {},
+    // ✅ ONLY THIS EVENT
+    bloc.add(
+      SelectExistingCustomer(
+        id: customer["id"].toString(),
+        stateId: customer["stateId"],
+        districtId: customer["districtId"],
+        pincodeId: customer["pincodeId"],
+      ),
     );
 
-    if (stateObj.isNotEmpty) {
-      bloc.add(SelectState(stateObj["name"], stateObj["id"]));
-    }
-
-    /// ✅ WAIT until districts are loaded
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final districtObj = bloc.state.districts.firstWhere(
-          (e) => e["id"] == customer["districtId"],
-      orElse: () => {},
-    );
-
-    if (districtObj.isNotEmpty) {
-      bloc.add(SelectDistrict(districtObj["name"], districtObj["id"]));
-    }
-
-    /// ✅ WAIT until pincodes are loaded
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final pincodeObj = bloc.state.pincodesList.firstWhere(
-          (e) => e["id"] == customer["pincodeId"],
-      orElse: () => {},
-    );
-
-    if (pincodeObj.isNotEmpty) {
-      bloc.add(
-        SelectPincode(
-          id: pincodeObj["id"],
-          code: pincodeObj["code"].toString(),
-        ),
-      );
-    }
-
-    /// ✅ EXTRACT PANELS
+    /// ✅ PANELS
     final orders = customer["orders"] ?? [];
-    List<String> existingPanels = [];
+    // ✅ removes duplicate panels
+    final Set<String> existingPanels = {};
 
     for (var order in orders) {
-      final items = order["items"] ?? [];
-      for (var item in items) {
-        final serial = item["serialNumber"];
-        if (serial != null) {
-          existingPanels.add(serial.toString());
+      for (var item in (order["items"] ?? [])) {
+        final serial = item["serialNumber"]?.toString();
+
+        if (serial != null && serial.isNotEmpty) {
+          existingPanels.add(serial);
         }
       }
     }
 
-    /// ✅ SEND TO PARENT SCREEN
-    widget.onPanelsLoaded(existingPanels);
+    widget.onPanelsLoaded(existingPanels.toList());
   }
 
   void resetToNewCustomer() {
@@ -263,31 +234,59 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   }
 
   // Helper methods...
-  Widget _buildInputField(String label, String hint, double scale,
-      {bool isAddress = false, TextEditingController? controller, bool enabled = true}) {
+  Widget _buildInputField(
+      String label,
+      String hint,
+      double scale, {
+        bool isAddress = false,
+        TextEditingController? controller,
+        bool enabled = true,
+      }) {
     double s(double v) => v * scale;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.lato(fontSize: s(16), fontWeight: FontWeight.w600, color: ColorPalette.bottomtext)),
-        SizedBox(height: s(14)),
+        Text(
+          label,
+          style: GoogleFonts.lato(
+            fontSize: s(16),
+            fontWeight: FontWeight.w600,
+            color: ColorPalette.bottomtext,
+          ),
+        ),
+        SizedBox(height: s(12)),
+
         Container(
-          height: isAddress ? s(74) : s(50),
+          height: isAddress ? s(110) : s(52),
           decoration: BoxDecoration(
-            color: enabled ? Colors.white.withOpacity(0.5) : Colors.grey.withOpacity(0.2),
+            color: enabled
+                ? Colors.white.withOpacity(0.5)
+                : Colors.grey.withOpacity(0.2),
             borderRadius: BorderRadius.circular(s(10)),
             border: Border.all(color: Colors.white),
           ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: s(16)),
-            child: TextField(
-              controller: controller,
-              enabled: enabled,
-              maxLines: isAddress ? 3 : 1,
-              decoration: InputDecoration(
-                hintText: hint,
-                border: InputBorder.none,
-                hintStyle: GoogleFonts.lato(color: const Color(0xCC484848).withOpacity(0.8), fontSize: s(16)),
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.symmetric(horizontal: s(14)),
+
+          child: TextField(
+            controller: controller,
+            enabled: enabled,
+            maxLines: isAddress ? 4 : 1,
+            textAlignVertical: TextAlignVertical.center,
+
+            style: GoogleFonts.lato(
+              fontSize: s(16),
+              color: ColorPalette.bottomtext,
+            ),
+
+            decoration: InputDecoration(
+              isCollapsed: true,
+              border: InputBorder.none,
+              hintText: hint,
+              hintStyle: GoogleFonts.lato(
+                fontSize: s(16),
+                color: const Color(0x66484848),
               ),
             ),
           ),
@@ -307,12 +306,15 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       }) {
     double s(double v) => v * scale;
 
-    // ✅ Remove duplicates safely
     final uniqueItems = items.toSet().toList();
-
-    // ✅ Ensure selected value exists in items
     final safeValue =
     (value != null && uniqueItems.contains(value)) ? value : null;
+
+    final TextStyle style = GoogleFonts.lato(
+      fontSize: s(16),
+      fontWeight: FontWeight.w400,
+      color: const Color(0xCC484848),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,10 +327,11 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
             color: ColorPalette.bottomtext,
           ),
         ),
-        SizedBox(height: s(14)),
+        SizedBox(height: s(12)),
+
         Container(
-          height: s(50),
-          padding: EdgeInsets.symmetric(horizontal: s(16)),
+          height: s(52),
+          padding: EdgeInsets.symmetric(horizontal: s(14)),
           decoration: BoxDecoration(
             color: enabled
                 ? Colors.white.withOpacity(0.5)
@@ -336,31 +339,31 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
             borderRadius: BorderRadius.circular(s(10)),
             border: Border.all(color: Colors.white),
           ),
-          child: DropdownButtonFormField<String>(
-            value: safeValue, // ✅ FIXED VALUE
-            isExpanded: true, // ✅ prevents overflow
-            items: uniqueItems
-                .map(
-                  (e) => DropdownMenuItem<String>(
-                value: e,
-                child: Text(
-                  e,
-                  overflow: TextOverflow.ellipsis,
-                ),
+
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: safeValue,
+              isExpanded: true,
+              alignment: Alignment.centerLeft,
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: const Color(0xFF484848),
+                size: s(24),
               ),
-            )
-                .toList(),
-            onChanged: enabled ? onChanged : null,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hint,
-              hintStyle: GoogleFonts.lato(
-                color: const Color(0xCC484848).withOpacity(0.8),
-                fontSize: s(16),
-              ),
+
+              hint: Text(hint, style: style),
+
+              style: style,
+
+              items: uniqueItems.map((e) {
+                return DropdownMenuItem<String>(
+                  value: e,
+                  child: Text(e, style: style),
+                );
+              }).toList(),
+
+              onChanged: enabled ? onChanged : null,
             ),
-            dropdownColor: Colors.white, // ✅ better UI
-            icon: const Icon(Icons.keyboard_arrow_down),
           ),
         ),
       ],

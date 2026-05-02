@@ -17,35 +17,89 @@ class LocationInfo {
 
 class ProfileModel {
   final String? id;
+  final String? name;
   final String? email;
   final String? phone;
-  final String? name;
   final String? status;
-  final String? createdAt; // ✅ Added this field
-  final LocationInfo? state; // ✅ Changed from String to LocationInfo
-  final LocationInfo? district; // ✅ Changed from String to LocationInfo
+  final String? addressLine1;
+  final String? createdAt;
+
+  final StateModel? state;
+  final DistrictModel? district;
+
+  final DealerProfile? dealerProfile; // ✅ ADD THIS
 
   ProfileModel({
     this.id,
+    this.name,
     this.email,
     this.phone,
-    this.name,
     this.status,
+    this.addressLine1,
     this.createdAt,
     this.state,
     this.district,
+    this.dealerProfile,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: json['id'],
+      name: json['name'],
       email: json['email'],
       phone: json['phone'],
-      name: json['name'],
       status: json['status'],
+      addressLine1: json['addressLine1'],
       createdAt: json['createdAt'],
-      state: json['state'] != null ? LocationInfo.fromJson(json['state']) : null,
-      district: json['district'] != null ? LocationInfo.fromJson(json['district']) : null,
+
+      state: json['state'] != null
+          ? StateModel.fromJson(json['state'])
+          : null,
+
+      district: json['district'] != null
+          ? DistrictModel.fromJson(json['district'])
+          : null,
+
+      dealerProfile: json['dealerProfile'] != null
+          ? DealerProfile.fromJson(json['dealerProfile'])
+          : null,
+    );
+  }
+}
+class StateModel {
+  final int? id;
+  final String? name;
+
+  StateModel({this.id, this.name});
+
+  factory StateModel.fromJson(Map<String, dynamic> json) {
+    return StateModel(
+      id: json['id'],
+      name: json['name'],
+    );
+  }
+}
+class DistrictModel {
+  final int? id;
+  final String? name;
+
+  DistrictModel({this.id, this.name});
+
+  factory DistrictModel.fromJson(Map<String, dynamic> json) {
+    return DistrictModel(
+      id: json['id'],
+      name: json['name'],
+    );
+  }
+}
+class DealerProfile {
+  final String? businessName;
+
+  DealerProfile({this.businessName});
+
+  factory DealerProfile.fromJson(Map<String, dynamic> json) {
+    return DealerProfile(
+      businessName: json['businessName'],
     );
   }
 }

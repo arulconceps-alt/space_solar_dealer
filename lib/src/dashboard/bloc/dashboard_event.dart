@@ -1,14 +1,7 @@
-/*
-part of "home_bloc.dart";
+// dashboard_event.dart
 
-abstract class DashboardEvent extends Equatable {
-  const DashboardEvent();
+abstract class DashboardEvent {}
 
-  @override
-  List<Object> get props => [];
-}
+class DashboardLoadingEvent extends DashboardEvent {}
 
-class FetchGamesEvent extends DashboardEvent {
-  const FetchGamesEvent();
-}
-*/
+class DashboardLoadedEvent extends DashboardEvent {}

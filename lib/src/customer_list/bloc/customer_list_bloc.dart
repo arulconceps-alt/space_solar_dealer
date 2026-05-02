@@ -25,9 +25,19 @@ class CustomerListBloc extends Bloc<CustomerListEvent, CustomerListState> {
     try {
       print("🔥 LoadCustomers called");
 
-      emit(state.copyWith(status: CustomerListStatus.loading));
+      emit(
+        state.copyWith(
+          status: CustomerListStatus.loading,
+        ),
+      );
 
-      final data = await repository.fetchAllCustomers();
+      /// TEMP DELAY
+      await Future.delayed(
+        const Duration(seconds: 2),
+      );
+
+      final data =
+      await repository.fetchAllCustomers();
 
       print("🔥 DATA LENGTH: ${data.length}");
 
@@ -35,17 +45,22 @@ class CustomerListBloc extends Bloc<CustomerListEvent, CustomerListState> {
           .map((e) => CustomerModel.fromJson(e))
           .toList();
 
-      emit(state.copyWith(
-        status: CustomerListStatus.success,
-        customers: customers,
-        filteredCustomers: customers,
-      ));
+      emit(
+        state.copyWith(
+          status: CustomerListStatus.success,
+          customers: customers,
+          filteredCustomers: customers,
+        ),
+      );
     } catch (e) {
       print("❌ ERROR: $e");
-      emit(state.copyWith(
-        status: CustomerListStatus.failure,
-        message: e.toString(),
-      ));
+
+      emit(
+        state.copyWith(
+          status: CustomerListStatus.failure,
+          message: e.toString(),
+        ),
+      );
     }
   }
 

@@ -1,30 +1,54 @@
-/*
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 
+import 'dashboard_event.dart';
+import 'dashboard_state.dart';
 
+class DashboardBloc
+    extends Bloc<DashboardEvent, DashboardState> {
+  DashboardBloc()
+      : super(
+    const DashboardState(),
+  ) {
+    on<DashboardLoadingEvent>(
+      _onDashboardLoading,
+    );
 
-class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  final DashboardRepositary repository;
+    on<DashboardLoadedEvent>(
+      _onDashboardLoaded,
+    );
+  }
 
-  DashboardBloc({required this.repository}) : super(const HomeState()) {
-    on<FetchGamesEvent>((event, emit) async {
-      emit(state.copyWith(status: DashboardStatus.loading));
-      try {
-        final categories = await repository.getCategories();
-        final games = await repository.getGames();
-        emit(
-          state.copyWith(
-            status: DashboardStatus.loaded,
-            categories: categories,
-            games: games,
-          ),
-        );
-      } catch (e) {
-        emit(state.copyWith(status: DashboardStatus.error, message: e.toString()));
-      }
-    });
+  Future<void> _onDashboardLoading(
+      DashboardLoadingEvent event,
+      Emitter<DashboardState> emit,
+      ) async {
+    emit(
+      state.copyWith(
+        status: DashboardStatus.loading,
+      ),
+    );
+
+    /// API CALL
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
+
+    emit(
+      state.copyWith(
+        status: DashboardStatus.success,
+      ),
+    );
+  }
+
+  void _onDashboardLoaded(
+      DashboardLoadedEvent event,
+      Emitter<DashboardState> emit,
+      ) {
+    emit(
+      state.copyWith(
+        status: DashboardStatus.success,
+      ),
+    );
   }
 }
-
-*/

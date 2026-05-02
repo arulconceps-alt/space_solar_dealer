@@ -1,9 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_state.dart';
 import 'package:space_solar_dealer/src/customer_list/view/widget/customer_item.dart';
@@ -44,7 +44,6 @@ class _CustomerListState extends State<CustomerList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             SizedBox(height: s(24)),
 
             /// HEADER
@@ -72,10 +71,7 @@ class _CustomerListState extends State<CustomerList> {
                 ],
               ),
             ),
-
             SizedBox(height: s(20)),
-
-            /// SEARCH
             Padding(
               padding: EdgeInsets.symmetric(horizontal: s(20)),
               child: SearchBox(
@@ -86,17 +82,13 @@ class _CustomerListState extends State<CustomerList> {
                 },
               ),
             ),
-
             SizedBox(height: s(20)),
-
-            /// LIST (IMPORTANT: USE EXPANDED)
             Expanded(
               child: BlocBuilder<CustomerListBloc, CustomerListState>(
                 builder: (context, state) {
+                  final isLoading = state.status == CustomerListStatus.loading;
                   return Stack(
                     children: [
-
-                      /// ✅ MAIN CONTENT (always visible)
                       if (state.filteredCustomers.isNotEmpty)
                         ListView.builder(
                           padding: EdgeInsets.symmetric(horizontal: s(20)),
@@ -115,25 +107,28 @@ class _CustomerListState extends State<CustomerList> {
                         )
                       else if (state.status == CustomerListStatus.success)
                         const Center(child: Text("No customers found")),
-
-                      /// ✅ LOADER OVERLAY
-                      if (state.status == CustomerListStatus.loading)
-                        Container(
-                          color: Colors.black.withOpacity(0.2), // dim background
-                          child: const Center(
-                            child: CircularProgressIndicator(color: ColorPalette.background,),
-                          ),
-                        ),
-
-                      /// ❌ ERROR
                       if (state.status == CustomerListStatus.failure)
                         Center(child: Text(state.message)),
+                      /*if(isLoading)
+                        Positioned.fill(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                            child: Container(
+                              color: Colors.black26, // Lighter tint for better visibility of the background
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 5,
+                                  valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.background),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),*/
                     ],
                   );
                 },
               ),
             ),
-
             SizedBox(height: s(10)),
           ],
         ),

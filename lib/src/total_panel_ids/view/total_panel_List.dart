@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -45,125 +47,190 @@ class _TotalPanelListState extends State<TotalPanelList> {
         showBack: true,
         showNotification: false,
         onBackTap: () {
-          context.go('/dashboard'); // safer than pop
+          context.go('/home');
         },
       ),
       body: AppBackground(
         child: SafeArea(
           child: BlocBuilder<TotalPanelBloc, TotalPanelState>(
             builder: (context, state) {
-
-              if (state.status == TotalPanelStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+              final isLoading =
+                  state.status == TotalPanelStatus.loading;
 
               if (state.status == TotalPanelStatus.failure) {
-                return Center(child: Text(state.message));
+                return Center(
+                  child: Text(state.message),
+                );
               }
 
               /// 🔍 FILTER DATA
               final filtered = state.panels.where((panel) {
                 final q = state.searchQuery.toLowerCase();
-                return panel.serialNumber.toLowerCase().contains(q);
+                return panel.serialNumber
+                    .toLowerCase()
+                    .contains(q);
               }).toList();
 
               /// 📄 PAGINATION
-              final start = (state.currentPage - 1) * itemsPerPage;
+              final start =
+                  (state.currentPage - 1) * itemsPerPage;
               final end = start + itemsPerPage;
 
               final paged = filtered.length > start
-                  ? filtered.sublist(start, end > filtered.length ? filtered.length : end)
+                  ? filtered.sublist(
+                start,
+                end > filtered.length
+                    ? filtered.length
+                    : end,
+              )
                   : [];
 
-              final totalPages = (filtered.length / itemsPerPage).ceil();
+              final totalPages =
+              (filtered.length / itemsPerPage).ceil();
 
-              return Column(
+              return Stack(
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: s(20)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          SizedBox(height: s(20)),
-
-                          /// SEARCH
-                          PanelIdSearchBox(
-                            scale: scale,
-                            controller: _searchController,
-                            onChanged: (value) {
-                              context.read<TotalPanelBloc>().add(
-                                SearchPanelEvent(value),
-                              );
-                            },
+                  Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: s(20),
                           ),
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: s(20)),
 
-                          SizedBox(height: s(20)),
+                              /// SEARCH
+                              PanelIdSearchBox(
+                                scale: scale,
+                                controller: _searchController,
+                                onChanged: (value) {
+                                  context
+                                      .read<TotalPanelBloc>()
+                                      .add(
+                                    SearchPanelEvent(value),
+                                  );
+                                },
+                              ),
 
-                          Text(
-                            "Panels",
-                            style: GoogleFonts.poppins(
-                              fontSize: s(20),
-                              fontWeight: FontWeight.w600,
-                              color: ColorPalette.bottomtext,
-                            ),
-                          ),
+                              SizedBox(height: s(20)),
 
-                          /// LIST
-                          paged.isEmpty
-                              ? Padding(
-                            padding: EdgeInsets.only(top: s(80)),
-                            child: Center(
-                              child: Text(
-                                "No Panels Found",
+                              Text(
+                                "Panels",
                                 style: GoogleFonts.poppins(
-                                  fontSize: s(16),
-                                  color: Colors.grey,
+                                  fontSize: s(20),
+                                  fontWeight:
+                                  FontWeight.w600,
+                                  color:
+                                  ColorPalette.bottomtext,
                                 ),
                               ),
-                            ),
-                          )
-                              : ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.symmetric(vertical: s(20)),
-                            itemCount: paged.length,
-                            itemBuilder: (context, index) {
-                              final panel = paged[index];
 
-                              return PanelItemList(
-                                panel: panel,
-                                name: panel.serialNumber, // 👈 FIXED
-                                isFirst: index == 0,
-                                isLast: index == paged.length - 1,
-                                onTap: () {},
-                              );
-                            },
+                              /// LIST
+                              paged.isEmpty
+                                  ? Padding(
+                                padding: EdgeInsets.only(
+                                  top: s(80),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "No Panels Found",
+                                    style:
+                                    GoogleFonts.poppins(
+                                      fontSize: s(16),
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              )
+                                  : ListView.builder(
+                                shrinkWrap: true,
+                                physics:
+                                const NeverScrollableScrollPhysics(),
+                                padding:
+                                EdgeInsets.symmetric(
+                                  vertical: s(20),
+                                ),
+                                itemCount: paged.length,
+                                itemBuilder:
+                                    (context, index) {
+                                  final panel =
+                                  paged[index];
+
+                                  return PanelItemList(
+                                    panel: panel,
+                                    name: panel
+                                        .serialNumber,
+                                    isFirst:
+                                    index == 0,
+                                    isLast:
+                                    index ==
+                                        paged.length -
+                                            1,
+                                    onTap: () {},
+                                  );
+                                },
+                              ),
+
+                              SizedBox(height: s(30)),
+
+                              /// PAGINATION
+                              Center(
+                                child: PaginationFooter(
+                                  totalItems:
+                                  filtered.length,
+                                  currentPage:
+                                  state.currentPage,
+                                  onPageChanged: (page) {
+                                    if (page > totalPages ||
+                                        page < 1) {
+                                      return;
+                                    }
+
+                                    context
+                                        .read<
+                                        TotalPanelBloc>()
+                                        .add(
+                                      LoadPanelsEvent(
+                                        page: page,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+
+                              SizedBox(height: s(60)),
+                            ],
                           ),
-
-                          SizedBox(height: s(30)),
-
-                          /// PAGINATION
-                          Center(
-                            child: PaginationFooter(
-                              totalItems: filtered.length,
-                              currentPage: state.currentPage,
-                              onPageChanged: (page) {
-                                if (page > totalPages || page < 1) return;
-
-                                context.read<TotalPanelBloc>().add(
-                                  LoadPanelsEvent(page: page),
-                                );
-                              },
+                        ),
+                      ),
+                    ],
+                  ),
+                  /// LOADER
+                  if (isLoading)
+                    Positioned.fill(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                          sigmaX: 3,
+                          sigmaY: 3,
+                        ),
+                        child: Container(
+                          color:
+                          Colors.black.withOpacity(0.35),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              valueColor:
+                              AlwaysStoppedAnimation<Color>(
+                                ColorPalette.background,
+                              ),
                             ),
                           ),
-
-                          SizedBox(height: s(60)),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
                 ],
               );
             },

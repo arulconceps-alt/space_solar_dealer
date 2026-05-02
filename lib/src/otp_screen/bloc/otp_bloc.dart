@@ -4,7 +4,6 @@ import 'package:space_solar_dealer/src/otp_screen/repo/otp_repositary.dart';
 part 'otp_event.dart';
 part 'otp_state.dart';
 
-// ... existing imports
 
 class OtpBloc extends Bloc<OtpEvent, OtpState> {
   final OtpRepositary _repository;
@@ -39,18 +38,22 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
     }
   }
 
-  Future<void> _onResendOtp(ResendOtpRequested event, Emitter<OtpState> emit) async {
-    // Note: You can add a loading state here if you want to show a spinner during resend
+  Future<void> _onResendOtp(
+      ResendOtpRequested event,
+      Emitter<OtpState> emit,
+      ) async {
     try {
-      await _repository.resendOtp(event.phone);
+      final otp = await _repository.resendOtp(event.phone);
 
-      // ✅ CORRECTED: Emit .resendSuccess, NOT .success
       emit(state.copyWith(
         status: OtpStatus.resendSuccess,
-        message: "OTP resent successfully",
+        message: otp,
       ));
     } catch (e) {
-      emit(state.copyWith(status: OtpStatus.failure, message: e.toString()));
+      emit(state.copyWith(
+        status: OtpStatus.failure,
+        message: e.toString(),
+      ));
     }
   }
 }

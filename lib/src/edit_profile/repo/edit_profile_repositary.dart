@@ -6,10 +6,16 @@ class ProfileRepository {
 
   ProfileRepository(this.api);
   ///Update
-  Future<void> updateProfile(Map<String, dynamic> body) async {
-    await api.patchRequest(
+  Future<ProfileModel?> updateProfile(Map<String, dynamic> body) async {
+    final response = await api.patchRequest(
       url: 'dealer/profile',
       data: body,
     );
+
+    if (response['success'] == true) {
+      return ProfileModel.fromJson(response['data']);
+    } else {
+      throw Exception(response['message'] ?? "Update failed");
+    }
   }
 }

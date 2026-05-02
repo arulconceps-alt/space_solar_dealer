@@ -13,9 +13,12 @@ import 'package:space_solar_dealer/src/otp_screen/bloc/otp_bloc.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? initialOtp; // Add this
+
   const OtpScreen({
     super.key,
     required this.phoneNumber,
+    this.initialOtp,
   });
 
   @override
@@ -29,6 +32,12 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   void initState() {
     super.initState();
+
+    // ✅ ADD HERE
+    if (widget.initialOtp != null && widget.initialOtp!.isNotEmpty) {
+      controller.text = widget.initialOtp!;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _otpFocusNode.requestFocus();
     });
@@ -55,12 +64,11 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // Set a base width (e.g., 375 for standard mobile) to avoid extreme scaling
     final scale = screenWidth / 375;
     double s(double v) => v * scale;
 
     final defaultPinTheme = PinTheme(
-      width: s(50), // Adjusted size to fit 6 pins comfortably on smaller screens
+      width: s(50),
       height: s(56),
       textStyle: GoogleFonts.lato(
         fontSize: s(22),
@@ -82,10 +90,15 @@ class _OtpScreenState extends State<OtpScreen> {
         if (state.status == OtpStatus.success) {
           context.go('/home');
         } else if (state.status == OtpStatus.resendSuccess) {
+          final receivedOtp = state.message ?? '';
+          final otp = state.message ?? '';
+          controller.text = receivedOtp;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message ?? "OTP resent successfully")),
+            SnackBar(
+              content: Text("OTP received: $otp"),
+            ),
           );
-        } else if (state.status == OtpStatus.failure) {
+        }else if (state.status == OtpStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message ?? "Error"),
@@ -213,8 +226,16 @@ class _OtpScreenState extends State<OtpScreen> {
 
               // Loading Overlay
               if (isLoading)
-                const Center(
-                  child: CircularProgressIndicator(color: ColorPalette.background),
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.35),
+                      child: Center(
+                        child: CircularProgressIndicator(color: ColorPalette.background),
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),

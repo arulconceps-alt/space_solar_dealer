@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/models/profile_model.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/profile/bloc/profile_bloc.dart';
+import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  final ProfileModel profile;
+
+  const EditProfileScreen({
+    super.key,
+    required this.profile,
+  });
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -17,7 +26,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
   final companyController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
 
+    nameController.text = widget.profile.name ?? "";
+    emailController.text = widget.profile.email ?? "";
+    phoneController.text = widget.profile.phone ?? "";
+    addressController.text = widget.profile.addressLine1 ?? "";
+    companyController.text =
+        widget.profile.dealerProfile?.businessName ??
+            "No Company"; // ✅ FIXED
+  }
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -45,8 +65,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: s(30)),
-
-                /// PROFILE IMAGE WITH EDIT ICON
                 Center(
                   child: Stack(
                     children: [
@@ -74,15 +92,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                 SizedBox(height: s(50)),
 
-                _buildField("Company Name", "Company name", s),
+                _buildField("Company Name", "Company name", companyController, s),
                 SizedBox(height: s(16)),
-                _buildField("Your Name", "Your Name", s),
+
+                _buildField("Your Name", "Your Name", nameController, s),
                 SizedBox(height: s(16)),
-                _buildField("Email", "Email", s),
+
+                _buildField("Email", "Email", emailController, s),
                 SizedBox(height: s(16)),
-                _buildField("Phone Number", "Phone number", s),
+
+                _buildField(
+                  "Phone Number",
+                  "Phone",
+                  phoneController,
+                  s,
+                  enabled: false, // 🔒 disabled
+                ),
                 SizedBox(height: s(16)),
-                _buildField("Address", "Your Address", s),
+
+                _buildField("Address", "Your Address", addressController, s),
 
                 SizedBox(height: s(102)),
 
@@ -90,7 +118,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   height: s(50),
                   width: s(400),
                   child: ElevatedButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      final body = {
+                        "name": nameController.text.trim(),
+                        "email": emailController.text.trim(),
+                        "businessName": companyController.text.trim(),
+                        "addressLine1": addressController.text.trim(),
+                      };
+
+                      context.read<ProfileBloc>().add(UpdateProfileEvent(body));
+
+                      context.pop(); // go back
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorPalette.background,
                       shape: RoundedRectangleBorder(
@@ -120,41 +159,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildField(
-    String title,
-    String hint,
-    double Function(double) s,
-  ) {
+      String title,
+      String hint,
+      TextEditingController controller,
+      double Function(double) s, {
+        bool enabled = true,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: GoogleFonts.lato(
+            fontSize: s(14),
+            fontWeight: FontWeight.w500,
             color: ColorPalette.bottomtext,
-            fontSize: s(16),
-            fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: s(14)),
-        Container(
-          width: double.infinity,
-          height: s(50),
-          padding: EdgeInsets.symmetric(horizontal: s(16)),
-          decoration: BoxDecoration(
-            color: ColorPalette.whitetext.withOpacity(0.50),
-            borderRadius: BorderRadius.circular(s(10)),
-            border: Border.all(
-              color: ColorPalette.whitetext,
-              width: 1,
-            ),
+        SizedBox(height: s(8)),
+        TextField(
+          controller: controller,
+          enabled: enabled,
+          style: GoogleFonts.lato(
+            fontSize: s(14),
+            color: ColorPalette.bottomtext,
           ),
-          alignment: Alignment.centerLeft,
-          child: Text(
-            hint,
-            style: GoogleFonts.lato(
-              color: ColorPalette.textfiledin.withValues(alpha: .80),
-              fontSize: s(16),
-              fontWeight: FontWeight.w400,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.lato(
+              color: ColorPalette.textfiledin.withValues(alpha: 0.7),
+            ),
+            filled: true,
+            fillColor: ColorPalette.whitetext.withOpacity(0.5),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: s(16),
+              vertical: s(12),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(s(10)),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(s(10)),
+              borderSide: BorderSide(color: Colors.white),
             ),
           ),
         ),

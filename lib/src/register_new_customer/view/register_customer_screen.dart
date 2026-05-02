@@ -27,9 +27,6 @@ class RegisterCustomerScreen extends StatefulWidget {
 class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
   bool _dialogShown = false;
-
-  // Removed 'final' from these as they are updated via BLoC state,
-  // or simply rely on the BLoC state directly during submit.
   List<String> panels = [];
 
   final TextEditingController nameController = TextEditingController();
@@ -116,6 +113,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
         }
       },
       builder: (context, state) {
+        final isLoading = state.status == NewRegisterStatus.loading;
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CommonAppBar(
@@ -243,12 +241,19 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
               ),
 
               /// ✅ LOADING OVERLAY
-              if (state.status == NewRegisterStatus.loading)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: ColorPalette.background,
+
+              /// ✅ LOADER OVERLAY
+              if (isLoading)
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.35),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: ColorPalette.background,
+                        ),
+                      ),
                     ),
                   ),
                 ),
