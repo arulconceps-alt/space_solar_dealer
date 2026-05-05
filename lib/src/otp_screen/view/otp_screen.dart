@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +16,7 @@ class OtpScreen extends StatefulWidget {
   final String phoneNumber;
   final String? initialOtp; // Add this
 
-  const OtpScreen({
-    super.key,
-    required this.phoneNumber,
-    this.initialOtp,
-  });
+  const OtpScreen({super.key, required this.phoneNumber, this.initialOtp});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -28,12 +25,15 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   final controller = TextEditingController();
   final FocusNode _otpFocusNode = FocusNode();
+  int _secondsRemaining = 120;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
 
-    // ✅ ADD HERE
+     _startTimer(); 
+  
     if (widget.initialOtp != null && widget.initialOtp!.isNotEmpty) {
       controller.text = widget.initialOtp!;
     }
@@ -53,12 +53,27 @@ class _OtpScreenState extends State<OtpScreen> {
   void _onVerify(String otp) {
     if (otp.length == 6) {
       context.read<OtpBloc>().add(
-        VerifyOtpSubmitted(
-          phone: widget.phoneNumber,
-          otp: otp,
-        ),
+        VerifyOtpSubmitted(phone: widget.phoneNumber, otp: otp),
       );
     }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining > 0) {
+        setState(() {
+          _secondsRemaining--;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  String get timerText {
+    final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
+    return "$minutes:$seconds";
   }
 
   @override
@@ -78,10 +93,7 @@ class _OtpScreenState extends State<OtpScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.4),
         borderRadius: BorderRadius.circular(s(8)),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.7),
-          width: 1.0,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.7), width: 1.0),
       ),
     );
 
@@ -93,12 +105,10 @@ class _OtpScreenState extends State<OtpScreen> {
           final receivedOtp = state.message ?? '';
           final otp = state.message ?? '';
           controller.text = receivedOtp;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("OTP received: $otp"),
-            ),
-          );
-        }else if (state.status == OtpStatus.failure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("OTP received: $otp")));
+        } else if (state.status == OtpStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message ?? "Error"),
@@ -115,7 +125,11 @@ class _OtpScreenState extends State<OtpScreen> {
           body: Stack(
             children: [
               // Background
-              Container(decoration: BoxDecoration(gradient: ColorPalette.scaffoldGradient)),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: ColorPalette.scaffoldGradient,
+                ),
+              ),
 
               // Blur Elements
               BlurCircle(left: s(-146), top: s(-191), size: s(383), opacity: 1),
@@ -127,7 +141,10 @@ class _OtpScreenState extends State<OtpScreen> {
                 ignoring: isLoading, // Disable interaction during loading
                 child: SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: s(20), vertical: s(16)),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s(20),
+                      vertical: s(16),
+                    ),
                     child: Column(
                       children: [
                         SizedBox(height: s(40)),
@@ -163,54 +180,97 @@ class _OtpScreenState extends State<OtpScreen> {
                                     focusNode: _otpFocusNode,
                                     keyboardType: TextInputType.number,
                                     defaultPinTheme: defaultPinTheme,
-                                    separatorBuilder: (index) => SizedBox(width: s(6)),
-                                    hapticFeedbackType: HapticFeedbackType.lightImpact,
-                                  //  onCompleted: _onVerify, // Auto-submit when done
+                                    separatorBuilder: (index) =>
+                                        SizedBox(width: s(6)),
+                                    hapticFeedbackType:
+                                        HapticFeedbackType.lightImpact,
+                                    //  onCompleted: _onVerify, // Auto-submit when done
                                     focusedPinTheme: defaultPinTheme.copyWith(
-                                      decoration: defaultPinTheme.decoration!.copyWith(
-                                        border: Border.all(color: Colors.white, width: 2),
-                                      ),
+                                      decoration: defaultPinTheme.decoration!
+                                          .copyWith(
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 2,
+                                            ),
+                                          ),
                                     ),
                                   ),
                                 ),
                                 SizedBox(height: s(24)),
-                                RichText(
-                                  text: TextSpan(
-                                    style: GoogleFonts.lato(
-                                      fontSize: s(15),
-                                      color: const Color(0xFF4A4A4A),
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    children: [
-                                      const TextSpan(text: "Don't receive OTP? "),
-                                      TextSpan(
-                                        text: "Resend OTP",
-                                        style: GoogleFonts.lato(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.w600,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    /// LEFT SIDE TEXT
+                                    Expanded(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: GoogleFonts.lato(
+                                            fontSize: s(15),
+                                            color: const Color(0xFF4A4A4A),
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                          children: [
+                                            const TextSpan(
+                                              text: "Don't receive OTP? ",
+                                            ),
+                                            TextSpan(
+                                              text: "Resend OTP",
+                                              style: GoogleFonts.lato(
+                                                color:  Colors.red,
+                                                    // disabled color
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () {
+                                                  if (isLoading ||
+                                                      _secondsRemaining > 0)
+                                                    return;
+
+                                                  context.read<OtpBloc>().add(
+                                                    ResendOtpRequested(
+                                                      phone: widget.phoneNumber,
+                                                    ),
+                                                  );
+
+                                                  /// Restart timer
+                                                  setState(() {
+                                                    _secondsRemaining = 120;
+                                                  });
+                                                  _startTimer();
+                                                },
+                                            ),
+                                          ],
                                         ),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () {
-                                            if (isLoading) return;
-                                            context.read<OtpBloc>().add(
-                                              ResendOtpRequested(phone: widget.phoneNumber),
-                                            );
-                                          },
                                       ),
-                                    ],
-                                  ),
+                                    ),
+
+                                    /// RIGHT SIDE TIMER
+                                    Text(
+                                      timerText,
+                                      style: GoogleFonts.lato(
+                                        fontSize: s(14),
+                                        fontWeight: FontWeight.w600,
+                                        color:  Colors.blueGrey
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 SizedBox(height: s(40)),
                                 ValueListenableBuilder(
                                   valueListenable: controller,
                                   builder: (context, value, child) {
                                     // The button only works if 6 digits are entered AND we aren't currently loading
-                                    final bool canClick = value.text.length == 6 && state.status != OtpStatus.loading;
+                                    final bool canClick =
+                                        value.text.length == 6 &&
+                                        state.status != OtpStatus.loading;
 
                                     return PrimaryButton(
                                       text: "Verify",
                                       scale: scale,
-                                      onTap: canClick ? () => _onVerify(value.text) : null,
+                                      onTap: canClick
+                                          ? () => _onVerify(value.text)
+                                          : null,
                                     );
                                   },
                                 ),
@@ -232,7 +292,9 @@ class _OtpScreenState extends State<OtpScreen> {
                     child: Container(
                       color: Colors.black.withOpacity(0.35),
                       child: Center(
-                        child: CircularProgressIndicator(color: ColorPalette.background),
+                        child: CircularProgressIndicator(
+                          color: ColorPalette.background,
+                        ),
                       ),
                     ),
                   ),

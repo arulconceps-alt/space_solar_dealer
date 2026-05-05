@@ -86,29 +86,60 @@ class TicketSuccessDialog extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                showGeneralDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  barrierLabel: "Ticket Details", // ✅ ADD THIS
-                  barrierColor: Colors.black54,
-                  transitionDuration: const Duration(milliseconds: 300),
+                // showGeneralDialog(
+                //   context: context,
+                //   barrierDismissible: true,
+                //   barrierLabel: "Ticket Details", 
+                //   barrierColor: Colors.black54,
+                //   transitionDuration: const Duration(milliseconds: 300),
 
-                  pageBuilder: (context, animation, secondaryAnimation) {
-                    return Center(
-                      child: TicketDetailsDialog(ticket: ticket),
+                //   pageBuilder: (context, animation, secondaryAnimation) {
+                //     return Center(
+                //       child: TicketDetailsDialog(ticket: ticket),
+                //     );
+                //   },
+
+                //   transitionBuilder: (context, animation, secondaryAnimation, child) {
+                //     return Transform.scale(
+                //       scale: animation.value,
+                //       child: Opacity(
+                //         opacity: animation.value,
+                //         child: child,
+                //       ),
+                //     );
+                //   },
+                // );
+                 showGeneralDialog(
+              context: context,
+              barrierDismissible: true,
+              barrierLabel: "Ticket Details",
+              barrierColor: Colors.black54,
+              transitionDuration: const Duration(milliseconds: 400),
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return const SizedBox(); // required
+              },
+              transitionBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    final curvedAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutBack,
                     );
-                  },
 
-                  transitionBuilder: (context, animation, secondaryAnimation, child) {
                     return Transform.scale(
-                      scale: animation.value,
+                      scale: curvedAnimation.value,
                       child: Opacity(
                         opacity: animation.value,
-                        child: child,
+                        child: Dialog(
+                          backgroundColor: Colors.transparent,
+                          insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          child: TicketDetailsDialog(ticket: ticket,),
+                        ),
                       ),
                     );
                   },
-                );
+            );
               },
               child: Container(
                 width: double.infinity,

@@ -57,6 +57,46 @@ class CustomerModel {
   }
 }
 
+class Address {
+  final String line1;
+  final String? line2;
+  final int? countryId;
+  final int? stateId;
+  final int? districtId;
+  final int? pincodeId;
+
+  Address({
+    required this.line1,
+    this.line2,
+    this.countryId,
+    this.stateId,
+    this.districtId,
+    this.pincodeId,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) {
+    return Address(
+      line1: json['line1'] ?? '',
+      line2: json['line2'],
+      countryId: json['countryId'],
+      stateId: json['stateId'],
+      districtId: json['districtId'],
+      pincodeId: json['pincodeId'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "line1": line1,
+      "line2": line2,
+      "countryId": countryId,
+      "stateId": stateId,
+      "districtId": districtId,
+      "pincodeId": pincodeId,
+    };
+  }
+}
+
 class Profile {
   final int id;
   final String customerCode;

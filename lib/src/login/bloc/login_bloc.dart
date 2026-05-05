@@ -38,7 +38,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         state.copyWith(
           status: LoginStatus.success,
           loginDetails: result,
-          otp: otp, // ✅ ADD THIS (you must add field in state)
+          otp: otp, 
           message: "OTP Sent successfully",
         ),
       );

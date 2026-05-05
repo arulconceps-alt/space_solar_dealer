@@ -143,6 +143,8 @@ class NewRegisterRepositary {
       data: body,
     );
 
+    print("order response: $response");
+
     if (response == null || response["success"] != true) {
       throw Exception(response?["message"] ?? "Failed to add order");
     }

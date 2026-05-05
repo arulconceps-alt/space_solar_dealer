@@ -1,3 +1,4 @@
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,7 +6,14 @@ import 'package:google_fonts/google_fonts.dart';
 class PanelRegistrationCard extends StatelessWidget {
   final double scale;
 
-  const PanelRegistrationCard({super.key, required this.scale});
+  // ✅ ADD THIS (to return scanned value)
+  final Function(String) onScanResult;
+
+  const PanelRegistrationCard({
+    super.key,
+    required this.scale,
+    required this.onScanResult,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +83,23 @@ class PanelRegistrationCard extends StatelessWidget {
               ],
             ),
           ),
-         // const Spacer(),
-          // Reusing the BlueButton logic from previous message
-          _buildBlueButton("Scan", scale, () {}),
-       //   SizedBox(height: s(30.82),),
+
+          // ✅ SCAN BUTTON FIXED
+          _buildBlueButton("Scan", scale, () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => QRScannerScreen(
+                  onScan: (code) {
+                    print("✅ SCANNED RESULT: $code");
+
+                    // send to parent
+                    onScanResult(code);
+                  },
+                ),
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -104,6 +125,43 @@ class PanelRegistrationCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ==========================================
+// ✅ QR SCANNER SCREEN (FIXED)
+// ==========================================
+class QRScannerScreen extends StatelessWidget {
+  final Function(String) onScan;
+
+  const QRScannerScreen({
+    super.key,
+    required this.onScan,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Scan QR")),
+      body: MobileScanner(
+        onDetect: (capture) {
+          final List<Barcode> barcodes = capture.barcodes;
+
+          for (final barcode in barcodes) {
+            final String? code = barcode.rawValue;
+
+            if (code != null) {
+              print("📷 SCANNED: $code");
+
+              onScan(code);
+
+              Navigator.pop(context);
+              break;
+            }
+          }
+        },
       ),
     );
   }

@@ -13,6 +13,7 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
   NewRegisterBloc({required NewRegisterRepositary repository})
       : _repository = repository,
         super(NewRegisterState.initial()) {
+
     on<LoadLocationData>(_onLoadLocationData);
     on<SelectState>(_onSelectState);
     on<SelectDistrict>(_onSelectDistrict);
@@ -20,62 +21,91 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     on<SearchCustomer>(_onSearchCustomer);
     on<LoadCustomers>(_onLoadCustomers);
     on<NewRegisterSubmit>(_onSubmit);
-    on<SelectExistingCustomer>((event, emit) async {
-      emit(state.copyWith(
-        selectedCustomerId: event.id,
-        isExistingCustomer: true,
-        selectedStateId: event.stateId,
-        selectedDistrictId: event.districtId,
-        selectedPincodeId: event.pincodeId,
-      ));
-
-      try {
-        // ✅ LOAD DISTRICTS
-        final districts = await _repository.fetchDistricts(event.stateId);
-
-        final selectedDistrict = districts.firstWhere(
-              (e) => e["id"] == event.districtId,
-          orElse: () => {},
-        );
-
-        // ✅ LOAD PINCODES
-        final pincodes = await _repository.fetchPincodes(event.districtId);
-
-        final selectedPincode = pincodes.firstWhere(
-              (e) => e["id"] == event.pincodeId,
-          orElse: () => {},
-        );
-
-        emit(state.copyWith(
-          districts: districts,
-          pincodesList: pincodes,
-
-          selectedDistrict: selectedDistrict["name"],
-          selectedPincode: selectedPincode["code"].toString(),
-
-          // state name from already loaded states list
-          selectedState: state.states
-              .firstWhere((e) => e["id"] == event.stateId)["name"],
-        ));
-      } catch (e) {
-        emit(state.copyWith(
-          status: NewRegisterStatus.failure,
-          message: "Failed to load location for customer",
-        ));
-      }
-    });
-    on<ResetRegisterState>((event, emit) {
-      _allCustomers.clear();
-      emit(NewRegisterState.initial().copyWith(
-        isExistingCustomer: false,
-      ));
-    });
+    on<SelectExistingCustomer>(_onSelectExistingCustomer);
+    on<ResetRegisterState>(_onReset);
 
   }
 
-  // ✅ LOAD STATES
+  // ============================================
+  // ✅ EXISTING CUSTOMER SELECTION (FIXED)
+  // ============================================
+  Future<void> _onSelectExistingCustomer(
+      SelectExistingCustomer event,
+      Emitter<NewRegisterState> emit,
+      ) async {
+
+    print("🟡 SELECT EXISTING CUSTOMER EVENT");
+
+    emit(state.copyWith(
+      selectedCustomerId: event.id,
+      isExistingCustomer: true,
+      selectedStateId: event.stateId,
+      selectedDistrictId: event.districtId,
+      selectedPincodeId: event.pincodeId,
+    ));
+
+    try {
+      // ✅ DISTRICTS
+      final districts = await _repository.fetchDistricts(event.stateId);
+      print("✅ Districts: $districts");
+
+      final selectedDistrict = districts.firstWhere(
+            (e) => e["id"].toString() == event.districtId.toString(),
+        orElse: () => {},
+      );
+
+      // ✅ PINCODES
+      final pincodes = await _repository.fetchPincodes(event.districtId);
+      print("✅ Pincodes: $pincodes");
+
+      final selectedPincode = pincodes.firstWhere(
+            (e) => e["id"].toString() == event.pincodeId.toString(),
+        orElse: () => {},
+      );
+
+      // ✅ STATE
+      final selectedStateObj = state.states.firstWhere(
+            (e) => e["id"].toString() == event.stateId.toString(),
+        orElse: () => {},
+      );
+       print("✅ States: $selectedStateObj");
+
+      emit(state.copyWith(
+        districts: districts,
+        pincodesList: pincodes,
+
+        selectedState: selectedStateObj["name"]?.toString(),
+        selectedDistrict: selectedDistrict["name"]?.toString(),
+        selectedPincode: selectedPincode["code"]?.toString(),
+      ));
+
+      print("✅ LOCATION SET SUCCESS");
+
+    } catch (e, stack) {
+      print("❌ ERROR: $e");
+      print(stack);
+
+      emit(state.copyWith(
+        status: NewRegisterStatus.failure,
+        message: "Failed to load location for customer",
+      ));
+    }
+  }
+
+  // ============================================
+  // RESET
+  // ============================================
+  void _onReset(ResetRegisterState event, Emitter<NewRegisterState> emit) {
+    _allCustomers.clear();
+    emit(NewRegisterState.initial().copyWith(isExistingCustomer: false));
+  }
+
+  // ============================================
+  // LOAD STATES
+  // ============================================
   Future<void> _onLoadLocationData(
       LoadLocationData event, Emitter<NewRegisterState> emit) async {
+
     emit(state.copyWith(status: NewRegisterStatus.loading));
 
     try {
@@ -93,9 +123,12 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ✅ LOAD CUSTOMERS (FIXED)
+  // ============================================
+  // LOAD CUSTOMERS
+  // ============================================
   Future<void> _onLoadCustomers(
       LoadCustomers event, Emitter<NewRegisterState> emit) async {
+
     try {
       final customers = await _repository.getCustomers();
 
@@ -103,7 +136,7 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
 
       emit(state.copyWith(
         allCustomers: customers,
-        searchResults: customers, // optional
+        searchResults: customers,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -113,9 +146,12 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ✅ SELECT STATE
+  // ============================================
+  // SELECT STATE
+  // ============================================
   Future<void> _onSelectState(
       SelectState event, Emitter<NewRegisterState> emit) async {
+
     emit(state.copyWith(
       selectedState: event.name,
       selectedStateId: event.id,
@@ -129,7 +165,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
 
     try {
       final districts = await _repository.fetchDistricts(event.id);
-
       emit(state.copyWith(districts: districts));
     } catch (e) {
       emit(state.copyWith(
@@ -139,9 +174,12 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ✅ SELECT DISTRICT
+  // ============================================
+  // SELECT DISTRICT
+  // ============================================
   Future<void> _onSelectDistrict(
       SelectDistrict event, Emitter<NewRegisterState> emit) async {
+
     emit(state.copyWith(
       selectedDistrict: event.name,
       selectedDistrictId: event.id,
@@ -152,7 +190,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
 
     try {
       final pincodes = await _repository.fetchPincodes(event.id);
-
       emit(state.copyWith(pincodesList: pincodes));
     } catch (e) {
       emit(state.copyWith(
@@ -162,18 +199,24 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ✅ SELECT PINCODE
+  // ============================================
+  // PINCODE
+  // ============================================
   void _onSelectPincode(
       SelectPincode event, Emitter<NewRegisterState> emit) {
+
     emit(state.copyWith(
       selectedPincode: event.code,
       selectedPincodeId: event.id,
     ));
   }
 
-  // ✅ SEARCH CUSTOMER (FIXED)
+  // ============================================
+  // SEARCH
+  // ============================================
   Future<void> _onSearchCustomer(
       SearchCustomer event, Emitter<NewRegisterState> emit) async {
+
     try {
       if (_allCustomers.isEmpty) {
         _allCustomers = await _repository.getCustomers();
@@ -194,6 +237,7 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
       }).toList();
 
       emit(state.copyWith(searchResults: results));
+
     } catch (e) {
       emit(state.copyWith(
         status: NewRegisterStatus.failure,
@@ -202,24 +246,25 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ✅ SUBMIT
+  // ============================================
+  // SUBMIT
+  // ============================================
   Future<void> _onSubmit(
       NewRegisterSubmit event,
       Emitter<NewRegisterState> emit,
       ) async {
+
     emit(state.copyWith(status: NewRegisterStatus.loading));
 
     try {
       final isExisting = state.selectedCustomerId != null;
 
       if (isExisting) {
-        // 👤 EXISTING CUSTOMER → ONLY ORDER API
         await _repository.addOrderToExistingCustomer(
           customerId: state.selectedCustomerId!,
           panels: event.panels,
         );
       } else {
-        // 🆕 NEW CUSTOMER → REGISTER API
         await _repository.registerCustomer(
           name: event.name,
           phone: event.phone,
@@ -237,6 +282,7 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
       }
 
       emit(state.copyWith(status: NewRegisterStatus.success));
+
     } catch (e) {
       emit(state.copyWith(
         status: NewRegisterStatus.failure,

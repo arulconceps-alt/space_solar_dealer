@@ -129,7 +129,8 @@ class RegistrationSuccessScreen extends StatelessWidget {
             scale: scale,
             onPressed: () {
               // Navigate back to Home using GoRouter
-              context.goNamed(RouteName.home);
+             // context.goNamed(RouteName.home);
+            context.go('/customer_list');
             },
           ),
         ],

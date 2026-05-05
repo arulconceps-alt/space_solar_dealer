@@ -40,16 +40,57 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   late TextEditingController _searchController;
   bool isUserSelected = false;
   Map<String, dynamic>? selectedCustomerData;
+  
+  // Focus nodes for dropdown text fields
+  final FocusNode _stateFocusNode = FocusNode();
+  final FocusNode _districtFocusNode = FocusNode();
+  final FocusNode _pincodeFocusNode = FocusNode();
+  
+  // Controllers for dropdown text fields
+  late TextEditingController _stateTextController;
+  late TextEditingController _districtTextController;
+  late TextEditingController _pincodeTextController;
+  
+  // Track if suggestions should be shown
+  bool _showStateSuggestions = false;
+  bool _showDistrictSuggestions = false;
+  bool _showPincodeSuggestions = false;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _stateTextController = TextEditingController();
+    _districtTextController = TextEditingController();
+    _pincodeTextController = TextEditingController();
+    
+    context.read<NewRegisterBloc>().add(LoadLocationData());
+    _stateFocusNode.addListener(() {
+      setState(() {
+        _showStateSuggestions = _stateFocusNode.hasFocus;
+      });
+    });
+    _districtFocusNode.addListener(() {
+      setState(() {
+        _showDistrictSuggestions = _districtFocusNode.hasFocus;
+      });
+    });
+    _pincodeFocusNode.addListener(() {
+      setState(() {
+        _showPincodeSuggestions = _pincodeFocusNode.hasFocus;
+      });
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _stateTextController.dispose();
+    _districtTextController.dispose();
+    _pincodeTextController.dispose();
+    _stateFocusNode.dispose();
+    _districtFocusNode.dispose();
+    _pincodeFocusNode.dispose();
     super.dispose();
   }
 
@@ -67,7 +108,6 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       widget.addressController.text = customer["addressLine1"] ?? "";
     });
 
-    // ✅ ONLY THIS EVENT
     bloc.add(
       SelectExistingCustomer(
         id: customer["id"].toString(),
@@ -77,15 +117,12 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       ),
     );
 
-    /// ✅ PANELS
     final orders = customer["orders"] ?? [];
-    // ✅ removes duplicate panels
     final Set<String> existingPanels = {};
 
     for (var order in orders) {
       for (var item in (order["items"] ?? [])) {
         final serial = item["serialNumber"]?.toString();
-
         if (serial != null && serial.isNotEmpty) {
           existingPanels.add(serial);
         }
@@ -108,16 +145,38 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     double s(double v) => v * widget.scale;
     final isDisabled = selectedCustomerType == "Existing Customer" && isUserSelected;
 
-    return BlocBuilder<NewRegisterBloc, NewRegisterState>(
-      builder: (context, state) {
-        return Container(
-          width: s(400),
-          padding: EdgeInsets.all(s(20)),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(s(20)),
-            border: Border.all(color: Colors.white),
-          ),
+      return BlocListener<NewRegisterBloc, NewRegisterState>(
+  listener: (context, state) {
+    print("👂 BlocListener Triggered");
+
+    if (state.selectedState != null) {
+      print("✅ UI State Updated: ${state.selectedState}");
+      _stateTextController.text = state.selectedState!;
+    }
+
+    if (state.selectedDistrict != null) {
+      print("✅ UI District Updated: ${state.selectedDistrict}");
+      _districtTextController.text = state.selectedDistrict!;
+    }
+
+    if (state.selectedPincode != null) {
+      print("✅ UI Pincode Updated: ${state.selectedPincode}");
+      _pincodeTextController.text = state.selectedPincode!;
+    }
+  },
+  child: BlocBuilder<NewRegisterBloc, NewRegisterState>(
+    builder: (context, state) {
+
+      return Container(
+        width: s(400),
+        padding: EdgeInsets.all(s(20)),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(s(20)),
+          border: Border.all(color: Colors.white),
+        ),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -138,6 +197,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                 ],
               ),
               SizedBox(height: s(26)),
+
               if (selectedCustomerType == "Existing Customer") ...[
                 PhoneSearchBox(
                   scale: widget.scale,
@@ -145,95 +205,273 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                   onSearch: (val) {
                     context.read<NewRegisterBloc>().add(SearchCustomer(val));
                   },
-                  suggestions: state.searchResults, // ✅ now full map list
+                  suggestions: state.searchResults,
                   onSelected: (customer) {
                     _onUserSelected(customer);
                   },
                 ),
                 SizedBox(height: s(24)),
               ],
+
               _buildInputField("Customer Name*", "Customer Name", widget.scale,
                   controller: widget.nameController, enabled: !isDisabled),
               SizedBox(height: s(16)),
+
               _buildInputField("Phone Number*", "Phone Number", widget.scale,
                   controller: widget.phoneController, enabled: !isDisabled),
               SizedBox(height: s(16)),
+
               _buildInputField("Email*", "Email", widget.scale,
-                  controller: widget.emailController, enabled: !isDisabled),
+                  controller: widget.emailController),
               SizedBox(height: s(16)),
 
-              // State Dropdown
-              _buildDropdownField(
+              // ✅ STATE
+              _buildSearchableTextField(
                 "State*",
                 "Select State",
                 widget.scale,
-                value: state.selectedState,
-                items: state.states.map((e) => e["name"].toString()).toList(),
-                  onChanged: (val) {
-                    if (val != null) {
-                      final selected = state.states.firstWhere((e) => e["name"] == val);
+                controller: _stateTextController,
+                focusNode: _stateFocusNode,
+                suggestions: state.states
+                    .map((e) => e["name"].toString())
+                    .toList(),
+                showSuggestions: _showStateSuggestions,
+                onSuggestionSelected: (val) {
+                  final selected =
+                      state.states.firstWhere((e) => e["name"] == val);
 
-                      context.read<NewRegisterBloc>().add(
+                  _stateTextController.text = val;
+                  _stateFocusNode.unfocus();
+
+                  setState(() {
+                    _showStateSuggestions = false;
+                  });
+
+                  context.read<NewRegisterBloc>().add(
                         SelectState(selected["name"], selected["id"]),
                       );
-                    }
-                  },
+                },
+                enabled: !isDisabled,
               ),
               SizedBox(height: s(16)),
 
-              // District Dropdown
-              _buildDropdownField(
+              // ✅ DISTRICT
+              _buildSearchableTextField(
                 "District*",
                 "Select District",
                 widget.scale,
-                value: state.selectedDistrict,
-                items: state.districts.map((e) => e["name"].toString()).toList(),
-                enabled: state.selectedState != null,
+                controller: _districtTextController,
+                focusNode: _districtFocusNode,
+                suggestions: state.districts
+                    .map((e) => e["name"].toString())
+                    .toList(),
+                showSuggestions: _showDistrictSuggestions,
+                onSuggestionSelected: (val) {
+                  final selected =
+                      state.districts.firstWhere((e) => e["name"] == val);
 
-                onChanged: (val) {
-                  final selected = state.districts.firstWhere((e) => e["name"] == val);
+                  _districtTextController.text = val;
+                  _districtFocusNode.unfocus();
+
+                  setState(() {
+                    _showDistrictSuggestions = false;
+                  });
+
                   context.read<NewRegisterBloc>().add(
-                    SelectDistrict(selected["name"], selected["id"]),
-                  );
+                        SelectDistrict(selected["name"], selected["id"]),
+                      );
                 },
+                enabled: !isDisabled && state.selectedState != null,
               ),
               SizedBox(height: s(16)),
-              _buildDropdownField(
+
+              // ✅ PINCODE
+              _buildSearchableTextField(
                 "Pincode*",
                 "Select Pincode",
                 widget.scale,
-                value: state.selectedPincode,
-                items: state.pincodesList
+                controller: _pincodeTextController,
+                focusNode: _pincodeFocusNode,
+                suggestions: state.pincodesList
                     .map((e) => e["code"].toString())
                     .toSet()
                     .toList(),
-                enabled: state.selectedDistrict != null,
-                onChanged: (val) {
-                  if (val != null) {
-                    final selected = state.pincodesList.firstWhere(
-                          (e) => e["code"].toString() == val,
-                    );
+                showSuggestions: _showPincodeSuggestions,
+                onSuggestionSelected: (val) {
+                  final selected = state.pincodesList.firstWhere(
+                    (e) => e["code"].toString() == val,
+                  );
 
-                    context.read<NewRegisterBloc>().add(
-                      SelectPincode(
-                        id: selected["id"],
-                        code: selected["code"].toString(),
-                      ),
-                    );
-                  }
+                  _pincodeTextController.text = val;
+                  _pincodeFocusNode.unfocus();
+
+                  setState(() {
+                    _showPincodeSuggestions = false;
+                  });
+
+                  context.read<NewRegisterBloc>().add(
+                        SelectPincode(
+                          id: selected["id"],
+                          code: selected["code"].toString(),
+                        ),
+                      );
                 },
+                enabled: !isDisabled && state.selectedDistrict != null,
               ),
+
               SizedBox(height: s(16)),
-              _buildInputField("Address*", "Enter full installation address", widget.scale,
-                  isAddress: true, controller: widget.addressController, enabled: !isDisabled),
+
+              _buildInputField(
+                "Address*",
+                "Enter full installation address",
+                widget.scale,
+                isAddress: true,
+                controller: widget.addressController,
+                enabled: !isDisabled,
+              ),
             ],
           ),
-        );
-      },
+        ),
+      );
+    },
+  ),
+);
+  }
+
+  Widget _buildSearchableTextField(
+    String label,
+    String hint,
+    double scale, {
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required List<String> suggestions,
+    required bool showSuggestions,
+    required Function(String) onSuggestionSelected,
+    bool enabled = true,
+  }) {
+    double s(double v) => v * scale;
+    
+    // Filter suggestions based on current text
+    final filteredSuggestions = controller.text.isEmpty 
+        ? suggestions 
+        : suggestions.where((item) => 
+            item.toLowerCase().contains(controller.text.toLowerCase())
+          ).toList();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.lato(
+            fontSize: s(16),
+            fontWeight: FontWeight.w600,
+            color: ColorPalette.bottomtext,
+          ),
+        ),
+        SizedBox(height: s(12)),
+        Container(
+          height: s(52),
+          decoration: BoxDecoration(
+            color: enabled
+                ? Colors.white.withOpacity(0.5)
+                : Colors.grey.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(s(10)),
+            border: Border.all(color: Colors.white),
+          ),
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.symmetric(horizontal: s(14)),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  enabled: enabled,
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
+                    color: ColorPalette.bottomtext,
+                  ),
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: GoogleFonts.lato(
+                      fontSize: s(16),
+                      color: const Color(0x66484848),
+                    ),
+                  ),
+                  onTap: () {
+                    if (enabled && suggestions.isNotEmpty) {
+                      focusNode.requestFocus();
+                    }
+                  },
+                ),
+              ),
+              if (suggestions.isNotEmpty)
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.grey,
+                  size: s(24),
+                ),
+            ],
+          ),
+        ),
+        // Suggestions dropdown that appears below
+        if (showSuggestions && filteredSuggestions.isNotEmpty && enabled)
+          Container(
+            margin: EdgeInsets.only(top: s(4)),
+            constraints: BoxConstraints(
+              maxHeight: s(200),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(s(10)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: s(8),
+                  offset: Offset(0, s(2)),
+                ),
+              ],
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: filteredSuggestions.length,
+              itemBuilder: (context, index) {
+                final suggestion = filteredSuggestions[index];
+                return GestureDetector(
+                  onTap: () {
+                    onSuggestionSelected(suggestion);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s(14),
+                      vertical: s(12),
+                    ),
+                    // decoration: BoxDecoration(
+                    //   border: Border(
+                    //     bottom: BorderSide(
+                    //       color: Colors.grey.withOpacity(0.2),
+                    //     ),
+                    //   ),
+                    // ),
+                    child: Text(
+                      suggestion,
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        color: ColorPalette.bottomtext,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 
-  // Helper methods...
   Widget _buildInputField(
       String label,
       String hint,
@@ -274,12 +512,10 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
             enabled: enabled,
             maxLines: isAddress ? 4 : 1,
             textAlignVertical: TextAlignVertical.center,
-
             style: GoogleFonts.lato(
               fontSize: s(16),
               color: ColorPalette.bottomtext,
             ),
-
             decoration: InputDecoration(
               isCollapsed: true,
               border: InputBorder.none,
@@ -295,100 +531,33 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     );
   }
 
-  Widget _buildDropdownField(
-      String label,
-      String hint,
-      double scale, {
-        required String? value,
-        required List<String> items,
-        required ValueChanged<String?> onChanged,
-        bool enabled = true,
-      }) {
-    double s(double v) => v * scale;
-
-    final uniqueItems = items.toSet().toList();
-    final safeValue =
-    (value != null && uniqueItems.contains(value)) ? value : null;
-
-    final TextStyle style = GoogleFonts.lato(
-      fontSize: s(16),
-      fontWeight: FontWeight.w400,
-      color: const Color(0xCC484848),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.lato(
-            fontSize: s(16),
-            fontWeight: FontWeight.w600,
-            color: ColorPalette.bottomtext,
-          ),
-        ),
-        SizedBox(height: s(12)),
-
-        Container(
-          height: s(52),
-          padding: EdgeInsets.symmetric(horizontal: s(14)),
-          decoration: BoxDecoration(
-            color: enabled
-                ? Colors.white.withOpacity(0.5)
-                : Colors.grey.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(s(10)),
-            border: Border.all(color: Colors.white),
-          ),
-
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: safeValue,
-              isExpanded: true,
-              alignment: Alignment.centerLeft,
-              icon: Icon(
-                Icons.keyboard_arrow_down,
-                color: const Color(0xFF484848),
-                size: s(24),
-              ),
-
-              hint: Text(hint, style: style),
-
-              style: style,
-
-              items: uniqueItems.map((e) {
-                return DropdownMenuItem<String>(
-                  value: e,
-                  child: Text(e, style: style),
-                );
-              }).toList(),
-
-              onChanged: enabled ? onChanged : null,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildOption(String label, double scale) {
     double s(double v) => v * scale;
     bool isSelected = selectedCustomerType == label;
     return GestureDetector(
       onTap: () {
+        if (selectedCustomerType == label) return;
+
         setState(() {
           selectedCustomerType = label;
-
-          if (label == "New Customer") {
-            isUserSelected = false;
-
-            widget.nameController.clear();
-            widget.phoneController.clear();
-            widget.emailController.clear();
-            widget.addressController.clear();
-
-            widget.onClearPanels();
-          }
+          isUserSelected = false;
+          widget.nameController.clear();
+          widget.phoneController.clear();
+          widget.emailController.clear();
+          widget.addressController.clear();
+          _searchController.clear();
+          _stateTextController.clear();
+          _districtTextController.clear();
+          _pincodeTextController.clear();
+          _showStateSuggestions = false;
+          _showDistrictSuggestions = false;
+          _showPincodeSuggestions = false;
         });
+
+        context.read<NewRegisterBloc>().add(ResetRegisterState());
+        if (label == "New Customer") {
+          widget.onClearPanels();
+        }
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -83,73 +83,76 @@ class _LoginScreenState extends State<LoginScreen> {
               BlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1),
               BlurCircle(left: s(-241), top: s(580), size: s(383), opacity: .4),
               SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: s(24)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: s(40)),
-                      Center(child: LogoWidget(scale: scale)),
-                      SizedBox(height: s(40)),
-                      Text(
-                        'Phone Number',
-                        style: GoogleFonts.poppins(
-                          fontSize: s(28),
-                          fontWeight: FontWeight.w600,
-                          color: ColorPalette.bottomtext,
-                        ),
-                      ),
-                      SizedBox(height: s(8)),
-                      Text(
-                        "We will send you an One Time Password on this mobile number",
-                        style: GoogleFonts.lato(
-                          fontSize: s(16),
-                          fontWeight: FontWeight.w400,
-                          color: ColorPalette.textfiledin,
-                        ),
-                      ),
-                      SizedBox(height: s(18)),
-                      SizedBox(
-                        width: double.infinity,
-                        height: s(64),
-                        child: GlassField(
-                          controller: _mobileNumberController,
-                          hint: "+91 813526365",
-                          focusNode: _mobileFocusNode,
-                          scale: scale,
-                        ),
-                      ),
-                      SizedBox(height: s(104)),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom + s(16),
-                        ),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: PrimaryButton(
-                            text: "Get OTP",
-                            scale: scale,
-                            onTap: () {
-                              final mobileNumber = _mobileNumberController.text.trim();
-                              if (mobileNumber.isEmpty || mobileNumber.length < 10) {
-                                CustomSnackBar.show(
-                                  context,
-                                  AlertState(
-                                    message: "Please enter a valid 10-digit mobile number",
-                                    type: AlertType.failure,
-                                    timestamp: DateTime.now(),
-                                  ),
-                                );
-                                return;
-                              }
-                              context.read<LoginBloc>().add(
-                                OtpGenerate(mobileNumber: mobileNumber),
-                              );
-                            },
+                child: SingleChildScrollView(
+                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: s(24)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: s(40)),
+                        Center(child: LogoWidget(scale: scale)),
+                        SizedBox(height: s(40)),
+                        Text(
+                          'Phone Number',
+                          style: GoogleFonts.poppins(
+                            fontSize: s(28),
+                            fontWeight: FontWeight.w600,
+                            color: ColorPalette.bottomtext,
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: s(8)),
+                        Text(
+                          "We will send you an One Time Password on this mobile number",
+                          style: GoogleFonts.lato(
+                            fontSize: s(16),
+                            fontWeight: FontWeight.w400,
+                            color: ColorPalette.textfiledin,
+                          ),
+                        ),
+                        SizedBox(height: s(18)),
+                        SizedBox(
+                          width: double.infinity,
+                          height: s(64),
+                          child: GlassField(
+                            controller: _mobileNumberController,
+                            hint: "+91 813526365",
+                            focusNode: _mobileFocusNode,
+                            scale: scale,
+                          ),
+                        ),
+                        SizedBox(height: s(104)),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom + s(16),
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: PrimaryButton(
+                              text: "Get OTP",
+                              scale: scale,
+                              onTap: () {
+                                final mobileNumber = _mobileNumberController.text.trim();
+                                if (mobileNumber.isEmpty || mobileNumber.length < 10) {
+                                  CustomSnackBar.show(
+                                    context,
+                                    AlertState(
+                                      message: "Please enter a valid 10-digit mobile number",
+                                      type: AlertType.failure,
+                                      timestamp: DateTime.now(),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                context.read<LoginBloc>().add(
+                                  OtpGenerate(mobileNumber: mobileNumber),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
