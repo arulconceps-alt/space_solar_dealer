@@ -112,10 +112,13 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
 
                             final phone = user["phone"] ?? "";
 
-                            widget.controller.text = phone; // ✅ THIS updates search box
+                            widget.controller.text =
+                                phone.toString().replaceAll("+91", "");
 
                             widget.controller.selection = TextSelection.fromPosition(
-                              TextPosition(offset: phone.length),
+                              TextPosition(
+                                offset: widget.controller.text.length,
+                              ),
                             );
 
                             widget.onSelected(user);

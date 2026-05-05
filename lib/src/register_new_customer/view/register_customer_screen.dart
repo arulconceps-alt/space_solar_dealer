@@ -28,7 +28,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
   bool _dialogShown = false;
   List<String> panels = [];
-
+  List<String> existingPanels = [];
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -66,7 +66,13 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     stateController.clear();
     districtController.clear();
     areaController.clear();
+
     panels.clear();
+    existingPanels.clear();
+
+    // ✅ CLEAR SEARCH BOX
+    customerKey.currentState?.clearSearchField();
+
     setState(() {});
   }
 
@@ -153,7 +159,12 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           pincodeController: pincodeController,
                           addressController: addressController,
                           onClearPanels: () => setState(() => panels.clear()),
-                          onPanelsLoaded: (apiPanels) => setState(() => panels = apiPanels),
+                          onPanelsLoaded: (apiPanels) {
+                            setState(() {
+                              panels = apiPanels;
+                              existingPanels = List.from(apiPanels);
+                            });
+                          },
                         ),
 
                         SizedBox(height: s(20)),
@@ -192,12 +203,16 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                                 ? panel
                                 : "SS-78A00-S${panel.padLeft(3, '0')}";
 
+                            final isExistingPanel = existingPanels.contains(panel);
+
                             return AddedPanelTile(
-                              id: displayId, // ✅ show correct ID
+                              id: displayId,
                               scale: scale,
+                              showRemove: !isExistingPanel,
+
                               onRemove: () {
                                 setState(() {
-                                  panels.removeAt(index); // ✅ safer than remove(panel)
+                                  panels.removeAt(index);
                                 });
                               },
                             );

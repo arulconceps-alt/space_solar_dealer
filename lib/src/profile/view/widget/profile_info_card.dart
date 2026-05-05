@@ -149,7 +149,7 @@ class ProfileInfoCard extends StatelessWidget {
                       s: s,
                       iconSize: 20,
                       iconPath: "assets/images/profile/location.svg",
-                      text: "${profile?.district?.name ?? 'Unknown District'}, ${profile?.state?.name ?? 'Unknown State'}",
+                      text: "${profile?.addressLine1 ?? 'Unknown'}",
                     ),
                   ],
                 ),

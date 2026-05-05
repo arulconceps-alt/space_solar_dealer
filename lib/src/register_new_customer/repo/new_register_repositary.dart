@@ -4,11 +4,10 @@ class NewRegisterRepositary {
   final ApiRepository _apiRepository;
   NewRegisterRepositary(this._apiRepository);
 
-  // ✅ REGISTER CUSTOMER
   Future<void> registerCustomer({
     required String name,
     required String phone,
-    required String email, // ✅ ADD THIS
+    required String email,
     required int countryId,
     required int stateId,
     required int districtId,
@@ -60,7 +59,7 @@ class NewRegisterRepositary {
     }
   }
 
-  // ✅ STATES
+  //  STATES
   Future<List<Map<String, dynamic>>> fetchStates(int countryId) async {
     final res =
     await _apiRepository.getRequest("static/states?countryId=$countryId");
@@ -72,7 +71,7 @@ class NewRegisterRepositary {
     return List<Map<String, dynamic>>.from(res["data"] ?? []);
   }
 
-  // ✅ DISTRICTS
+  //  DISTRICTS
   Future<List<Map<String, dynamic>>> fetchDistricts(int stateId) async {
     final res =
     await _apiRepository.getRequest("static/districts?stateId=$stateId");
@@ -84,7 +83,7 @@ class NewRegisterRepositary {
     return List<Map<String, dynamic>>.from(res["data"] ?? []);
   }
 
-  // ✅ PINCODES
+  //  PINCODES
   Future<List<Map<String, dynamic>>> fetchPincodes(int districtId) async {
     final res =
     await _apiRepository.getRequest("static/pincodes?districtId=$districtId");

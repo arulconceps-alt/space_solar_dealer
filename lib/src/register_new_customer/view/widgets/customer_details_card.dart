@@ -40,7 +40,14 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   late TextEditingController _searchController;
   bool isUserSelected = false;
   Map<String, dynamic>? selectedCustomerData;
+  void clearSearchField() {
+    _searchController.clear();
 
+    setState(() {
+      isUserSelected = false;
+      selectedCustomerType = "New Customer";
+    });
+  }
   @override
   void initState() {
     super.initState();
@@ -58,11 +65,16 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
 
     setState(() {
       isUserSelected = true;
-      _searchController.clear();
+
+      // ✅ SHOW SELECTED PHONE IN SEARCH BOX
+      _searchController.text =
+          (customer["phone"] ?? "").replaceAll("+91", "");
 
       widget.nameController.text = customer["name"] ?? "";
+
       widget.phoneController.text =
           (customer["phone"] ?? "").replaceAll("+91", "");
+
       widget.emailController.text = customer["email"] ?? "";
       widget.addressController.text = customer["addressLine1"] ?? "";
     });
@@ -102,7 +114,9 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       _searchController.clear();
     });
   }
-
+  void clearSearchBox() {
+    _searchController.clear();
+  }
   @override
   Widget build(BuildContext context) {
     double s(double v) => v * widget.scale;
