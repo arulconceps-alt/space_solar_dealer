@@ -20,8 +20,8 @@ class LogoutButton extends StatelessWidget {
           _showLogoutDialog(context, s);
         },
         child: Container(
-          height: s(40),
-          width: s(146),
+          height: s(50),
+          width: double.infinity,
           padding: EdgeInsets.symmetric(
             horizontal: s(26),
             vertical: s(8),
@@ -32,6 +32,7 @@ class LogoutButton extends StatelessWidget {
             border: Border.all(color: ColorPalette.whitetext),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
                 "assets/images/profile/logout.png",

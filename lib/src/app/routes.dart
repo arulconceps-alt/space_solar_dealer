@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
@@ -9,10 +10,13 @@ import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
 import 'package:space_solar_dealer/src/customer_detail/bloc/customer_details_bloc.dart';
 import 'package:space_solar_dealer/src/customer_detail/repo/customer_details_repositary.dart';
 import 'package:space_solar_dealer/src/customer_detail/view/custmer_details_screen.dart';
+import 'package:space_solar_dealer/src/customer_edit_screen/view/customer_edit.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
 import 'package:space_solar_dealer/src/customer_list/view/customer_list_screen.dart';
 import 'package:space_solar_dealer/src/dashboard/bloc/dashboard_bloc.dart';
+import 'package:space_solar_dealer/src/dashboard/bloc/dashboard_event.dart';
+import 'package:space_solar_dealer/src/dashboard/repo/dashboard_repositary.dart';
 import 'package:space_solar_dealer/src/dashboard/view/dashboard.dart';
 import 'package:space_solar_dealer/src/edit_profile/view/edit_profile_screen.dart';
 import 'package:space_solar_dealer/src/login/view/login_screen.dart';
@@ -30,7 +34,6 @@ import 'package:space_solar_dealer/src/signup/view/signup_screen.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/total_panel_List.dart';
 
-
 class Routes {
   GoRouter router = GoRouter(
     initialLocation: "/",
@@ -42,25 +45,26 @@ class Routes {
         path: "/",
         builder: (context, state) => const SplashScreen(),
       ),
+
       /// onboarding
       GoRoute(
         name: RouteName.onboarding,
         path: "/onboarding",
         builder: (context, state) => const OnboardingScreen(),
       ),
+
       /// login
       GoRoute(
         name: RouteName.login,
         path: "/login",
         builder: (context, state) => const LoginScreen(),
       ),
-      /// login
 
+      /// login
       GoRoute(
         name: RouteName.otp_verify,
         path: "/otp_verify",
         builder: (context, state) {
-
           final extra = state.extra as Map<String, dynamic>;
 
           final phone = extra['phone'] as String;
@@ -80,23 +84,28 @@ class Routes {
           );
         },
       ),
+
       /// signup
       GoRoute(
         name: RouteName.signup,
         path: "/signup",
         builder: (context, state) => const SignupScreen(),
       ),
+
       /// Dashboard
       GoRoute(
         name: RouteName.home,
         path: "/home",
         builder: (context, state) {
           return BlocProvider(
-            create: (_) => DashboardBloc(),
+            create: (_) => DashboardBloc(
+              DashboardRepository(context.read<ApiRepository>()),
+            )..add(LoadDashboardEvent()),
             child: const Dashboard(),
           );
         },
       ),
+
       /// new_customer_register
       GoRoute(
         name: RouteName.customer_register,
@@ -112,18 +121,31 @@ class Routes {
           );
         },
       ),
+
       /// registeration_success
       GoRoute(
         name: RouteName.registration_success,
         path: "/registration_success",
         builder: (context, state) => const RegistrationSuccessScreen(),
       ),
+
       /// customer list
       GoRoute(
         name: RouteName.customer_list,
         path: "/customer_list",
-        builder: (context, state) => const CustomerList(), // Simply return the screen
+        builder: (context, state) =>
+            const CustomerList(), // Simply return the screen
       ),
+      GoRoute(
+        name: RouteName
+            .customer_edit, // add  customer_edit  to your RouteName constants
+        path: "/customer_edit",
+        builder: (context, state) {
+          final customer = state.extra as CustomerModel;
+          return CustomerEditScreen(customer: customer);
+        },
+      ),
+
       /// customer details
       GoRoute(
         name: RouteName.customer_detail,
@@ -133,26 +155,27 @@ class Routes {
 
           return BlocProvider(
             create: (context) => CustomerDetailBloc(
-              CustomerDetailsRepositary(
-                context.read<ApiRepository>(),
-              ),
+              CustomerDetailsRepositary(context.read<ApiRepository>()),
             ),
             child: CustomerDetailsScreen(customer: customer),
           );
         },
       ),
+
       ///ticket list details
       GoRoute(
         name: RouteName.ticket_list,
         path: "/ticket_list",
         builder: (context, state) => const TicketsListDetails(),
       ),
+
       ///profile screen
       GoRoute(
         name: RouteName.profile_screen,
         path: "/profile_screen",
         builder: (context, state) => const ProfileScreen(),
       ),
+
       ///Edit profile screen
       GoRoute(
         name: RouteName.edit_profile_screen,
@@ -163,12 +186,14 @@ class Routes {
           return EditProfileScreen(profile: profile);
         },
       ),
+
       ///notification screen
       GoRoute(
         name: RouteName.notification_screen,
         path: "/notification_screen",
         builder: (context, state) => const NotificationScreen(),
       ),
+
       ///Panel Id's List screen
       GoRoute(
         name: RouteName.total_panel_list,

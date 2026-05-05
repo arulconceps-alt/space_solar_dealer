@@ -26,4 +26,33 @@ class CustomerListRepositary {
     print("🔥 DATA LENGTH: ${list.length}");
     return list.cast<Map<String, dynamic>>();
   }
+
+  Future<Map<String, dynamic>> updateCustomer({
+  required String customerId,
+  required Map<String, dynamic> updatedData,
+}) async {
+
+  final url = "dealer/customers/$customerId";
+
+  /// ✅ PRINT REQUEST
+  print("📤 UPDATE API REQUEST:");
+  print("➡️ URL: $url");
+  print("➡️ BODY: $updatedData");
+
+  final response = await _apiRepository.patchRequest(
+    url: url,
+    data: updatedData,
+  );
+
+  print("📥 UPDATE API RESPONSE: $response");
+
+  if (response == null || response["success"] != true) {
+    throw Exception(response["message"] ?? "Failed to update customer");
+  }
+
+  final data = response["data"];
+  print("✅ Customer updated: $data");
+
+  return data as Map<String, dynamic>;
+}
 }

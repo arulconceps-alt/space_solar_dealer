@@ -28,11 +28,6 @@ class _CustomerListState extends State<CustomerList> {
     });
   }
 
-@override
-void didChangeDependencies() {
-  super.didChangeDependencies();
-  context.read<CustomerListBloc>().add(LoadCustomers());
-}
 
   @override
   Widget build(BuildContext context) {

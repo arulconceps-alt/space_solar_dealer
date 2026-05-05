@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_bloc.dart';
-import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_state.dart';
-import 'package:space_solar_dealer/src/profile/view/widget/active_status_card.dart';
 import 'package:space_solar_dealer/src/profile/view/widget/logout_button.dart';
 import 'package:space_solar_dealer/src/profile/view/widget/profile_info_card.dart';
 
@@ -34,14 +32,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final profile = state.profile;
           final isProfileActive = profile?.status == "ACTIVE";
 
-          /// ✅ FIRST LOAD ONLY (full screen loader)
           if (state.status == ProfileStatus.loading && profile == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
           return Stack(
             children: [
-              /// ✅ MAIN UI
               Column(
                 children: [
                   Expanded(
@@ -67,67 +63,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   Text(
                                     'Dealer Information',
-                                    style: GoogleFonts.lato(
-                                      fontSize: s(14),
-                                    ),
+                                    style: GoogleFonts.lato(fontSize: s(14)),
                                   ),
                                 ],
                               ),
-                              const Spacer(),
-                              LogoutButton(scale: scale),
+                              // const Spacer(),
+                              // LogoutButton(scale: scale),
                             ],
                           ),
 
                           SizedBox(height: s(20)),
 
                           /// ACTIVE STATUS
-                          ActiveStatusCard(
-                            scale: scale,
-                            isActive: isProfileActive,
-                            onToggle: (val) {
-                              context.read<ProfileBloc>().add(
-                                UpdateProfileEvent({
-                                  "status": val ? "ACTIVE" : "INACTIVE"
-                                }),
-                              );
-                            },
-                          ),
-
-                          SizedBox(height: s(16)),
-
+                          // ActiveStatusCard(
+                          //   scale: scale,
+                          //   isActive: isProfileActive,
+                          //   onToggle: (val) {
+                          //     context.read<ProfileBloc>().add(
+                          //       UpdateProfileEvent({
+                          //         "status": val ? "ACTIVE" : "INACTIVE"
+                          //       }),
+                          //     );
+                          //   },
+                          // ),
                           /// PROFILE CARD
                           ProfileInfoCard(
                             scale: scale,
                             isActive: isProfileActive,
                             profile: profile,
                           ),
-
+                          SizedBox(height: s(16)),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(s(10)),
+                            onTap: () {},
+                            child: Container(
+                              height: s(50),
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: s(26),
+                                vertical: s(8),
+                              ),
+                              decoration: BoxDecoration(
+                                color: ColorPalette.whitetext.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(s(10)),
+                                border: Border.all(
+                                  color: ColorPalette.whitetext,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.receipt_long,
+                                    size: s(24),
+                                    color: ColorPalette.textfiledin.withValues(
+                                      alpha: .80,
+                                    ),
+                                  ),
+                                  SizedBox(width: s(10)),
+                                  Text(
+                                    "Terms&Condition",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: s(16),
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorPalette.textfiledin
+                                          .withValues(alpha: .80),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                           SizedBox(height: s(100)),
+                          // LogoutButton(scale: scale),
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
+              Positioned(
+                left: s(20),
+                right: s(20),
+                bottom: s(20),
+                child: LogoutButton(scale: scale),
+              ),
+              // if (state.status == ProfileStatus.failure)
+              //   Center(child: Text(state.message)),
 
-              /// ✅ ERROR (optional overlay)
-              if (state.status == ProfileStatus.failure)
-                Center(child: Text(state.message)),
-
-              /// ✅ BLUR LOADER (for update only)
-              if (state.status == ProfileStatus.loading && profile != null)
-                Positioned.fill(
-                  child: AbsorbPointer( // 👈 block clicks
-                    child: Container(
-                      color: Colors.black.withOpacity(0.3),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                            color: ColorPalette.background
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              // if (state.status == ProfileStatus.loading && profile != null)
+              //   Positioned.fill(
+              //     child: AbsorbPointer(
+              //       child: Container(
+              //         color: Colors.black.withOpacity(0.3),
+              //         child: const Center(
+              //           child: CircularProgressIndicator(
+              //               color: ColorPalette.background
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
             ],
           );
         },

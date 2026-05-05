@@ -32,7 +32,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         mobileNumber: event.mobileNumber,
       );
 
-      final otp = result.data?.otp; // ✅ ADD THIS
+      final otp = result.data?.otp; 
 
       emit(
         state.copyWith(

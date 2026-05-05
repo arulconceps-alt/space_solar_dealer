@@ -47,13 +47,11 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
       title: Padding(
             padding: EdgeInsets.all(s(20)),
-            child: SizedBox(
-              width: s(192.75),
-              height: s(20.56),
-              child: SvgPicture.asset(
-                "assets/images/login/logo.svg",
-                fit: BoxFit.contain,
-              ),
+            child: Image.asset(
+              "assets/images/login/KRG.png",
+              width: s(55),
+              height: s(50),
+              fit: BoxFit.contain,
             ),
           ),
 

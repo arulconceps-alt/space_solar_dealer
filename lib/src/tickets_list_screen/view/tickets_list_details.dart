@@ -25,24 +25,35 @@ class TicketsListDetails extends StatefulWidget {
 class _TicketsListDetailsState extends State<TicketsListDetails> {
   String _selectedTab = "All Active";
   Timer? _debounce;
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
-
-    context.read<TicketListDetailsBloc>().add(
-      LoadTicketsEvent(),
-    );
+    context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
   }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    // Reset search and reload fresh data from API
+    setState(() => _searchQuery = "");
+    context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
+  }
+
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'assigned':
-        return const Color(0xFF26A7DF); // Blue from your FAB
+        return const Color(0xFF26A7DF);
       case 'pending':
       case 'in progress':
-        return const Color(0xFFEF5350); // Red/Pink
+        return const Color(0xFFEF5350);
       case 'resolved':
-        return const Color(0xFF4CAF50); // Green
+        return const Color(0xFF4CAF50);
       default:
         return Colors.grey;
     }
@@ -60,6 +71,7 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
         return Colors.grey;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -71,7 +83,6 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
       backgroundColor: Colors.transparent,
       body: BlocBuilder<TicketListDetailsBloc, TicketListDetailsState>(
         builder: (context, state) {
-
           if (state.status == TicketListDetailsStatus.loading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -80,7 +91,8 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
             return Center(child: Text(state.message));
           }
 
-          if (state.status == TicketListDetailsStatus.success) {
+          if (state.status == TicketListDetailsStatus.success ||
+              state.status == TicketListDetailsStatus.create) {
             return _buildUI(context, state.tickets, scale, s);
           }
 
@@ -94,148 +106,171 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
   // ---------------- UI ----------------
 
   Widget _buildUI(
-      BuildContext context,
-      List<TicketModel> tickets,
-      double scale,
-      double Function(double) s,
-      ) {
+    BuildContext context,
+    List<TicketModel> tickets,
+    double scale,
+    double Function(double) s,
+  ) {
+    // ── Client-side filter: Tab + Search (no BLoC reload needed) ──
     final filtered = tickets.where((t) {
-      if (_selectedTab == "All Active") return true;
-      if (_selectedTab == "In Progress") return t.status == "Pending";
-      return t.status == _selectedTab;
+      final status = t.status.toLowerCase().replaceAll("_", " ");
+
+      // Tab filter
+      bool tabMatch = false;
+      if (_selectedTab == "All Active") {
+        tabMatch = true;
+      } else if (_selectedTab == "In Progress") {
+        tabMatch = status == "in progress";
+      } else if (_selectedTab == "Assigned") {
+        tabMatch = status == "assigned";
+      } else if (_selectedTab == "Resolved") {
+        tabMatch = status == "resolved";
+      }
+
+      if (!tabMatch) return false;
+
+      // Search filter — Ticket ID, Panel ID, Customer Name
+      if (_searchQuery.isEmpty) return true;
+
+      final ticketNumber = t.ticketNumber.toLowerCase();
+      final panelId = (t.panelId ?? "").toLowerCase();
+      final customerName = (t.customerName ?? "").toLowerCase();
+
+      return ticketNumber.contains(_searchQuery) ||
+          panelId.contains(_searchQuery) ||
+          customerName.contains(_searchQuery);
     }).toList();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: s(20)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: s(24)),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: ColorPalette.background,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: s(20)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: s(24)),
 
-                Text(
-                  'Tickets',
-                  style: GoogleFonts.poppins(
-                    fontSize: s(20),
-                    fontWeight: FontWeight.w600,
-                    color: ColorPalette.bottomtext,
+                  Text(
+                    'Tickets',
+                    style: GoogleFonts.poppins(
+                      fontSize: s(20),
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.bottomtext,
+                    ),
                   ),
-                ),
 
-                SizedBox(height: s(4)),
+                  SizedBox(height: s(4)),
 
-                Text(
-                  'Track and manage customer issue',
-                  style: GoogleFonts.lato(
-                    color: ColorPalette.textfiledin.withOpacity(0.8),
-                    fontSize: s(14),
+                  Text(
+                    'Track and manage customer issue',
+                    style: GoogleFonts.lato(
+                      color: ColorPalette.textfiledin.withOpacity(0.8),
+                      fontSize: s(14),
+                    ),
                   ),
-                ),
 
-                SizedBox(height: s(20)),
+                  SizedBox(height: s(20)),
 
-                CustomSearchBar(
-                  scale: scale,
+                  CustomSearchBar(
+                    scale: scale,
                     onChanged: (val) {
-                      if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-                      _debounce = Timer(const Duration(milliseconds: 500), () {
-                        context.read<TicketListDetailsBloc>().add(
-                          LoadTicketsEvent(
-                            search: val,
-                          ),
-                        );
+                      // ✅ Only setState — instant client-side filter
+                      // No BLoC event = no loading state = no page flash/refresh
+                      setState(() {
+                        _searchQuery = val.toLowerCase().trim();
                       });
-                    }
-                ),
+                    },
+                  ),
 
-                SizedBox(height: s(16)),
-                CustomSegmentedTab(
-                  scale: scale,
-                  tabs: const [
-                    "All Active",
-                    "Assigned",
-                    "In Progress",
-                    "Resolved",
-                  ],
-                  selectedTab: _selectedTab,
-                  onTabChanged: (tab) {
-                    setState(() => _selectedTab = tab);
-                  },
-                ),
-              ],
-            ),
-          ),
+                  SizedBox(height: s(16)),
 
-          SizedBox(height: s(16)),
-
-          filtered.isEmpty
-              ? Center(
-            child: Padding(
-              padding: EdgeInsets.all(s(30)),
-              child: Text(
-                "No records found",
-                style: GoogleFonts.lato(
-                  fontSize: s(14),
-                  color: Colors.grey,
-                ),
+                  CustomSegmentedTab(
+                    scale: scale,
+                    tabs: const [
+                      "All Active",
+                      "Assigned",
+                      "In Progress",
+                      "Resolved",
+                    ],
+                    selectedTab: _selectedTab,
+                    onTabChanged: (tab) {
+                      setState(() => _selectedTab = tab);
+                    },
+                  ),
+                ],
               ),
             ),
-          )
-              : ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: s(20)),
-            itemCount: filtered.length,
-            itemBuilder: (context, index) {
-              final ticket = filtered[index];
 
-              // Status color mapping
-              final statusColor = _getStatusTextColor(ticket.status);
-              final statusBgColor = _getStatusColor(ticket.status);
+            SizedBox(height: s(16)),
 
-              return TicketCard(
-                scale: scale,
-                ticketNumber: ticket.ticketNumber,
-                customerName: ticket.customerName ?? "N/A",
-                status: ticket.status,
-                issue: ticket.issue ?? "No Issue",
-                panelId: ticket.panelId  ?? "N/A",
-                date: DateFormat('yyyy-MM-dd').format(ticket.createdAt),
-                sla: getSla(ticket.createdAt, ticket.priority ?? "Low"),
-                statusColor: _getStatusColor(ticket.status),
-                statusBgColor: _getStatusColor(ticket.status).withOpacity(0.15),
-                onViewDetails: () {
-                  print("CLICKED VIEW DETAILS");
-                  showDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (context) {
-                      return Dialog(
-                        backgroundColor: Colors.transparent,
-                        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: TicketDetailsDialog(ticket: ticket),
+            filtered.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(s(30)),
+                      child: Text(
+                        "No records found",
+                        style: GoogleFonts.lato(
+                          fontSize: s(14),
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: s(20)),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final ticket = filtered[index];
+
+                      return TicketCard(
+                        scale: scale,
+                        ticketNumber: ticket.ticketNumber,
+                        customerName: ticket.customerName ?? "N/A",
+                        status: ticket.status,
+                        issue: ticket.issue ?? "No Issue",
+                        panelId: ticket.panelId ?? "N/A",
+                        date: DateFormat('yyyy-MM-dd').format(ticket.createdAt),
+                        sla: getSla(ticket.createdAt, ticket.priority ?? "Low"),
+                        statusColor: _getStatusColor(ticket.status),
+                        statusBgColor:
+                            _getStatusColor(ticket.status).withOpacity(0.15),
+                        onViewDetails: () {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            builder: (context) {
+                              return Dialog(
+                                backgroundColor: Colors.transparent,
+                                insetPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: TicketDetailsDialog(ticket: ticket),
+                              );
+                            },
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              );
-            },
-          ),
+                  ),
 
-          SizedBox(height: s(100)),
-        ],
+            SizedBox(height: s(100)),
+          ],
+        ),
       ),
     );
   }
 
   // ---------------- FAB ----------------
 
-  Widget _buildFigmaFAB(
-      double scale, double Function(double) s) {
+  Widget _buildFigmaFAB(double scale, double Function(double) s) {
     return GestureDetector(
       onTap: () {
         showGeneralDialog(
@@ -292,7 +327,6 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
   }
 
   String getSla(DateTime createdAt, String priority) {
-    // Example: Adjust duration based on ticket priority
     final hours = priority.toLowerCase() == 'high' ? 2 : 24;
     final expiry = createdAt.add(Duration(hours: hours));
     final diff = expiry.difference(DateTime.now());

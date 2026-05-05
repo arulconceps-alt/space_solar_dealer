@@ -6,7 +6,6 @@ import 'package:space_solar_dealer/src/customer_list/repo/customer_list_reposita
 
 part 'customer_list_event.dart';
 
-
 class CustomerListBloc extends Bloc<CustomerListEvent, CustomerListState> {
   final CustomerListRepositary repository;
 
@@ -15,74 +14,67 @@ class CustomerListBloc extends Bloc<CustomerListEvent, CustomerListState> {
 
     on<LoadCustomers>(_onLoadCustomers);
     on<SearchCustomers>(_onSearchCustomers);
+
+    // ✅ ADD THIS INSIDE CONSTRUCTOR
+    on<UpdateCustomerInList>(_onUpdateCustomer);
   }
 
-  /// 🔥 Load API
   Future<void> _onLoadCustomers(
-      LoadCustomers event,
-      Emitter<CustomerListState> emit,
-      ) async {
+    LoadCustomers event,
+    Emitter<CustomerListState> emit,
+  ) async {
     try {
-      print("🔥 LoadCustomers called");
+      emit(state.copyWith(status: CustomerListStatus.loading));
 
-      emit(
-        state.copyWith(
-          status: CustomerListStatus.loading,
-        ),
-      );
-
-      /// TEMP DELAY
-      await Future.delayed(
-        const Duration(seconds: 2),
-      );
-
-      final data =
-      await repository.fetchAllCustomers();
-
-      print("🔥 DATA LENGTH: ${data.length}");
+      final data = await repository.fetchAllCustomers();
 
       final customers = data
           .map((e) => CustomerModel.fromJson(e))
           .toList();
 
-      emit(
-        state.copyWith(
-          status: CustomerListStatus.success,
-          customers: customers,
-          filteredCustomers: customers,
-        ),
-      );
+      emit(state.copyWith(
+        status: CustomerListStatus.success,
+        customers: customers,
+        filteredCustomers: customers,
+      ));
     } catch (e) {
-      print("❌ ERROR: $e");
-
-      emit(
-        state.copyWith(
-          status: CustomerListStatus.failure,
-          message: e.toString(),
-        ),
-      );
+      emit(state.copyWith(
+        status: CustomerListStatus.failure,
+        message: e.toString(),
+      ));
     }
   }
 
   void _onSearchCustomers(
-      SearchCustomers event,
-      Emitter<CustomerListState> emit,
-      ) {
+    SearchCustomers event,
+    Emitter<CustomerListState> emit,
+  ) {
     final query = event.query.trim().toLowerCase();
 
-    /// ✅ If empty → show all customers
     if (query.isEmpty) {
       emit(state.copyWith(filteredCustomers: state.customers));
       return;
     }
 
     final filtered = state.customers.where((c) {
-      final name = c.name.toLowerCase();
-      final phone = c.phone.toLowerCase();
-
-      return name.contains(query) || phone.contains(query);
+      return c.name.toLowerCase().contains(query) ||
+          c.phone.toLowerCase().contains(query);
     }).toList();
 
     emit(state.copyWith(filteredCustomers: filtered));
+  }
+
+  void _onUpdateCustomer(
+    UpdateCustomerInList event,
+    Emitter<CustomerListState> emit,
+  ) {
+    final updatedList = state.customers.map((c) {
+      return c.id == event.customer.id ? event.customer : c;
+    }).toList();
+
+    emit(state.copyWith(
+      customers: updatedList,
+      filteredCustomers: updatedList,
+    ));
   }
 }

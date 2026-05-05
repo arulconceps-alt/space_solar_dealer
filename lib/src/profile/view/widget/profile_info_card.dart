@@ -12,7 +12,7 @@ import 'package:space_solar_dealer/src/profile/view/widget/profile_info_row.dart
 class ProfileInfoCard extends StatelessWidget {
   final double scale;
   final bool isActive;
-  final ProfileModel? profile; // 👈 ADD THIS
+  final ProfileModel? profile; 
 
   const ProfileInfoCard({
     super.key,
@@ -68,27 +68,27 @@ class ProfileInfoCard extends StatelessWidget {
                           ),
                         ),
 
-                        AnimatedContainer(
-                          height: s(26),
-                          width: s(72),
-                          duration: const Duration(milliseconds: 300),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? const Color(0xFF319F43).withValues(alpha: .60)
-                                : const Color(0xFFAAAAAA),
-                            borderRadius: BorderRadius.circular(s(6)),
-                          ),
-                          child: Text(
-                            isActive ? 'Active' : 'Offline',
-                            style: GoogleFonts.lato(
-                              fontSize: s(14),
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              height: 1,
-                            ),
-                          ),
-                        ),
+                        // AnimatedContainer(
+                        //   height: s(26),
+                        //   width: s(72),
+                        //   duration: const Duration(milliseconds: 300),
+                        //   alignment: Alignment.center,
+                        //   decoration: BoxDecoration(
+                        //     color: isActive
+                        //         ? const Color(0xFF319F43).withValues(alpha: .60)
+                        //         : const Color(0xFFAAAAAA),
+                        //     borderRadius: BorderRadius.circular(s(6)),
+                        //   ),
+                        //   child: Text(
+                        //     isActive ? 'Active' : 'Offline',
+                        //     style: GoogleFonts.lato(
+                        //       fontSize: s(14),
+                        //       fontWeight: FontWeight.w600,
+                        //       color: Colors.white,
+                        //       height: 1,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
 
@@ -149,7 +149,8 @@ class ProfileInfoCard extends StatelessWidget {
                       s: s,
                       iconSize: 20,
                       iconPath: "assets/images/profile/location.svg",
-                      text: "${profile?.district?.name ?? 'Unknown District'}, ${profile?.state?.name ?? 'Unknown State'}",
+                      //text: "${profile?.district?.name ?? 'Unknown District'}, ${profile?.state?.name ?? 'Unknown State'}",
+                      text: "${profile?.addressLine1 ?? 'Unknown District'},${profile?.state?.name ?? 'Unknown State'}"
                     ),
                   ],
                 ),

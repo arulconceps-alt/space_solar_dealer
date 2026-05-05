@@ -4,10 +4,8 @@ import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_deta
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_state.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 
-
 class TicketListDetailsBloc
     extends Bloc<TicketListDetailsEvent, TicketListDetailsState> {
-
   final TicketListDetailsRepositary repository;
 
   TicketListDetailsBloc(this.repository)
@@ -22,14 +20,12 @@ class TicketListDetailsBloc
   }
 
   Future<void> _onCreateTicket(
-      CreateTicketEvent event,
-      Emitter<TicketListDetailsState> emit,
-      ) async {
+    CreateTicketEvent event,
+    Emitter<TicketListDetailsState> emit,
+  ) async {
     try {
       print("🔥 CREATE EVENT STARTED");
-
       final data = event.ticketData;
-
       final response = await repository.createTicket(
         customerId: data["customerId"],
         title: data["title"],
@@ -39,22 +35,18 @@ class TicketListDetailsBloc
         scheduledAt: data["scheduledAt"],
         products: List<Map<String, dynamic>>.from(data["products"]),
       );
-
       print("✅ CREATE SUCCESS RESPONSE: $response");
-
       final newTicket = TicketModel.fromJson(response);
-
       emit(state.copyWith(
         status: TicketListDetailsStatus.create,
         tickets: [newTicket],
       ));
-      /// Optional: refresh list AFTER
-      add(LoadTicketsEvent());
 
+      // Refresh full list after create
+      add(LoadTicketsEvent());
     } catch (e, stackTrace) {
       print("❌ CREATE ERROR: $e");
       print(stackTrace);
-
       emit(state.copyWith(
         status: TicketListDetailsStatus.failure,
         message: e.toString(),
@@ -63,11 +55,15 @@ class TicketListDetailsBloc
   }
 
   Future<void> _onLoadTickets(
-      LoadTicketsEvent event,
-      Emitter<TicketListDetailsState> emit,
-      ) async {
+    LoadTicketsEvent event,
+    Emitter<TicketListDetailsState> emit,
+  ) async {
     try {
-      emit(state.copyWith(status: TicketListDetailsStatus.loading));
+      // ✅ Only show loading on FIRST load (when tickets list is empty)
+      // This prevents page flash/refresh when search triggers a reload
+      if (state.tickets.isEmpty) {
+        emit(state.copyWith(status: TicketListDetailsStatus.loading));
+      }
 
       final tickets = await repository.fetchTickets(
         page: event.page,
@@ -86,9 +82,9 @@ class TicketListDetailsBloc
   }
 
   Future<void> _onRefreshTickets(
-      RefreshTicketsEvent event,
-      Emitter<TicketListDetailsState> emit,
-      ) async {
+    RefreshTicketsEvent event,
+    Emitter<TicketListDetailsState> emit,
+  ) async {
     add(LoadTicketsEvent());
   }
 }

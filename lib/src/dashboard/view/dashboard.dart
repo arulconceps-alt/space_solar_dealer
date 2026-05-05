@@ -20,8 +20,7 @@ import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_deta
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_bloc.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_event.dart'
-as panel;
-
+    as panel;
 
 import 'widgets/app_background.dart';
 
@@ -42,10 +41,33 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     context.read<TotalPanelBloc>().add(panel.LoadPanelsEvent());
-    context.read<DashboardBloc>().add(
-      DashboardLoadingEvent(),
-    );
+    context.read<DashboardBloc>().add(LoadDashboardEvent());
   }
+
+  String _formatTime(String dateTime) {
+    final date = DateTime.parse(dateTime).toLocal();
+    final diff = DateTime.now().difference(date);
+
+    if (diff.inMinutes < 1) return "Just now";
+    if (diff.inHours < 1) return "${diff.inMinutes} min ago";
+    if (diff.inDays < 1) return "${diff.inHours} hr ago";
+    return "${diff.inDays} days ago";
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case "RESOLVED":
+        return Colors.green;
+      case "PENDING":
+        return Color(0xFFEA1F27);
+      case "IN_PROGRESS":
+        return ColorPalette.textfiledin;
+        
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -57,323 +79,251 @@ class _DashboardState extends State<Dashboard> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: CommonAppBar(
-        scale: scale,
-        showBack: false,
-        showNotification: true,
-      ),
+          scale: scale,
+          showBack: false,
+          showNotification: true,
+        ),
         body: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, dashboardState) {
-            // Change this line
-            final isLoading = dashboardState.status == DashboardStatus.loading && _selectedIndex == 0;
+            final dashboard = dashboardState.dashboard;
 
+            final isLoading =
+                dashboardState.status == DashboardStatus.loading &&
+                _selectedIndex == 0;
+            final activities =
+    (dashboard?.recentActivities ?? []).take(5).toList();
             return Stack(
               children: [
                 IndexedStack(
                   index: _selectedIndex,
                   children: [
-                    SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: s(24)),
+                    RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<DashboardBloc>().add(LoadDashboardEvent());
+                      },
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: s(24)),
 
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: s(20),
-                            ),
-                            child: Text(
-                              "Good morning, Dealer",
-                              style: GoogleFonts.poppins(
-                                fontSize: s(20),
-                                fontWeight: FontWeight.w600,
-                                color:
-                                ColorPalette.bottomtext,
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: s(20)),
+                              child: Text(
+                                "Good morning, Dealer",
+                                style: GoogleFonts.poppins(
+                                  fontSize: s(20),
+                                  fontWeight: FontWeight.w600,
+                                  color: ColorPalette.bottomtext,
+                                ),
                               ),
                             ),
-                          ),
 
-                          SizedBox(height: s(20)),
+                            SizedBox(height: s(20)),
 
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: s(20),
-                            ),
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              physics:
-                              const NeverScrollableScrollPhysics(),
-                              itemCount: 4,
-                              gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: s(16),
-                                mainAxisSpacing: s(16),
-                                childAspectRatio:
-                                w > 600
-                                    ? 1.2
-                                    : (192 / 185),
-                              ),
-                              itemBuilder:
-                                  (context, index) {
-                                final List<
-                                    Map<String,
-                                        dynamic>> items = [
-                                  {
-                                    "title":
-                                    "Total Panels Sold",
-                                    "value": "251000",
-                                    "subtitle": "",
-                                    "color":
-                                    ColorPalette
-                                        .background,
-                                    "icon":
-                                    "assets/images/dashboard/solar_panel.png",
-                                    "iconsize":
-                                    iconLarge,
-                                  },
-                                  {
-                                    "title":
-                                    "Total Customers",
-                                    "value": "5000",
-                                    "subtitle": "",
-                                    "color":
-                                    ColorPalette
-                                        .pending,
-                                    "icon":
-                                    "assets/images/dashboard/people.png",
-                                    "iconsize":
-                                    iconMedium,
-                                  },
-                                  {
-                                    "title":
-                                    "Active Warranties",
-                                    "value": "105",
-                                    "subtitle":
-                                    "Registered",
-                                    "color":
-                                    ColorPalette
-                                        .active,
-                                    "icon":
-                                    "assets/images/dashboard/active_shield.png",
-                                    "iconsize":
-                                    iconSmall,
-                                  },
-                                  {
-                                    "title": "Tickets",
-                                    "value": "8",
-                                    "subtitle":
-                                    "2 Pending",
-                                    "color":
-                                    ColorPalette
-                                        .alert,
-                                    "icon":
-                                    "assets/images/dashboard/tickets_notify_icon.png",
-                                    "iconsize":
-                                    iconMedium,
-                                  },
-                                ];
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: s(20)),
+                              child: GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: 4,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: s(16),
+                                      mainAxisSpacing: s(16),
+                                      childAspectRatio: w > 600
+                                          ? 1.2
+                                          : (192 / 185),
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final items = [
+                                    {
+                                      "title": "Total Panels Sold",
+                                      "value":
+                                          "${dashboard?.totalPanelsSold ?? 0}",
+                                      "subtitle": "",
+                                      "color": ColorPalette.background,
+                                      "icon":
+                                          "assets/images/dashboard/solar_panel.png",
+                                      "iconsize": iconLarge,
+                                    },
+                                    {
+                                      "title": "Total Customers",
+                                      "value":
+                                          "${dashboard?.totalCustomers ?? 0}",
+                                      "subtitle": "",
+                                      "color": ColorPalette.pending,
+                                      "icon":
+                                          "assets/images/dashboard/people.png",
+                                      "iconsize": iconMedium,
+                                    },
+                                    {
+                                      "title": "Active Warranties",
+                                      "value":
+                                          "${dashboard?.activeWarranty ?? 0}",
+                                      "subtitle": "Registered",
+                                      "color": ColorPalette.active,
+                                      "icon":
+                                          "assets/images/dashboard/active_shield.png",
+                                      "iconsize": iconSmall,
+                                    },
+                                    {
+                                      "title": "Tickets",
+                                      "value":
+                                          "${dashboard?.tickets.total ?? 0}",
+                                      "subtitle":
+                                          "${dashboard?.tickets.pending ?? 0} Pending",
+                                      "color": ColorPalette.alert,
+                                      "icon":
+                                          "assets/images/dashboard/tickets_notify_icon.png",
+                                      "iconsize": iconMedium,
+                                    },
+                                  ];
 
-                                final item =
-                                items[index];
+                                  final item = items[index];
 
-                                return GestureDetector(
-                                  onTap: () {
-                                    context.goNamed(
-                                      RouteName
-                                          .total_panel_list,
-                                    );
-                                  },
-                                  child:
-                                  DashboardCard(
-                                    title:
-                                    item["title"]
-                                    as String,
-                                    value:
-                                    item["value"]
-                                    as String,
-                                    subtitle:
-                                    item["subtitle"]
-                                    as String,
-                                    backgroundColor:
-                                    item["color"]
-                                    as Color,
-                                    imagePath:
-                                    item["icon"]
-                                    as String,
-                                    iconSize: item[
-                                    "iconsize"]
-                                    as double? ??
-                                        iconMedium,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-
-                          SizedBox(height: s(16)),
-
-                          /// QUICK ACTIONS
-                          Container(
-                            height: s(208),
-                            width: double.infinity,
-                            padding:
-                            EdgeInsets.symmetric(
-                              vertical: s(16),
-                              horizontal: s(20),
-                            ),
-                            decoration:
-                            BoxDecoration(
-                              color: ColorPalette
-                                  .whitetext
-                                  .withOpacity(0.50),
-                              border: Border.all(
-                                color: ColorPalette
-                                    .whitetext
-                                    .withOpacity(0.4),
+                                  return GestureDetector(
+                                    onTap: () {
+                                      context.goNamed(
+                                        RouteName.total_panel_list,
+                                      );
+                                    },
+                                    child: DashboardCard(
+                                      title: item["title"] as String,
+                                      value: item["value"] as String,
+                                      subtitle: item["subtitle"] as String,
+                                      backgroundColor: item["color"] as Color,
+                                      imagePath: item["icon"] as String,
+                                      iconSize:
+                                          item["iconsize"] as double? ??
+                                          iconMedium,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
-                              children: [
-                                Text(
-                                  'Quick Actions',
-                                  style:
-                                  GoogleFonts.poppins(
-                                    fontSize: s(18),
-                                    fontWeight:
-                                    FontWeight.w500,
-                                    height: 1.2,
-                                    color:
-                                    ColorPalette
-                                        .bottomtext,
+
+                            SizedBox(height: s(16)),
+
+                            /// QUICK ACTIONS
+                            Container(
+                              height: s(208),
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                vertical: s(16),
+                                horizontal: s(20),
+                              ),
+                              decoration: BoxDecoration(
+                                color: ColorPalette.whitetext.withOpacity(0.50),
+                                border: Border.all(
+                                  color: ColorPalette.whitetext.withOpacity(
+                                    0.4,
                                   ),
                                 ),
-                                SizedBox(height: s(14)),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child:
-                                      ActionCard(
-                                        title:
-                                        "Register\nNew Customer",
-                                        iconSize:
-                                        16,
-                                        color:
-                                        ColorPalette
-                                            .background,
-                                        imagePath:
-                                        "assets/images/dashboard/new_user.png",
-                                        arrowSvgPath:
-                                        "assets/images/home/arrow_right.svg",
-                                        onTap:
-                                            () {
-                                          context
-                                              .pushNamed(
-                                            RouteName
-                                                .customer_register,
-                                          );
-                                        },
-                                      ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Quick Actions',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: s(18),
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.2,
+                                      color: ColorPalette.bottomtext,
                                     ),
-                                    SizedBox(width: s(16)),
-                                    Expanded(
-                                      child:
-                                      ActionCard(
-                                        title:
-                                        "Raise Tickets",
-                                        iconSize:
-                                        22,
-                                        color:
-                                        ColorPalette
-                                            .alert,
-                                        imagePath:
-                                        "assets/images/dashboard/raise_tickets_icon.png",
-                                        arrowSvgPath:
-                                        "assets/images/home/arrow_right.svg",
-                                        onTap:
-                                            () {
-                                          setState(() {
-                                            _selectedIndex =
-                                            2;
-                                          });
-                                        },
+                                  ),
+                                  SizedBox(height: s(14)),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ActionCard(
+                                          title: "Register\nNew Customer",
+                                          iconSize: 16,
+                                          color: ColorPalette.background,
+                                          imagePath:
+                                              "assets/images/dashboard/new_user.png",
+                                          arrowSvgPath:
+                                              "assets/images/home/arrow_right.svg",
+                                          onTap: () {
+                                            context.pushNamed(
+                                              RouteName.customer_register,
+                                            );
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: s(16)),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: s(20),
-                            ),
-                            child: Text(
-                              "Recent Activities",
-                              style: GoogleFonts.poppins(
-                                fontSize: s(18),
-                                fontWeight: FontWeight.w500,
-                                color:
-                                ColorPalette.bottomtext,
+                                      SizedBox(width: s(16)),
+                                      Expanded(
+                                        child: ActionCard(
+                                          title: "Raise Tickets",
+                                          iconSize: 22,
+                                          color: ColorPalette.alert,
+                                          imagePath:
+                                              "assets/images/dashboard/raise_tickets_icon.png",
+                                          arrowSvgPath:
+                                              "assets/images/home/arrow_right.svg",
+                                          onTap: () {
+                                            setState(() {
+                                              _selectedIndex = 2;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-
-                          SizedBox(height: s(14.45)),
-
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: s(20),
+                            SizedBox(height: s(16)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: s(20)),
+                              child: Text(
+                                "Recent Activities",
+                                style: GoogleFonts.poppins(
+                                  fontSize: s(18),
+                                  fontWeight: FontWeight.w500,
+                                  color: ColorPalette.bottomtext,
+                                ),
+                              ),
                             ),
-                            child: Column(
-                              children: [
-                                ActivityCard(
-                                  title:
-                                  "Warranty Registered",
-                                  name:
-                                  "Rajesh Kumar",
-                                  time:
-                                  "1 hour ago",
-                                  status:
-                                  "Completed",
-                                  statusColor:
-                                  Color(0xFF484848),
-                                ),
-                                ActivityCard(
-                                  title:
-                                  "Ticket Raised",
-                                  name:
-                                  "Ajith Kumar",
-                                  time:
-                                  "2 hours ago",
-                                  status:
-                                  "Pending",
-                                  statusColor:
-                                  Color(0xFFEA1F27),
-                                ),
-                                ActivityCard(
-                                  title:
-                                  "Technician Assigned",
-                                  name:
-                                  "Rajesh Kumar",
-                                  time:
-                                  "2 hours ago",
-                                  status:
-                                  "In-Progress",
-                                  statusColor:
-                                  ColorPalette
-                                      .textfiledin,
-                                ),
-                              ],
-                            ),
-                          ),
 
-                          SizedBox(height: s(20)),
-                        ],
+                            SizedBox(height: s(14.45)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: s(20)),
+                              child: activities.isEmpty
+                                  ? Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: s(20),
+                                        ),
+                                        child: Text(
+                                          "No records found",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: s(14),
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Column(
+                                      children: activities.map((activity) {
+                                        return ActivityCard(
+                                          title: activity.title,
+                                          name: activity.customerName,
+                                          time: _formatTime(activity.createdAt),
+                                          status: activity.status,
+                                          statusColor: _getStatusColor(
+                                            activity.status,
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                            ),
+
+                            SizedBox(height: s(20)),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -387,21 +337,13 @@ class _DashboardState extends State<Dashboard> {
                 if (isLoading)
                   Positioned.fill(
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 3,
-                        sigmaY: 3,
-                      ),
+                      filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
                       child: Container(
-                        color: Colors.black
-                            .withOpacity(0.35),
+                        color: Colors.black.withOpacity(0.35),
                         child: Center(
-                          child:
-                          CircularProgressIndicator(
-                            valueColor:
-                            AlwaysStoppedAnimation<
-                                Color>(
-                              ColorPalette
-                                  .background,
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              ColorPalette.background,
                             ),
                           ),
                         ),
@@ -421,9 +363,7 @@ class _DashboardState extends State<Dashboard> {
               });
 
               if (index == 1) {
-                context.read<CustomerListBloc>().add(
-                  LoadCustomers(),
-                );
+                context.read<CustomerListBloc>().add(LoadCustomers());
               }
             },
           ),

@@ -86,8 +86,8 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       return _showError("Select pincode");
     if (addressController.text.trim().isEmpty)
       return _showError("Enter address");
-    if (panels.isEmpty) return _showError("Add at least one panel");
-
+    //if (panels.isEmpty) return _showError("Add at least one panel");
+ 
     return true;
   }
 
@@ -266,10 +266,6 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                   ),
                 ),
               ),
-
-              /// ✅ LOADING OVERLAY
-
-              /// ✅ LOADER OVERLAY
               if (isLoading)
                 Positioned.fill(
                   child: BackdropFilter(

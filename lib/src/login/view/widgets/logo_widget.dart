@@ -16,13 +16,11 @@ class LogoWidget extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.only(top: s(60)),
         child: Center(
-          child: SizedBox(
-            width: s(256.99), // Updated to Figma Width
-            height: s(27.42), // Updated to Figma Height
-            child: SvgPicture.asset(
-              "assets/images/login/logo.svg",
-              fit: BoxFit.contain,
-            ),
+          child: Image.asset(
+            "assets/images/login/KRG.png",
+                 width: s(111), // Updated to Figma Width
+            height: s(100), // Updated to Figma Height
+            fit: BoxFit.contain,
           ),
         ),
       ),

@@ -19,3 +19,13 @@ class SearchCustomers extends CustomerListEvent {
   @override
   List<Object?> get props => [query];
 }
+
+/// ✏️ Update single customer in list after edit
+class UpdateCustomerInList extends CustomerListEvent {
+  final CustomerModel customer;
+
+  const UpdateCustomerInList(this.customer);
+
+  @override
+  List<Object?> get props => [customer];
+}

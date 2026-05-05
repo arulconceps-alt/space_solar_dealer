@@ -65,8 +65,7 @@ class _OnboardingScreenState
 
     double s(double v) => v * scale;
 
-    final logoWidth = w * 0.659;
-    final logoHeight = logoWidth * 0.1067;
+    
 
     return Scaffold(
       body: Stack(
@@ -111,9 +110,9 @@ class _OnboardingScreenState
 
                           /// LOGO
                           Image.asset(
-                            "assets/images/splash/logo.png",
-                            width: logoWidth,
-                            height: logoHeight,
+                           "assets/images/splash/KRG.png",
+                            width: s(111),
+                            height: s(100),
                             fit: BoxFit.contain,
                           ),
 

@@ -7,9 +7,18 @@ class CustomerModel {
   final String roleType;
   final int roleId;
   final String status;
+
   final String addressLine1;
+  final String? addressLine2;
+
+  final int? countryId;
+  final int? stateId;
+  final int? districtId;
+  final int? pincodeId;
+
   final String? parentId;
   final DateTime createdAt;
+
   final Profile? customerProfile;
   final List<Order> orders;
   final List<PanelModel> panels;
@@ -24,6 +33,11 @@ class CustomerModel {
     required this.roleId,
     required this.status,
     required this.addressLine1,
+    this.addressLine2,
+    this.countryId,
+    this.stateId,
+    this.districtId,
+    this.pincodeId,
     this.parentId,
     required this.createdAt,
     this.customerProfile,
@@ -41,22 +55,77 @@ class CustomerModel {
       roleType: json['roleType'] ?? '',
       roleId: json['roleId'] ?? 0,
       status: json['status'] ?? '',
+
       addressLine1: json['addressLine1'] ?? '',
+      addressLine2: json['addressLine2'],
+
+      countryId: json['countryId'],
+      stateId: json['stateId'],
+      districtId: json['districtId'],
+      pincodeId: json['pincodeId'],
+
       parentId: json['parentId'],
       createdAt: DateTime.parse(json['createdAt']),
+
       customerProfile: json['customerProfile'] != null
           ? Profile.fromJson(json['customerProfile'])
           : null,
+
       orders: (json['orders'] as List? ?? [])
           .map((i) => Order.fromJson(i))
           .toList(),
+
       panels: (json['panels'] as List? ?? [])
           .map((i) => PanelModel.fromJson(i))
           .toList(),
     );
   }
+  CustomerModel copyWith({
+  String? id,
+  String? email,
+  String? phone,
+  String? name,
+  String? avatarUrl,
+  String? roleType,
+  int? roleId,
+  String? status,
+  String? addressLine1,
+  String? addressLine2,
+  int? countryId,
+  int? stateId,
+  int? districtId,
+  int? pincodeId,
+  String? parentId,
+  DateTime? createdAt,
+  Profile? customerProfile,
+  List<Order>? orders,
+  List<PanelModel>? panels,
+}) {
+  return CustomerModel(
+    id: id ?? this.id,
+    email: email ?? this.email,
+    phone: phone ?? this.phone,
+    name: name ?? this.name,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    roleType: roleType ?? this.roleType,
+    roleId: roleId ?? this.roleId,
+    status: status ?? this.status,
+    addressLine1: addressLine1 ?? this.addressLine1,
+    addressLine2: addressLine2 ?? this.addressLine2,
+    countryId: countryId ?? this.countryId,
+    stateId: stateId ?? this.stateId,
+    districtId: districtId ?? this.districtId,
+    pincodeId: pincodeId ?? this.pincodeId,
+    parentId: parentId ?? this.parentId,
+    createdAt: createdAt ?? this.createdAt,
+    customerProfile: customerProfile ?? this.customerProfile,
+    orders: orders ?? this.orders,
+    panels: panels ?? this.panels,
+  );
+}
 }
 
+// ─── Address ──────────────────────────────────────────────────────────────────
 class Address {
   final String line1;
   final String? line2;
@@ -97,6 +166,7 @@ class Address {
   }
 }
 
+// ─── Profile ──────────────────────────────────────────────────────────────────
 class Profile {
   final int id;
   final String customerCode;
@@ -123,6 +193,7 @@ class Profile {
   }
 }
 
+// ─── Order ────────────────────────────────────────────────────────────────────
 class Order {
   final String id;
   final String orderNumber;
@@ -160,6 +231,7 @@ class Order {
   }
 }
 
+// ─── OrderItem ────────────────────────────────────────────────────────────────
 class OrderItem {
   final int id;
   final int quantity;
@@ -184,11 +256,13 @@ class OrderItem {
       unitPrice: json['unitPrice'] ?? '0',
       totalPrice: json['totalPrice'] ?? '0',
       serialNumber: json['serialNumber'],
-      product: json['product'] != null ? Product.fromJson(json['product']) : null,
+      product:
+          json['product'] != null ? Product.fromJson(json['product']) : null,
     );
   }
 }
 
+// ─── Product ──────────────────────────────────────────────────────────────────
 class Product {
   final int id;
   final String name;
@@ -214,6 +288,8 @@ class Product {
     );
   }
 }
+
+// ─── PanelModel ───────────────────────────────────────────────────────────────
 class PanelModel {
   final String? serialNumber;
 
@@ -221,7 +297,6 @@ class PanelModel {
 
   factory PanelModel.fromJson(Map<String, dynamic> json) {
     return PanelModel(
-      // Ensure this key matches your actual API response (e.g., 'serialNumber' vs 'serial_number')
       serialNumber: json['serialNumber'] ?? json['serial_number'],
     );
   }

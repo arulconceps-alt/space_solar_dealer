@@ -12,14 +12,12 @@ import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
 class EditProfileScreen extends StatefulWidget {
   final ProfileModel profile;
 
-  const EditProfileScreen({
-    super.key,
-    required this.profile,
-  });
+  const EditProfileScreen({super.key, required this.profile});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
+
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -35,9 +33,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     phoneController.text = widget.profile.phone ?? "";
     addressController.text = widget.profile.addressLine1 ?? "";
     companyController.text =
-        widget.profile.dealerProfile?.businessName ??
-            "No Company"; // ✅ FIXED
+        widget.profile.dealerProfile?.businessName ?? "No Company";
   }
+
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -92,7 +90,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                 SizedBox(height: s(50)),
 
-                _buildField("Company Name", "Company name", companyController, s),
+                _buildField(
+                  "Company Name",
+                  "Company name",
+                  companyController,
+                  s,
+                ),
                 SizedBox(height: s(16)),
 
                 _buildField("Your Name", "Your Name", nameController, s),
@@ -100,13 +103,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                 _buildField("Email", "Email", emailController, s),
                 SizedBox(height: s(16)),
-
-                _buildField(
-                  "Phone Number",
-                  "Phone",
-                  phoneController,
-                  s,
-                  enabled: false, // 🔒 disabled
+                AbsorbPointer(
+                  absorbing: true,
+                  child: _buildField(
+                    "Phone Number",
+                    "Phone",
+                    phoneController,
+                    s,
+                  ),
                 ),
                 SizedBox(height: s(16)),
 
@@ -122,8 +126,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       final body = {
                         "name": nameController.text.trim(),
                         "email": emailController.text.trim(),
-                        "businessName": companyController.text.trim(),
                         "addressLine1": addressController.text.trim(),
+                        "dealerProfile": {
+                          "businessName": companyController.text.trim(),
+                        },
                       };
 
                       context.read<ProfileBloc>().add(UpdateProfileEvent(body));
@@ -147,9 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
 
-                SizedBox(
-                  height: MediaQuery.of(context).padding.bottom + s(16),
-                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + s(16)),
               ],
             ),
           ),
@@ -159,12 +163,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildField(
-      String title,
-      String hint,
-      TextEditingController controller,
-      double Function(double) s, {
-        bool enabled = true,
-      }) {
+    String title,
+    String hint,
+    TextEditingController controller,
+    double Function(double) s, {
+    bool enabled = true,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,12 +222,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x28000000),
-            blurRadius: 4,
-          )
-        ],
+        boxShadow: const [BoxShadow(color: Color(0x28000000), blurRadius: 4)],
       ),
       child: Center(
         child: Image.asset(
