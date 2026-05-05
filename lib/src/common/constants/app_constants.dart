@@ -3,8 +3,8 @@
 class AppConstants {
   const AppConstants();
 
-  final String APP_NAME = "GB Lottery";
-  final String APP_TITLE = "GB Lottery";
+  final String APP_NAME = "Solar Dealer";
+  final String APP_TITLE = "Solar Dealer";
 
   final String CONFIG_IS_ONLINE = "isOnline";
   final String CONFIG_HOME_PAGE = "home_page";

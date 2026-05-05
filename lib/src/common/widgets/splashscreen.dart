@@ -19,25 +19,23 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
       context.go('/onboarding');
+      // context.go('/total_panel_list');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    final double logoWidth = screenWidth * (281.18 / 390);
+    final size = MediaQuery.of(context).size;
+    final double logoWidth = size.width * 0.7;
     final double logoHeight = logoWidth * (30 / 281.18);
-
     return Scaffold(
       backgroundColor: ColorPalette.background,
-      body: SafeArea(
-        child: Center(
-          child: Image.asset(
-            iconLogo,
-            width: logoWidth,
-            height: logoHeight,
-          ),
+      body: Center(
+        child: Image.asset(
+          iconLogo,
+          width: logoWidth,
+          height: logoHeight,
+          fit: BoxFit.contain,
         ),
       ),
     );
