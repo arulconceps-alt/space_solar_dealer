@@ -13,21 +13,21 @@ class LogoutButton extends StatelessWidget {
     double s(double v) => v * scale;
 
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.bottomCenter,
       child: InkWell(
         borderRadius: BorderRadius.circular(s(10)),
         onTap: () {
           _showLogoutDialog(context, s);
         },
         child: Container(
-          height: s(50),
-          width: double.infinity,
+          height: s(44),
+           width: s(142),
           padding: EdgeInsets.symmetric(
             horizontal: s(26),
             vertical: s(8),
           ),
           decoration: BoxDecoration(
-            color: ColorPalette.whitetext.withOpacity(0.5),
+            color: ColorPalette.bottomtext,
             borderRadius: BorderRadius.circular(s(10)),
             border: Border.all(color: ColorPalette.whitetext),
           ),
@@ -38,14 +38,15 @@ class LogoutButton extends StatelessWidget {
                 "assets/images/profile/logout.png",
                 width: s(24),
                 height: s(24),
+                 color: ColorPalette.whitetext,
               ),
-              SizedBox(width: s(10)),
+              SizedBox(width: s(5)),
               Text(
                 "Logout",
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w600,
-                  color: ColorPalette.textfiledin.withValues(alpha: .80),
+                  color: ColorPalette.whitetext,
                 ),
               ),
             ],

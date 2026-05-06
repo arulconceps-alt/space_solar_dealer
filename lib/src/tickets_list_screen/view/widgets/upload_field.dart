@@ -40,7 +40,7 @@ class UploadField extends StatelessWidget {
               radius: Radius.circular(s(12)),
             ),
             child: Container(
-              width: s(360),
+              width: double.infinity,
               height: s(129),
               decoration: BoxDecoration(
                 color: ColorPalette.whitetext,

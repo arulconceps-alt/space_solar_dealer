@@ -116,7 +116,7 @@ class NewRegisterRepositary {
       }
 
       return List<Map<String, dynamic>>.from(data);
-    } catch (e) {
+    } catch (e) { 
       throw Exception("API Error: $e");
     }
   }

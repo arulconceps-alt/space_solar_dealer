@@ -4,13 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 class AddedPanelTile extends StatelessWidget {
   final String id;
   final double scale;
-  final VoidCallback onRemove; // ✅ add this
+  final VoidCallback? onRemove;
+  final bool showRemove; 
 
   const AddedPanelTile({
     super.key,
     required this.id,
     required this.scale,
-    required this.onRemove,
+    this.onRemove,
+    this.showRemove = true,
   });
 
   @override
@@ -36,14 +38,15 @@ class AddedPanelTile extends StatelessWidget {
               color: const Color(0xFF484848).withOpacity(0.80),
             ),
           ),
-          GestureDetector(
-            onTap: onRemove, // ✅ remove action
-            child: Icon(
-              Icons.close,
-              size: s(20),
-              color: Colors.black.withOpacity(0.50),
+          if (showRemove)
+            GestureDetector(
+              onTap: onRemove,
+              child: Icon(
+                Icons.close,
+                size: s(20),
+                color: Colors.black.withOpacity(0.50),
+              ),
             ),
-          ),
         ],
       ),
     );

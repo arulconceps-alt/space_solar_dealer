@@ -16,58 +16,120 @@ class TicketListDetailsRepositary {
       "/dealer/tickets?page=$page&limit=10",
     );
 
-    final List list = response["data"] ?? [];
-
+      print("📥 FETCH TICKETS RESPONSE: $response");
+  
+  // Print response status
+  print("Response Success: ${response["success"]}");
+  print("Response Message: ${response["message"]}");
+  
+  final List list = response["data"] ?? [];
+  
+  // Print data details
+  print("📊 Tickets count: ${list.length}");
+  print("📊 Tickets data: $list");
     return list.map((e) => TicketModel.fromJson(e)).toList();
   }
   /// create Ticket
-  Future<Map<String, dynamic>> createTicket({
-    required String customerId,
-    required String title,
-    required String description,
-    required String category,
-    required String priority,
-    required String scheduledAt,
-    required List<Map<String, dynamic>> products,
-  }) async {
-    final body = {
-      "customerId": customerId,
-      "title": title,
-      "description": description,
-      "category": category,
-      "priority": priority,
-      "scheduledAt": scheduledAt,
-      "products": products,
-    };
+  // Future<Map<String, dynamic>> createTicket({
+  //   required String customerId,
+  //   required String title,
+  //   required String description,
+  //   required String category,
+  //   required String priority,
+  //   required String scheduledAt,
+  //   required List<Map<String, dynamic>> products,
+  // }) async {
 
-    final response = await _apiRepository.postRequest(
-      url: "/dealer/tickets",
-      data: body,
-    );
+    
+  //   final body = {
+  //     "customerId": customerId,
+  //     "title": title,
+  //     "description": description,
+  //     "category": category,
+  //     "priority": priority,
+  //     "scheduledAt": scheduledAt,
+  //     "products": products,
+  //   };
 
-    print("✅ CREATE TICKET RESPONSE: $response");
+  //   final response = await _apiRepository.postRequest(
+  //     url: "/dealer/tickets",
+  //     data: body,
+  //   );
 
-    if (response["success"] != true) {
-      throw Exception(response["message"]);
-    }
+  //   print("✅ CREATE TICKET RESPONSE: $response");
 
-    return response["data"];
+  //   if (response["success"] != true) {
+  //     throw Exception(response["message"]);
+  //   }
+
+  //   return response["data"];
+  // }
+
+Future<Map<String, dynamic>> createTicket({
+  required String customerId,
+  required String title,
+  required String description,
+  required String category,
+  required String priority,
+  required String scheduledAt,
+  required List<Map<String, dynamic>> products,
+}) async {
+
+  final body = {
+    "customerId": customerId,
+    "title": title,
+    "description": description,
+    "category": category,
+    "priority": priority,
+    "scheduledAt": scheduledAt,
+    "products": products,
+  };
+
+  // 🔥 PRINT REQUEST HERE
+  print("📤 CREATE TICKET REQUEST => $body");
+
+  final response = await _apiRepository.postRequest(
+    url: "/dealer/tickets",
+    data: body,
+  );
+
+  print("📥 CREATE TICKET RESPONSE => $response");
+
+  if (response["success"] != true) {
+    throw Exception(response["message"]);
   }
 
+  return response["data"];
+}
   /// Panel ID's
   /// 🔥 GET PANEL IDS
-  Future<List<PanelModel>> getPanelIds() async {
-    final response = await _apiRepository.getRequest("/dealer/sold-serials");
+  // Future<List<PanelModel>> getPanelIds() async {
+  //   final response = await _apiRepository.getRequest("/dealer/sold-serials");
 
-    print("📥 PANEL API RESPONSE: $response");
+  //   print("📥 PANEL API RESPONSE: $response");
 
-    if (response["success"] != true) {
-      throw Exception(response["message"]);
-    }
+  //   if (response["success"] != true) {
+  //     throw Exception(response["message"]);
+  //   }
 
-    final List list = response["data"] ?? [];
+  //   final List list = response["data"] ?? [];
 
-    return list.map((e) => PanelModel.fromJson(e)).toList();
+  //   return list.map((e) => PanelModel.fromJson(e)).toList();
+  // }
+  Future<List<PanelModel>> getPanelIds(String customerId) async {
+  final response = await _apiRepository.getRequest(
+    "/dealer/sold-serials?customerId=$customerId",
+  );
+
+  print("📥 PANEL API RESPONSE: $response");
+
+  if (response["success"] != true) {
+    throw Exception(response["message"]);
   }
+
+  final List list = response["data"] ?? [];
+
+  return list.map((e) => PanelModel.fromJson(e)).toList();
+}
 
 }

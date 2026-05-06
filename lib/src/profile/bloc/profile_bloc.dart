@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_state.dart';
@@ -13,30 +12,26 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _loadProfile(
-      LoadProfileEvent event,
-      Emitter<ProfileState> emit,
-      ) async {
+    LoadProfileEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
     emit(state.copyWith(status: ProfileStatus.loading));
 
     try {
       final profile = await repo.getProfile();
 
-      emit(state.copyWith(
-        status: ProfileStatus.success,
-        profile: profile,
-      ));
+      emit(state.copyWith(status: ProfileStatus.success, profile: profile));
     } catch (e) {
-      emit(state.copyWith(
-        status: ProfileStatus.failure,
-        message: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: ProfileStatus.failure, message: e.toString()),
+      );
     }
   }
 
   Future<void> _updateProfile(
-      UpdateProfileEvent event,
-      Emitter<ProfileState> emit,
-      ) async {
+    UpdateProfileEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
     emit(state.copyWith(status: ProfileStatus.loading));
 
     try {
@@ -44,15 +39,18 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       final profile = await repo.getProfile(); // refresh
 
-      emit(state.copyWith(
-        status: ProfileStatus.success,
-        profile: profile,
-      ));
+      emit(
+        state.copyWith(
+          status: ProfileStatus.success,
+          profile: profile,
+          message: 'Profile updated successfully',
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: ProfileStatus.failure,
-        message: e.toString(),
-      ));
+      emit(
+        state.copyWith(status: ProfileStatus.failure, 
+        message: e.toString()),
+      );
     }
   }
 }

@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/bloc/alert/alert_state.dart';
 import 'package:space_solar_dealer/src/common/models/customer_model.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/common/widgets/custom_snackbar.dart';
 import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
@@ -77,6 +79,15 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
       updatedData: updatedData,
     );
 
+     CustomSnackBar.show(
+      context,
+      AlertState(
+        type: AlertType.success,
+        message: "Customer updated successfully",
+         timestamp: DateTime.now(),
+      ),
+    );
+
     print("🎉 UPDATE SUCCESS: $response");
 
     final updatedCustomer = widget.customer.copyWith(
@@ -92,8 +103,13 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
   } catch (e) {
     print("❌ UPDATE ERROR: $e");
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Update failed")),
+   CustomSnackBar.show(
+      context,
+      AlertState(
+        type: AlertType.failure,
+        message: "Update failed. Please try again.",
+         timestamp: DateTime.now(),
+      ),
     );
   } finally {
     if (mounted) {

@@ -45,7 +45,7 @@ class CustomSearchBar extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: s(12)), // ✅ spacing from Figma
+          SizedBox(width: s(12)), 
 
           /// ✍️ TEXT FIELD
           Expanded(

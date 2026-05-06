@@ -8,12 +8,14 @@ class PanelIdField extends StatefulWidget {
   final double scale;
   final Function(PanelModel) onSelected;
   final TicketListDetailsRepositary repository;
+  final String customerId; 
 
   const PanelIdField({
     super.key,
     required this.scale,
     required this.onSelected,
     required this.repository,
+     required this.customerId,  
   });
 
   @override
@@ -33,7 +35,7 @@ class _PanelIdFieldState extends State<PanelIdField> {
 
   Future<void> fetchPanels() async {
     try {
-      final data = await widget.repository.getPanelIds();
+      final data = await widget.repository.getPanelIds(widget.customerId);
 
       setState(() {
         panels = data;
@@ -63,7 +65,11 @@ class _PanelIdFieldState extends State<PanelIdField> {
           value: panels.contains(selectedPanel) ? selectedPanel : null,
           hint: Text(
             panels.isEmpty ? "No Panels Found" : "Select Panel ID",
-            style: TextStyle(fontSize: s(16)),
+             style: GoogleFonts.lato(
+                    color: const Color(0xCC484848),
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                  ),
           ),
           isExpanded: true,
           icon: const Icon(Icons.keyboard_arrow_down),

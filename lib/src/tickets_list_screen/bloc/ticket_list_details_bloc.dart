@@ -14,7 +14,7 @@ class TicketListDetailsBloc
     on<RefreshTicketsEvent>(_onRefreshTickets);
     on<CreateTicketEvent>(_onCreateTicket);
     on<LoadPanelsEvent>((event, emit) async {
-      final data = await repository.getPanelIds();
+      final data = await repository.getPanelIds(event.customerId);
       emit(state.copyWith(panels: data));
     });
   }

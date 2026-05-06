@@ -32,4 +32,8 @@ class CreateTicketEvent extends TicketListDetailsEvent {
   @override
   List<Object?> get props => [ticketData];
 }
-class LoadPanelsEvent extends TicketListDetailsEvent {}
+class LoadPanelsEvent extends TicketListDetailsEvent {
+  final String customerId;
+
+  LoadPanelsEvent(this.customerId);
+}

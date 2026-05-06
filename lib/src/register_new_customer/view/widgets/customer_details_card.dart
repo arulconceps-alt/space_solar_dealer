@@ -16,6 +16,7 @@ class CustomerDetailsCard extends StatefulWidget {
   final TextEditingController districtController;
   final TextEditingController pincodeController;
   final TextEditingController addressController;
+  
 
   const CustomerDetailsCard({
     super.key,
@@ -193,12 +194,12 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                 children: [
                   _buildOption("New Customer", widget.scale),
                   SizedBox(width: s(38)),
-                  _buildOption("Existing Customer", widget.scale),
+                  _buildOption("Register Panels", widget.scale),
                 ],
               ),
               SizedBox(height: s(26)),
 
-              if (selectedCustomerType == "Existing Customer") ...[
+              if (selectedCustomerType == "Register Panels") ...[
                 PhoneSearchBox(
                   scale: widget.scale,
                   controller: _searchController,
@@ -225,21 +226,16 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                   controller: widget.emailController),
               SizedBox(height: s(16)),
 
-              // ✅ STATE
               _buildSearchableTextField(
                 "State*",
                 "Select State",
                 widget.scale,
                 controller: _stateTextController,
                 focusNode: _stateFocusNode,
-                suggestions: state.states
-                    .map((e) => e["name"].toString())
-                    .toList(),
+                suggestions:  state.states.map((e) => e["name"].toString()).toList(),
                 showSuggestions: _showStateSuggestions,
                 onSuggestionSelected: (val) {
-                  final selected =
-                      state.states.firstWhere((e) => e["name"] == val);
-
+                  final selected = state.states.firstWhere((e) => e["name"] == val);
                   _stateTextController.text = val;
                   _stateFocusNode.unfocus();
 
@@ -255,7 +251,6 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
               ),
               SizedBox(height: s(16)),
 
-              // ✅ DISTRICT
               _buildSearchableTextField(
                 "District*",
                 "Select District",

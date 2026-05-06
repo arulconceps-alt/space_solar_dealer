@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/constants/constansts.dart';
+import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,13 +18,24 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      context.go('/onboarding');
-    });
+    _checkLogin();
   }
 
+  Future<void> _checkLogin() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final pref = context.read<PreferencesRepository>();
+
+    final token = await pref.getPreference(Constants.store.AUTH_TOKEN);
+
+    if (!mounted) return;
+
+    if (token != null && token.isNotEmpty) {
+      context.go('/home');
+    } else {
+      context.go('/onboarding');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

@@ -28,6 +28,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
   bool _dialogShown = false;
   List<String> panels = [];
+  String customerType = "New Customer";
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -116,6 +117,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
           _showSuccessDialog(context, scale);
           _clearForm();
           context.read<NewRegisterBloc>().add(ResetRegisterState());
+          
         }
         if (state.status == NewRegisterStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -169,6 +171,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           onClearPanels: () => setState(() => panels.clear()),
                           onPanelsLoaded: (apiPanels) =>
                               setState(() => panels = apiPanels),
+                              
                         ),
 
                         SizedBox(height: s(20)),
@@ -176,8 +179,6 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           scale: scale,
                           onScanResult: (serial) {
                             print("🔥 PANEL SERIAL: $serial");
-
-                            // 👉 add to your panel list
                           },
                         ),
                         SizedBox(height: s(30)),
@@ -215,13 +216,13 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                                 : "SS-78A00-S${panel.padLeft(3, '0')}";
 
                             return AddedPanelTile(
-                              id: displayId, // ✅ show correct ID
+                              id: displayId, 
                               scale: scale,
                               onRemove: () {
                                 setState(() {
                                   panels.removeAt(
                                     index,
-                                  ); // ✅ safer than remove(panel)
+                                  ); 
                                 });
                               },
                             );

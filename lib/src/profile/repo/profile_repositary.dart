@@ -6,12 +6,10 @@ class ProfileRepository {
 
   ProfileRepository(this.api);
 
-  /// ✅ GET PROFILE
   Future<ProfileModel> getProfile() async {
     final response = await api.getRequest('auth/profile');
 
     return ProfileModel.fromJson(response['data']);
-    // 👈 IMPORTANT: your API has { success, data }
   }
 
   Future<void> updateProfile(Map<String, dynamic> body) async {

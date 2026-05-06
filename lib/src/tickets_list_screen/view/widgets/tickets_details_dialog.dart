@@ -5,7 +5,13 @@ import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 
 class TicketDetailsDialog extends StatelessWidget {
   final TicketModel ticket;
-  const TicketDetailsDialog({super.key, required this.ticket});
+  final ScrollController? scrollController;
+
+  const TicketDetailsDialog({
+    super.key,
+    required this.ticket,
+    this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,18 +19,21 @@ class TicketDetailsDialog extends StatelessWidget {
     final scale = w / 440;
     double s(double v) => v * scale;
 
-    return Center(
-      child: Container(
-        width: s(400),
-       // height: s(706),
-        padding: EdgeInsets.all(s(20)),
-        decoration: BoxDecoration(
-          color: ColorPalette.whitetext,
-          borderRadius: BorderRadius.circular(s(20)),
-        ),
+    return Container(
+      padding: EdgeInsets.only(
+        left: s(16),
+        right: s(16),
+        top: s(16),
+        bottom: MediaQuery.of(context).viewInsets.bottom + s(16),
+      ),
+      decoration: BoxDecoration(
+        color: ColorPalette.whitetext,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(s(20))),
+      ),
 
+      child: SingleChildScrollView(
+        controller: scrollController,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -35,273 +44,473 @@ class TicketDetailsDialog extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: s(18),
                     fontWeight: FontWeight.w600,
-                    color: ColorPalette.bottomtext,
                   ),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: Image.asset(
-                    "assets/images/ticket/cross_icon.png",
-                    width: s(12.73),
-                    height: s(12.73),
-                  ),
-                )
+                  child: Icon(Icons.close, size: s(20)),
+                ),
               ],
             ),
 
-            SizedBox(height: s(21)),
-            Text(
-              ticket.ticketNumber,
-              style: GoogleFonts.lato(
-                fontSize: s(16),
-                fontWeight: FontWeight.w400,
-                color: ColorPalette.bottomtext,
-              ),
-            ),
+            SizedBox(height: s(10)),
 
-            SizedBox(height: s(15)),
-            Container(
-              width: s(360),
-              padding: EdgeInsets.symmetric(vertical: s(20), horizontal: s(16)),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black.withOpacity(0.3)),
-                borderRadius: BorderRadius.circular(s(10)),
-              ),
-              child: Column(
-                children: [
-                  _infoRow(
-                    "assets/images/ticket/noun_profile_icon.png",
-                    "Customer Name",
-                    ticket.customerName,
-                    scale,
-                    24,
-                    17,
-                  ),
-                  SizedBox(height: s(20)),
-                  _infoRow(
-                    "assets/images/ticket/solar_panel.png",
-                    "Panel ID",
-                    ticket.panelId,
-                    scale,
-                     28,
-                     15,
-                  ),
-                  SizedBox(height: s(20)),
-                  _infoRow(
-                    "assets/images/ticket/exclamation_icon.png",
-                    "Issue Type",
-                    ticket.issue,
-                    scale,
-                     22,
-                     19,
-                  ),
-                  SizedBox(height: s(20)),
-                  _infoRow(
-                    "assets/images/ticket/calender_icon.png",
-                    "Created Date",
-                    "2025-11-14",
-                    scale,
-                     24,
-                     18,
-                  ),
-                ], 
-              ),
-            ),
+            Text(ticket.ticketNumber, style: GoogleFonts.lato(fontSize: s(14))),
+
+            SizedBox(height: s(14)),
+
+            _customerCard(s),
 
             SizedBox(height: s(16)),
 
-            Text(
-              "Technician Assigned",
-              style: GoogleFonts.lato(
-                fontSize: s(16),
-                fontWeight: FontWeight.w600,
-                color: ColorPalette.bottomtext,
-              ),
-            ),
+            _technicianCard(s),
 
             SizedBox(height: s(16)),
-
-            /// 🔹 TECHNICIAN CARD
-            Container(
-              width: double.infinity,
-              height: s(82),
-              padding: EdgeInsets.symmetric(horizontal: s(20)),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFF000000).withOpacity(0.30)),
-                borderRadius: BorderRadius.circular(s(10)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [ 
-                  Image.asset(
-                    "assets/images/ticket/gg_profile.png",
-                    width: s(24),
-                    height: s(24),
-                  ),
-
-                  SizedBox(width: s(13)),
-
-                  /// NAME + DATE
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Sharma",
-                          style: GoogleFonts.lato(
-                            fontSize: s(14),
-                            fontWeight: FontWeight.w400,
-                            color: ColorPalette.bottomtext,
-                          ),
-                        ),
-                        SizedBox(height: s(4)),
-                        Text(
-                          "2025-11-14",
-                          style: GoogleFonts.lato(
-                            fontSize: s(12),
-                            fontWeight: FontWeight.w400,
-                            color: ColorPalette.textfiledin,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(width: s(100)),
-                  Container(
-                    width: s(98.98),
-                    height: s(40),
-                    decoration: BoxDecoration(
-                      color: ColorPalette.background,
-                      borderRadius: BorderRadius.circular(s(6)),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Call",
-                      style: GoogleFonts.poppins(
-                        fontSize: s(16),
-                        fontWeight: FontWeight.w600,
-                        color: ColorPalette.whitetext,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: s(16)),
-
-            /// 🔹 DESCRIPTION TITLE
-            Text(
-              "Description",
-              style: GoogleFonts.lato(
-                fontSize: s(16),
-                fontWeight: FontWeight.w600,
-                color: ColorPalette.bottomtext,
-              ),
-            ),
-
-            SizedBox(height: s(16)),
-
-            Container(
-              width: double.infinity,
-              height: s(82),
-              padding: EdgeInsets.symmetric(
-                horizontal: s(21),
-                vertical: s(16),
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Color(0xFF000000).withOpacity(0.30),
-                  width: s(1),
-                ),
-                borderRadius: BorderRadius.circular(s(10)),
-              ),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  ticket.description ?? "No description provided.",
-                  style: GoogleFonts.lato(
-                    fontSize: s(16),
-                    fontWeight: FontWeight.w400,
-                    color: ColorPalette.textfiledin,
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: s(23)),
-            Container(
-              width: double.infinity,
-              height: s(50),
-              decoration: BoxDecoration(
-                color: const Color(0xFF26A7DF),
-                borderRadius: BorderRadius.circular(s(10)),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                "View Whatsapp update",
-                style: GoogleFonts.poppins(
-                  fontSize: s(16),
-                  fontWeight: FontWeight.w600,
-                  color: ColorPalette.whitetext,
-                ),
-              ),
-            ),
+            _inspectedImages(s),
           ],
         ),
       ),
     );
   }
 
-  Widget _infoRow(
-      String icon,
-      String title,
-      String value,
-      double scale,
-      double iconsize,
-      double width,
-      ) {
-    double s(double v) => v * scale;
+  Widget _customerCard(double Function(double) s) {
+    return Container(
+      padding: EdgeInsets.all(s(14)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                ticket.customerName,
+                style: GoogleFonts.lato(
+                  fontSize: s(18),
+                  fontWeight: FontWeight.w500,
+                  color: ColorPalette.bottomtext,
+                ),
+              ),
+              _statusBadge(ticket.status, s),
+            ],
+          ),
 
-    return Row(
+          SizedBox(height: s(10)),
+
+          _iconRow(Icons.phone, ticket.phone, s),
+          SizedBox(height: s(6)),
+          _iconRow(Icons.email, ticket.email, s),
+          SizedBox(height: s(6)),
+          _iconRow(Icons.location_on, ticket.addressLine1, s),
+          SizedBox(height: s(16)),
+          Divider(thickness: 1, color: Colors.grey.shade300),
+          SizedBox(height: s(16)),
+          _panelSection(s),
+          SizedBox(height: s(16)),
+          Divider(thickness: 1, color: Colors.grey.shade300),
+          SizedBox(height: s(16)),
+          _issueSection(s),
+          SizedBox(height: s(16)),
+
+          _imageSection(s),
+        ],
+      ),
+    );
+  }
+
+  Widget _panelSection(double Function(double) s) {
+    final panels = ticket.panelId.split(",");
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          icon,
-          width: s(iconsize),
-          height: s(iconsize),
-          fit: BoxFit.contain,
-          color: ColorPalette.textfiledin.withValues(alpha: .80),
+        Text("Panel IDs", style: _titleStyle(s)),
+        SizedBox(height: s(8)),
+
+        Wrap(
+          spacing: s(8),
+          runSpacing: s(8),
+          children: panels.map((e) => _chip(e, s)).toList(),
         ),
-    
-        SizedBox(width: s(width)),
-    
-        Expanded(
+      ],
+    );
+  }
+
+  Widget _issueSection(double Function(double) s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Issue Details", style: _titleStyle(s)),
+            _priorityBadge(ticket.priority, s),
+          ],
+        ),
+
+        SizedBox(height: s(8)),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("• ", style: TextStyle(color: Colors.black)),
+            Expanded(
+              child: Text(
+                ticket.issue,
+                style: GoogleFonts.lato(
+                  fontSize: s(18),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: s(6)),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            ticket.description,
+            style: GoogleFonts.lato(
+              fontSize: s(14),
+              color: Colors.grey,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+
+        SizedBox(height: s(12)),
+
+        Row(
+          children: [
+            Expanded(child: _button(Icons.call, "Call", s)),
+            SizedBox(width: s(10)),
+            Expanded(child: _button(Icons.location_on, "Direction", s)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _imageSection(double Function(double) s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Customer side issue panel image", style: _titleStyle(s)),
+        SizedBox(height: s(8)),
+
+        Row(
+          children: List.generate(3, (index) {
+            return Expanded(
+              child: Container(
+                height: s(114),
+                margin: EdgeInsets.only(right: index == 2 ? 0 : s(8)),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _technicianCard(double Function(double) s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Technician Assigned", style: _titleStyle(s)),
+        SizedBox(height: s(8)),
+
+        Container(
+          height: s(82),
+          width: s(400),
+          padding: EdgeInsets.all(s(12)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset("assets/images/ticket/gg_profile.png",
+              height: s(22),
+               width: s(22),),
+              SizedBox(width: s(10)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Sharma",
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        color: ColorPalette.bottomtext,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text("2025-11-14", 
+                     style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        color: ColorPalette.bottomtext,
+                        fontWeight: FontWeight.w400,
+                      ),),
+                  ],
+                ),
+              ),
+              _buttonn(null, "Call", s),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _inspectedImages(double Function(double) s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(s(10)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: GoogleFonts.lato(
-                  fontSize: s(12),
-                  fontWeight: FontWeight.w400,
-                  color: ColorPalette.textfiledin,
-                ),
-              ),
-              SizedBox(height: s(4)),
-              Text(
-                value,
-                style: GoogleFonts.lato(
-                  fontSize: s(14),
-                  fontWeight: FontWeight.w400,
-                  color: ColorPalette.bottomtext,
-                ),
+              Text("Inspected Site Image", style: _titleStyle(s)),
+
+              SizedBox(height: s(10)),
+
+              Row(
+                children: List.generate(3, (index) {
+                  return Expanded(
+                    child: Container(
+                      height: s(114),
+                      margin: EdgeInsets.only(right: index == 2 ? 0 : s(8)),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }),
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Widget _chip(String text, double Function(double) s) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: s(10), vertical: s(6)),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.lato(
+          fontSize: s(14),
+          color: ColorPalette.textfiledin,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
+
+  Widget _button(IconData? icon, String text, double Function(double) s) {
+    return Container(
+      height: s(37),
+      width: s(180),
+      decoration: BoxDecoration(
+        color: Color(0xFF26A7DF).withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) Icon(icon, size: s(17), color: Color(0xFF26A7DF)),
+          if (icon != null) SizedBox(width: s(6)),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: s(14),
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF26A7DF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+ Widget _buttonn(IconData? icon, String text, double Function(double) s) {
+    return Container(
+      height: s(40),
+      width: s(98),
+      decoration: BoxDecoration(
+        color: Color(0xFF26A7DF),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) Icon(icon, size: s(17), color: Color(0xFF26A7DF)),
+          if (icon != null) SizedBox(width: s(6)),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: s(16),
+              fontWeight: FontWeight.w600,
+              color: ColorPalette.whitetext,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+ 
+
+  Widget _iconRow(IconData icon, String text, double Function(double) s) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: s(15),
+          color: ColorPalette.textfiledin.withOpacity(0.60),
+        ),
+        SizedBox(width: s(6)),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.lato(
+              fontSize: s(14),
+              fontWeight: FontWeight.w400,
+              color: ColorPalette.textfiledin,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _statusBadge(String status, double Function(double) s) {
+    Color bgColor;
+    Color textColor;
+
+    switch (status.toUpperCase()) {
+      case "OPEN":
+        bgColor = Colors.grey.shade100;
+        textColor = Colors.grey;
+        break;
+
+      case "IN_PROGRESS":
+        bgColor = Colors.orange.shade100;
+        textColor = Colors.orange;
+        break;
+
+      case "RESOLVED":
+      case "CLOSED":
+        bgColor = Colors.green.shade100;
+        textColor = Colors.green;
+        break;
+
+      case "CANCELLED":
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red;
+        break;
+
+      default:
+        bgColor = Colors.grey.shade200;
+        textColor = Colors.grey;
+    }
+
+    return Container(
+      height: s(28),
+      width: s(90),
+      padding: EdgeInsets.symmetric(horizontal: s(10), vertical: s(6)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        status,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.lato(
+          fontSize: s(10),
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _priorityBadge(String priority, double Function(double) s) {
+    Color bgColor;
+    Color textColor;
+
+    switch (priority.toUpperCase()) {
+      case "LOW":
+        bgColor = Colors.green.shade100;
+        textColor = Colors.green.shade700;
+        break;
+
+      case "MEDIUM":
+        bgColor = Colors.orange.shade100;
+        textColor = Colors.orange.shade800;
+        break;
+
+      case "HIGH":
+        bgColor = Colors.red.shade100;
+        textColor = Colors.red.shade700;
+        break;
+
+      case "CRITICAL":
+        bgColor = Colors.red.shade300;
+        textColor = Colors.white;
+        break;
+
+      default:
+        bgColor = Colors.grey.shade200;
+        textColor = Colors.grey.shade700;
+    }
+
+    return Container(
+      height: s(28),
+      width: s(90),
+      padding: EdgeInsets.symmetric(horizontal: s(10)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        priority.toUpperCase(),
+        textAlign: TextAlign.center,
+        style: GoogleFonts.lato(
+          fontSize: s(10),
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  TextStyle _titleStyle(double Function(double) s) {
+    return GoogleFonts.lato(fontSize: s(14), fontWeight: FontWeight.w600);
   }
 }

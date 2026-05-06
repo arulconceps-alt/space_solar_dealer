@@ -26,9 +26,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
 
   }
 
-  // ============================================
-  // ✅ EXISTING CUSTOMER SELECTION (FIXED)
-  // ============================================
   Future<void> _onSelectExistingCustomer(
       SelectExistingCustomer event,
       Emitter<NewRegisterState> emit,
@@ -45,7 +42,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     ));
 
     try {
-      // ✅ DISTRICTS
       final districts = await _repository.fetchDistricts(event.stateId);
       print("✅ Districts: $districts");
 
@@ -54,7 +50,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
         orElse: () => {},
       );
 
-      // ✅ PINCODES
       final pincodes = await _repository.fetchPincodes(event.districtId);
       print("✅ Pincodes: $pincodes");
 
@@ -63,7 +58,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
         orElse: () => {},
       );
 
-      // ✅ STATE
       final selectedStateObj = state.states.firstWhere(
             (e) => e["id"].toString() == event.stateId.toString(),
         orElse: () => {},
@@ -92,17 +86,11 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ============================================
-  // RESET
-  // ============================================
   void _onReset(ResetRegisterState event, Emitter<NewRegisterState> emit) {
     _allCustomers.clear();
     emit(NewRegisterState.initial().copyWith(isExistingCustomer: false));
   }
 
-  // ============================================
-  // LOAD STATES
-  // ============================================
   Future<void> _onLoadLocationData(
       LoadLocationData event, Emitter<NewRegisterState> emit) async {
 
@@ -123,9 +111,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ============================================
-  // LOAD CUSTOMERS
-  // ============================================
   Future<void> _onLoadCustomers(
       LoadCustomers event, Emitter<NewRegisterState> emit) async {
 
@@ -146,9 +131,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ============================================
-  // SELECT STATE
-  // ============================================
   Future<void> _onSelectState(
       SelectState event, Emitter<NewRegisterState> emit) async {
 
@@ -174,9 +156,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ============================================
-  // SELECT DISTRICT
-  // ============================================
   Future<void> _onSelectDistrict(
       SelectDistrict event, Emitter<NewRegisterState> emit) async {
 
@@ -199,9 +178,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ============================================
-  // PINCODE
-  // ============================================
   void _onSelectPincode(
       SelectPincode event, Emitter<NewRegisterState> emit) {
 
@@ -211,9 +187,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     ));
   }
 
-  // ============================================
-  // SEARCH
-  // ============================================
   Future<void> _onSearchCustomer(
       SearchCustomer event, Emitter<NewRegisterState> emit) async {
 
@@ -246,9 +219,6 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
     }
   }
 
-  // ============================================
-  // SUBMIT
-  // ============================================
   Future<void> _onSubmit(
       NewRegisterSubmit event,
       Emitter<NewRegisterState> emit,

@@ -240,22 +240,29 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                         date: DateFormat('yyyy-MM-dd').format(ticket.createdAt),
                         sla: getSla(ticket.createdAt, ticket.priority ?? "Low"),
                         statusColor: _getStatusColor(ticket.status),
-                        statusBgColor:
-                            _getStatusColor(ticket.status).withOpacity(0.15),
+                        statusBgColor: _getStatusColor(
+                          ticket.status,
+                        ).withOpacity(0.15),
                         onViewDetails: () {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            builder: (context) {
-                              return Dialog(
-                                backgroundColor: Colors.transparent,
-                                insetPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: TicketDetailsDialog(ticket: ticket),
-                              );
-                            },
-                          );
+                         showModalBottomSheet(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: Colors.transparent,
+  builder: (context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, controller) {
+        return TicketDetailsDialog(
+          ticket: ticket,
+          scrollController: controller,
+        );
+      },
+    );
+  },
+);
                         },
                       );
                     },
@@ -268,29 +275,32 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
     );
   }
 
-  // ---------------- FAB ----------------
-
   Widget _buildFigmaFAB(double scale, double Function(double) s) {
     return GestureDetector(
       onTap: () {
-        showGeneralDialog(
+        showModalBottomSheet(
           context: context,
-          barrierDismissible: true,
-          barrierLabel: "Ticket Details",
-          barrierColor: Colors.black54,
-          transitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return RaiseTicketDialog(parentContext: context);
-          },
-          transitionBuilder: (context, animation, secondaryAnimation, child) {
-            final curvedAnimation = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutBack,
-            );
-
-            return Transform.scale(
-              scale: curvedAnimation.value,
-              child: Opacity(opacity: animation.value, child: child),
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.85,
+              minChildSize: 0.5,
+              maxChildSize: 0.95, 
+              builder: (_, controller) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  child: RaiseTicketDialog(
+                    parentContext: context,
+                    scrollController: controller,
+                  ),
+                );
+              },
             );
           },
         );

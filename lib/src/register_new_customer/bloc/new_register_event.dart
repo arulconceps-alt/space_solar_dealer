@@ -46,7 +46,6 @@ class SelectPincode extends NewRegisterEvent {
   List<Object?> get props => [id, code];
 }
 
-// ✅ SEARCH CUSTOMER
 class SearchCustomer extends NewRegisterEvent {
   final String query;
   const SearchCustomer(this.query);
@@ -55,13 +54,10 @@ class SearchCustomer extends NewRegisterEvent {
   List<Object?> get props => [query];
 }
 
-// ✅ LOAD CUSTOMERS
 class LoadCustomers extends NewRegisterEvent {}
 
-// ✅ RESET
 class ResetRegisterState extends NewRegisterEvent {}
 
-// ✅ ✅ FIXED EXISTING CUSTOMER EVENT
 class SelectExistingCustomer extends NewRegisterEvent {
   final String id;
   final int stateId;
