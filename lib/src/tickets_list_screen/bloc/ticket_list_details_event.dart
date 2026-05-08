@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 
 abstract class TicketListDetailsEvent extends Equatable {
@@ -26,11 +28,12 @@ class RefreshTicketsEvent extends TicketListDetailsEvent {
 
 class CreateTicketEvent extends TicketListDetailsEvent {
   final Map<String, dynamic> ticketData;
-
-  const CreateTicketEvent(this.ticketData);
-
+  final List<File> images;
+  
+  const CreateTicketEvent(this.ticketData, {this.images = const []});
+  
   @override
-  List<Object?> get props => [ticketData];
+  List<Object?> get props => [ticketData, images];
 }
 class LoadPanelsEvent extends TicketListDetailsEvent {
   final String customerId;

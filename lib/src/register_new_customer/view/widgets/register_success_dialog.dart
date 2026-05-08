@@ -1,21 +1,28 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/widgets/_register_success_animation_tick.dart';
+
 class RegistrationSuccessScreen extends StatefulWidget {
   final double scale;
-  const RegistrationSuccessScreen({super.key,required this.scale});
+  final List<String> newPanels;
+  final String customerType; // NEW: only new panels
+
+  const RegistrationSuccessScreen({
+    super.key,
+    required this.scale,
+    required this.newPanels,
+    required this.customerType, // NEW parameter
+  });
 
   @override
   State<RegistrationSuccessScreen> createState() =>
       _RegistrationSuccessScreenState();
 }
 
-class _RegistrationSuccessScreenState
-    extends State<RegistrationSuccessScreen> {
+class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   bool isNavigating = false;
 
   @override
@@ -24,37 +31,17 @@ class _RegistrationSuccessScreenState
 
     return Container(
       width: s(400),
-      height: s(538.56),
-      padding: EdgeInsets.symmetric(horizontal: s(20)),
+      padding: EdgeInsets.symmetric(horizontal: s(16)),
       decoration: BoxDecoration(
         color: ColorPalette.whitetext,
         borderRadius: BorderRadius.circular(s(20)),
         border: Border.all(color: ColorPalette.whitetext, width: s(1)),
       ),
-
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(height: s(34)),
-          // Container(
-          //   width: s(110),
-          //   height: s(110),
-          //   decoration: const BoxDecoration(
-          //     color: Color(0x4C319F43),
-          //     shape: BoxShape.circle,
-          //   ),
-          //   child: Padding(
-          //     padding:  EdgeInsets.all(s(33)),
-          //     child: Image.asset(
-          //       "assets/images/success/tick_circle_outline.png",
-          //       width: s(44),
-          //       height: s(44),
-          //     ),
-          //   ),
-          // ),
-            RegisterSuccessAnimatedTick(scale: widget.scale),
-
-
+          RegisterSuccessAnimatedTick(scale: widget.scale),
           SizedBox(height: s(26)),
           Text(
             "Registered!",
@@ -65,24 +52,49 @@ class _RegistrationSuccessScreenState
               color: ColorPalette.bottomtext,
             ),
           ),
+          SizedBox(height: s(20)),
 
-          SizedBox(height: s(40)),
-
-          /// 🔹 PANEL ID
-          Text(
-            "Panel ID : SS-00120",
-            style: GoogleFonts.lato(
-              fontSize: s(16),
-              fontWeight: FontWeight.w400,
-              color: ColorPalette.textfiledin.withValues(alpha: .80),
+          // Show ONLY newly added panels
+          if (widget.newPanels.isNotEmpty) ...[
+            Text(
+              widget.newPanels.length == 1
+                  ? "New Panel ID Added:"
+                  : "New Panel IDs Added:",
+              style: GoogleFonts.lato(
+                fontSize: s(14),
+                fontWeight: FontWeight.w500,
+                color: ColorPalette.bottomtext,
+              ),
             ),
-          ),
+            SizedBox(height: s(12)),
+            ...widget.newPanels.map(
+              (panel) => Padding(
+                padding: EdgeInsets.symmetric(vertical: s(4)),
+                child: Text(
+                  panel,
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                    color: ColorPalette.textfiledin.withOpacity(0.80),
+                  ),
+                ),
+              ),
+            ),
+          ] else ...[
+            Text(
+              "Customer Registered Successfully!",
+              style: GoogleFonts.lato(
+                fontSize: s(14),
+                fontWeight: FontWeight.w500,
+                color: ColorPalette.textfiledin.withOpacity(0.80),
+              ),
+            ),
+          ],
 
-          SizedBox(height: s(41.68)),
+          SizedBox(height: s(20)),
 
-          /// 🔹 DESCRIPTION
           Text(
-            "Confirmation sent via SMS & Whatsapp to\ncustomer",
+            "Confirmation sent via SMS & WhatsApp to customer",
             textAlign: TextAlign.center,
             style: GoogleFonts.lato(
               fontSize: s(16),
@@ -91,13 +103,11 @@ class _RegistrationSuccessScreenState
             ),
           ),
 
-          SizedBox(height: s(55)),
+          SizedBox(height: s(35)),
 
-          /// 🔹 PRIMARY BUTTON
           GestureDetector(
             onTap: () {
-              Navigator.pop(context); // close dialog
-              // optional: navigate
+              Navigator.pop(context);
             },
             child: Container(
               width: double.infinity,
@@ -108,7 +118,9 @@ class _RegistrationSuccessScreenState
               ),
               alignment: Alignment.center,
               child: Text(
-                "Register Another Customer",
+                widget.customerType == "Register Panels"
+                    ? "Register Another Panel"
+                    : "Register Another Customer",
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w600,
@@ -123,7 +135,7 @@ class _RegistrationSuccessScreenState
           GestureDetector(
             onTap: () {
               Navigator.pop(context);
-              context.goNamed(RouteName.home); 
+              context.goNamed(RouteName.home);
             },
             child: Container(
               width: double.infinity,
@@ -131,7 +143,7 @@ class _RegistrationSuccessScreenState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(s(10)),
                 border: Border.all(
-                  color:  ColorPalette.textfiledin.withValues(alpha: .20),
+                  color: ColorPalette.textfiledin.withValues(alpha: .20),
                   width: s(1),
                 ),
               ),
@@ -141,11 +153,12 @@ class _RegistrationSuccessScreenState
                 style: GoogleFonts.poppins(
                   fontSize: s(16),
                   fontWeight: FontWeight.w600,
-                  color:  ColorPalette.textfiledin,
+                  color: ColorPalette.textfiledin,
                 ),
               ),
             ),
           ),
+          SizedBox(height: s(16)),
         ],
       ),
     );

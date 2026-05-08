@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/bloc/alert/alert_state.dart';
+import 'package:space_solar_dealer/src/common/widgets/custom_snackbar.dart';
 import 'package:space_solar_dealer/src/register_new_customer/bloc/new_register_bloc.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/widgets/phone_search_box.dart';
 
@@ -16,7 +20,7 @@ class CustomerDetailsCard extends StatefulWidget {
   final TextEditingController districtController;
   final TextEditingController pincodeController;
   final TextEditingController addressController;
-  
+  final Function(String) onCustomerTypeChanged;
 
   const CustomerDetailsCard({
     super.key,
@@ -30,6 +34,7 @@ class CustomerDetailsCard extends StatefulWidget {
     required this.addressController,
     required this.onClearPanels,
     required this.onPanelsLoaded,
+    required this.onCustomerTypeChanged,
   });
 
   @override
@@ -41,21 +46,30 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   late TextEditingController _searchController;
   bool isUserSelected = false;
   Map<String, dynamic>? selectedCustomerData;
-  
+
+  // Store existing panels separately
+  List<String> existingPanels = [];
+  List<String> newPanels = [];
+  List<String> get allPanels => [
+  ...existingPanels,
+  ...newPanels,
+];
+
   // Focus nodes for dropdown text fields
   final FocusNode _stateFocusNode = FocusNode();
   final FocusNode _districtFocusNode = FocusNode();
   final FocusNode _pincodeFocusNode = FocusNode();
-  
+
   // Controllers for dropdown text fields
   late TextEditingController _stateTextController;
   late TextEditingController _districtTextController;
   late TextEditingController _pincodeTextController;
-  
+
   // Track if suggestions should be shown
   bool _showStateSuggestions = false;
   bool _showDistrictSuggestions = false;
   bool _showPincodeSuggestions = false;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -64,7 +78,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     _stateTextController = TextEditingController();
     _districtTextController = TextEditingController();
     _pincodeTextController = TextEditingController();
-    
+
     context.read<NewRegisterBloc>().add(LoadLocationData());
     _stateFocusNode.addListener(() {
       setState(() {
@@ -85,6 +99,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     _stateTextController.dispose();
     _districtTextController.dispose();
@@ -98,13 +113,29 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   Future<void> _onUserSelected(Map<String, dynamic> customer) async {
     final bloc = context.read<NewRegisterBloc>();
 
+    final orders = customer["orders"] ?? [];
+    final Set<String> existingPanelSet = {};
+
+    for (var order in orders) {
+      for (var item in (order["items"] ?? [])) {
+        final serial = item["serialNumber"]?.toString();
+        if (serial != null && serial.isNotEmpty) {
+          existingPanelSet.add(serial);
+        }
+      }
+    }
+
     setState(() {
       isUserSelected = true;
+      existingPanels = existingPanelSet.toList();
+      newPanels = []; // Clear new panels when selecting existing customer
       _searchController.clear();
 
       widget.nameController.text = customer["name"] ?? "";
-      widget.phoneController.text =
-          (customer["phone"] ?? "").replaceAll("+91", "");
+      widget.phoneController.text = (customer["phone"] ?? "").replaceAll(
+        "+91",
+        "",
+      );
       widget.emailController.text = customer["email"] ?? "";
       widget.addressController.text = customer["addressLine1"] ?? "";
     });
@@ -118,219 +149,296 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       ),
     );
 
-    final orders = customer["orders"] ?? [];
-    final Set<String> existingPanels = {};
+    widget.onPanelsLoaded(existingPanelSet.toList());
+  }
 
-    for (var order in orders) {
-      for (var item in (order["items"] ?? [])) {
-        final serial = item["serialNumber"]?.toString();
-        if (serial != null && serial.isNotEmpty) {
-          existingPanels.add(serial);
-        }
+  void addNewPanel(String panelId) {
+    setState(() {
+      if (!newPanels.contains(panelId) && !existingPanels.contains(panelId)) {
+        newPanels.add(panelId);
       }
-    }
+    });
+    widget.onPanelsLoaded([...existingPanels, ...newPanels]);
+  }
 
-    widget.onPanelsLoaded(existingPanels.toList());
+  // Remove new panel
+  void removeNewPanel(String panelId) {
+    setState(() {
+      newPanels.remove(panelId);
+    });
+    widget.onPanelsLoaded([...existingPanels, ...newPanels]);
+  }
+
+  List<String> getAllPanels() {
+    return [...existingPanels, ...newPanels];
+  }
+
+  List<String> getNewPanelsOnly() {
+    return List.from(newPanels);
   }
 
   void resetToNewCustomer() {
     setState(() {
       selectedCustomerType = "New Customer";
       isUserSelected = false;
+      existingPanels = [];
+      newPanels = [];
       _searchController.clear();
+      widget.nameController.clear();
+      widget.phoneController.clear();
+      widget.emailController.clear();
+      widget.addressController.clear();
+      _stateTextController.clear();
+      _districtTextController.clear();
+      _pincodeTextController.clear();
     });
+    widget.onClearPanels();
   }
 
   @override
   Widget build(BuildContext context) {
     double s(double v) => v * widget.scale;
-    final isDisabled = selectedCustomerType == "Existing Customer" && isUserSelected;
+    final isDisabled =
+        selectedCustomerType == "Register Panels" && isUserSelected;
 
-      return BlocListener<NewRegisterBloc, NewRegisterState>(
-  listener: (context, state) {
-    print("👂 BlocListener Triggered");
+    return BlocListener<NewRegisterBloc, NewRegisterState>(
+      listener: (context, state) {
+        if (state.selectedState != null) {
+          _stateTextController.text = state.selectedState!;
+        } else {
+          _stateTextController.clear();
+        }
 
-    if (state.selectedState != null) {
-      print("✅ UI State Updated: ${state.selectedState}");
-      _stateTextController.text = state.selectedState!;
-    }
+        if (state.selectedDistrict != null) {
+          _districtTextController.text = state.selectedDistrict!;
+        } else {
+          _districtTextController.clear();
+        }
 
-    if (state.selectedDistrict != null) {
-      print("✅ UI District Updated: ${state.selectedDistrict}");
-      _districtTextController.text = state.selectedDistrict!;
-    }
+        if (state.selectedPincode != null) {
+          _pincodeTextController.text = state.selectedPincode!;
+        } else {
+          _pincodeTextController.clear();
+        }
 
-    if (state.selectedPincode != null) {
-      print("✅ UI Pincode Updated: ${state.selectedPincode}");
-      _pincodeTextController.text = state.selectedPincode!;
-    }
-  },
-  child: BlocBuilder<NewRegisterBloc, NewRegisterState>(
-    builder: (context, state) {
+        // SUCCESS
+        if (state.status == NewRegisterStatus.success) {
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.success,
+              timestamp: DateTime.now(),
+            ),
+          );
+        }
 
-      return Container(
-        width: s(400),
-        padding: EdgeInsets.all(s(20)),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(s(20)),
-          border: Border.all(color: Colors.white),
-        ),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Customer Details",
-                style: GoogleFonts.poppins(
-                  fontSize: s(18),
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF2D2D2D),
-                ),
-              ),
-              SizedBox(height: s(24)),
-              Row(
+        // FAILURE
+        if (state.status == NewRegisterStatus.failure) {
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.failure,
+              timestamp: DateTime.now(),
+            ),
+          );
+        }
+      },
+      child: BlocBuilder<NewRegisterBloc, NewRegisterState>(
+        builder: (context, state) {
+          return Container(
+            width: s(400),
+            padding: EdgeInsets.all(s(20)),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(s(20)),
+              border: Border.all(color: Colors.white),
+            ),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildOption("New Customer", widget.scale),
-                  SizedBox(width: s(38)),
-                  _buildOption("Register Panels", widget.scale),
-                ],
-              ),
-              SizedBox(height: s(26)),
+                  Text(
+                    "Customer Details",
+                    style: GoogleFonts.poppins(
+                      fontSize: s(18),
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF2D2D2D),
+                    ),
+                  ),
+                  SizedBox(height: s(24)),
+                  Row(
+                    children: [
+                      _buildOption("New Customer", widget.scale),
+                      SizedBox(width: s(38)),
+                      _buildOption("Register Panels", widget.scale),
+                    ],
+                  ),
+                  SizedBox(height: s(26)),
 
-              if (selectedCustomerType == "Register Panels") ...[
-                PhoneSearchBox(
-                  scale: widget.scale,
-                  controller: _searchController,
-                  onSearch: (val) {
-                    context.read<NewRegisterBloc>().add(SearchCustomer(val));
-                  },
-                  suggestions: state.searchResults,
-                  onSelected: (customer) {
-                    _onUserSelected(customer);
-                  },
-                ),
-                SizedBox(height: s(24)),
-              ],
+                  if (selectedCustomerType == "Register Panels") ...[
+                    PhoneSearchBox(
+                      scale: widget.scale,
+                      controller: _searchController,
+                      onSearch: (val) {
+                        if (_debounce?.isActive ?? false) {
+                          _debounce!.cancel();
+                        }
 
-              _buildInputField("Customer Name*", "Customer Name", widget.scale,
-                  controller: widget.nameController, enabled: !isDisabled),
-              SizedBox(height: s(16)),
+                        _debounce = Timer(
+                          const Duration(milliseconds: 400),
+                          () {
+                            context.read<NewRegisterBloc>().add(
+                              SearchCustomer(val),
+                            );
+                          },
+                        );
+                      },
+                      suggestions: state.searchResults,
+                      onSelected: (customer) {
+                        _onUserSelected(customer);
+                      },
+                    ),
+                    SizedBox(height: s(24)),
+                  ],
 
-              _buildInputField("Phone Number*", "Phone Number", widget.scale,
-                  controller: widget.phoneController, enabled: !isDisabled),
-              SizedBox(height: s(16)),
+                  _buildInputField(
+                    "Customer Name*",
+                    "Customer Name",
+                    widget.scale,
+                    controller: widget.nameController,
+                    enabled: !isDisabled,
+                  ),
+                  SizedBox(height: s(16)),
 
-              _buildInputField("Email*", "Email", widget.scale,
-                  controller: widget.emailController),
-              SizedBox(height: s(16)),
+                  _buildInputField(
+                    "Phone Number*",
+                    "Phone Number",
+                    widget.scale,
+                    controller: widget.phoneController,
+                    enabled: !isDisabled,
+                  ),
+                  SizedBox(height: s(16)),
 
-              _buildSearchableTextField(
-                "State*",
-                "Select State",
-                widget.scale,
-                controller: _stateTextController,
-                focusNode: _stateFocusNode,
-                suggestions:  state.states.map((e) => e["name"].toString()).toList(),
-                showSuggestions: _showStateSuggestions,
-                onSuggestionSelected: (val) {
-                  final selected = state.states.firstWhere((e) => e["name"] == val);
-                  _stateTextController.text = val;
-                  _stateFocusNode.unfocus();
+                  _buildInputField(
+                    "Email*",
+                    "Email",
+                    widget.scale,
+                    controller: widget.emailController,
+                  ),
+                  SizedBox(height: s(16)),
 
-                  setState(() {
-                    _showStateSuggestions = false;
-                  });
+                  _buildSearchableTextField(
+                    "State*",
+                    "Select State",
+                    widget.scale,
+                    controller: _stateTextController,
+                    focusNode: _stateFocusNode,
+                    suggestions: state.states
+                        .map((e) => e["name"].toString())
+                        .toList(),
+                    showSuggestions: _showStateSuggestions,
+                    onSuggestionSelected: (val) {
+                      final selected = state.states.firstWhere(
+                        (e) => e["name"] == val,
+                      );
+                      _stateTextController.text = val;
+                      _stateFocusNode.unfocus();
 
-                  context.read<NewRegisterBloc>().add(
+                      setState(() {
+                        _showStateSuggestions = false;
+                      });
+
+                      context.read<NewRegisterBloc>().add(
                         SelectState(selected["name"], selected["id"]),
                       );
-                },
-                enabled: !isDisabled,
-              ),
-              SizedBox(height: s(16)),
+                    },
+                    enabled: !isDisabled,
+                  ),
+                  SizedBox(height: s(16)),
 
-              _buildSearchableTextField(
-                "District*",
-                "Select District",
-                widget.scale,
-                controller: _districtTextController,
-                focusNode: _districtFocusNode,
-                suggestions: state.districts
-                    .map((e) => e["name"].toString())
-                    .toList(),
-                showSuggestions: _showDistrictSuggestions,
-                onSuggestionSelected: (val) {
-                  final selected =
-                      state.districts.firstWhere((e) => e["name"] == val);
+                  _buildSearchableTextField(
+                    "District*",
+                    "Select District",
+                    widget.scale,
+                    controller: _districtTextController,
+                    focusNode: _districtFocusNode,
+                    suggestions: state.districts
+                        .map((e) => e["name"].toString())
+                        .toList(),
+                    showSuggestions: _showDistrictSuggestions,
+                    onSuggestionSelected: (val) {
+                      final selected = state.districts.firstWhere(
+                        (e) => e["name"] == val,
+                      );
 
-                  _districtTextController.text = val;
-                  _districtFocusNode.unfocus();
+                      _districtTextController.text = val;
+                      _districtFocusNode.unfocus();
 
-                  setState(() {
-                    _showDistrictSuggestions = false;
-                  });
+                      setState(() {
+                        _showDistrictSuggestions = false;
+                      });
 
-                  context.read<NewRegisterBloc>().add(
+                      context.read<NewRegisterBloc>().add(
                         SelectDistrict(selected["name"], selected["id"]),
                       );
-                },
-                enabled: !isDisabled && state.selectedState != null,
-              ),
-              SizedBox(height: s(16)),
+                    },
+                    enabled: !isDisabled && state.selectedState != null,
+                  ),
+                  SizedBox(height: s(16)),
 
-              // ✅ PINCODE
-              _buildSearchableTextField(
-                "Pincode*",
-                "Select Pincode",
-                widget.scale,
-                controller: _pincodeTextController,
-                focusNode: _pincodeFocusNode,
-                suggestions: state.pincodesList
-                    .map((e) => e["code"].toString())
-                    .toSet()
-                    .toList(),
-                showSuggestions: _showPincodeSuggestions,
-                onSuggestionSelected: (val) {
-                  final selected = state.pincodesList.firstWhere(
-                    (e) => e["code"].toString() == val,
-                  );
+                  _buildSearchableTextField(
+                    "Pincode*",
+                    "Select Pincode",
+                    widget.scale,
+                    controller: _pincodeTextController,
+                    focusNode: _pincodeFocusNode,
+                    suggestions: state.pincodesList
+                        .map((e) => e["code"].toString())
+                        .toSet()
+                        .toList(),
+                    showSuggestions: _showPincodeSuggestions,
+                    onSuggestionSelected: (val) {
+                      final selected = state.pincodesList.firstWhere(
+                        (e) => e["code"].toString() == val,
+                      );
 
-                  _pincodeTextController.text = val;
-                  _pincodeFocusNode.unfocus();
+                      _pincodeTextController.text = val;
+                      _pincodeFocusNode.unfocus();
 
-                  setState(() {
-                    _showPincodeSuggestions = false;
-                  });
+                      setState(() {
+                        _showPincodeSuggestions = false;
+                      });
 
-                  context.read<NewRegisterBloc>().add(
+                      context.read<NewRegisterBloc>().add(
                         SelectPincode(
                           id: selected["id"],
                           code: selected["code"].toString(),
                         ),
                       );
-                },
-                enabled: !isDisabled && state.selectedDistrict != null,
-              ),
+                    },
+                    enabled: !isDisabled && state.selectedDistrict != null,
+                  ),
 
-              SizedBox(height: s(16)),
+                  SizedBox(height: s(16)),
 
-              _buildInputField(
-                "Address*",
-                "Enter full installation address",
-                widget.scale,
-                isAddress: true,
-                controller: widget.addressController,
-                enabled: !isDisabled,
+                  _buildInputField(
+                    "Address*",
+                    "Enter full installation address",
+                    widget.scale,
+                    isAddress: true,
+                    controller: widget.addressController,
+                    enabled: !isDisabled,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    },
-  ),
-);
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildSearchableTextField(
@@ -345,14 +453,16 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     bool enabled = true,
   }) {
     double s(double v) => v * scale;
-    
-    // Filter suggestions based on current text
-    final filteredSuggestions = controller.text.isEmpty 
-        ? suggestions 
-        : suggestions.where((item) => 
-            item.toLowerCase().contains(controller.text.toLowerCase())
-          ).toList();
-    
+
+    final filteredSuggestions = controller.text.isEmpty
+        ? suggestions
+        : suggestions
+              .where(
+                (item) =>
+                    item.toLowerCase().contains(controller.text.toLowerCase()),
+              )
+              .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -368,9 +478,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
         Container(
           height: s(52),
           decoration: BoxDecoration(
-            color: enabled
-                ? Colors.white.withOpacity(0.5)
-                : Colors.grey.withOpacity(0.2),
+            color: Colors.white.withOpacity(0.5),
             borderRadius: BorderRadius.circular(s(10)),
             border: Border.all(color: Colors.white),
           ),
@@ -403,22 +511,15 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                   },
                 ),
               ),
-              if (suggestions.isNotEmpty)
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.grey,
-                  size: s(24),
-                ),
+              if (suggestions.isNotEmpty && enabled)
+                Icon(Icons.arrow_drop_down, color: Colors.grey, size: s(24)),
             ],
           ),
         ),
-        // Suggestions dropdown that appears below
         if (showSuggestions && filteredSuggestions.isNotEmpty && enabled)
           Container(
             margin: EdgeInsets.only(top: s(4)),
-            constraints: BoxConstraints(
-              maxHeight: s(200),
-            ),
+            constraints: BoxConstraints(maxHeight: s(200)),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(s(10)),
@@ -444,13 +545,6 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                       horizontal: s(14),
                       vertical: s(12),
                     ),
-                    // decoration: BoxDecoration(
-                    //   border: Border(
-                    //     bottom: BorderSide(
-                    //       color: Colors.grey.withOpacity(0.2),
-                    //     ),
-                    //   ),
-                    // ),
                     child: Text(
                       suggestion,
                       style: GoogleFonts.lato(
@@ -468,13 +562,13 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   }
 
   Widget _buildInputField(
-      String label,
-      String hint,
-      double scale, {
-        bool isAddress = false,
-        TextEditingController? controller,
-        bool enabled = true,
-      }) {
+    String label,
+    String hint,
+    double scale, {
+    bool isAddress = false,
+    TextEditingController? controller,
+    bool enabled = true,
+  }) {
     double s(double v) => v * scale;
 
     return Column(
@@ -493,9 +587,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
         Container(
           height: isAddress ? s(110) : s(52),
           decoration: BoxDecoration(
-            color: enabled
-                ? Colors.white.withOpacity(0.5)
-                : Colors.grey.withOpacity(0.2),
+            color: Colors.white.withOpacity(0.5),
             borderRadius: BorderRadius.circular(s(10)),
             border: Border.all(color: Colors.white),
           ),
@@ -536,6 +628,12 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
         setState(() {
           selectedCustomerType = label;
           isUserSelected = false;
+
+          if (label == "New Customer") {
+            existingPanels = [];
+            newPanels = [];
+          }
+
           widget.nameController.clear();
           widget.phoneController.clear();
           widget.emailController.clear();
@@ -550,6 +648,9 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
         });
 
         context.read<NewRegisterBloc>().add(ResetRegisterState());
+        context.read<NewRegisterBloc>().add(LoadLocationData());
+        widget.onCustomerTypeChanged(label);
+
         if (label == "New Customer") {
           widget.onClearPanels();
         }
@@ -563,7 +664,14 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
             size: s(20),
           ),
           SizedBox(width: s(8)),
-          Text(label, style: GoogleFonts.lato(fontSize: s(16), fontWeight: FontWeight.w600, color: ColorPalette.bottomtext)),
+          Text(
+            label,
+            style: GoogleFonts.lato(
+              fontSize: s(16),
+              fontWeight: FontWeight.w600,
+              color: ColorPalette.bottomtext,
+            ),
+          ),
         ],
       ),
     );

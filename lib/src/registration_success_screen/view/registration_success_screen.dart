@@ -1,10 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
+import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
 
@@ -128,9 +130,11 @@ class RegistrationSuccessScreen extends StatelessWidget {
             isOutline: true,
             scale: scale,
             onPressed: () {
-              // Navigate back to Home using GoRouter
-             // context.goNamed(RouteName.home);
-            context.go('/customer_list');
+              Navigator.pop(context); 
+              
+              context.read<CustomerListBloc>().add(LoadCustomers());
+
+              context.go('/customer_list');
             },
           ),
         ],

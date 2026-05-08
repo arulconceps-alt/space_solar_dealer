@@ -31,30 +31,40 @@ class _IssueDropdownFieldState extends State<IssueDropdownField> {
     double s(double v) => v * widget.scale;
 
     return Container(
-      height: s(50),
-      padding: EdgeInsets.symmetric(horizontal: s(12)),
+      height: s(52),
       decoration: BoxDecoration(
         color: Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(s(10)),
       ),
+      padding: EdgeInsets.symmetric(horizontal: s(14)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          dropdownColor: const Color(0xFFF6F6F6),
           value: selectedIssue,
+          isExpanded: true,
+
+          /// Dropdown below field
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(s(12)),
+
           hint: Text(
             "Select Issue Type",
             style: GoogleFonts.lato(
-              fontSize: s(16),
+              fontSize: s(15),
               fontWeight: FontWeight.w400,
-               color: const Color(0xFF484848).withOpacity(0.80),
+              color: const Color(0xFF484848).withOpacity(0.80),
             ),
           ),
 
-          isExpanded: true,
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
-            size: s(24), 
             color: Colors.grey,
+            size: s(24),
+          ),
+
+          style: GoogleFonts.lato(
+            fontSize: s(15),
+            color: ColorPalette.bottomtext,
+            fontWeight: FontWeight.w500,
           ),
 
           items: issues.map((issue) {
@@ -62,10 +72,11 @@ class _IssueDropdownFieldState extends State<IssueDropdownField> {
               value: issue,
               child: Text(
                 issue,
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.lato(
-                  color: const Color(0xCC484848),
-                  fontSize: s(16),
+                  fontSize: s(15),
                   fontWeight: FontWeight.w400,
+                  color: const Color(0xFF484848).withOpacity(0.80),
                 ),
               ),
             );

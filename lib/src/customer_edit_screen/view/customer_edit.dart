@@ -308,9 +308,10 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.lato(
+             style: GoogleFonts.lato(
               fontSize: s(16),
               fontWeight: FontWeight.w600,
+              color: ColorPalette.bottomtext,
             ),
           ),
           SizedBox(height: s(10)),
@@ -319,7 +320,11 @@ class _CustomerEditScreenState extends State<CustomerEditScreen> {
             keyboardType: keyboardType,
             maxLines: maxLines,
             validator: validator,
-            style: GoogleFonts.lato(fontSize: s(14)),
+              style: GoogleFonts.lato(
+              fontSize: s(16),
+              fontWeight: FontWeight.w400,
+              color: ColorPalette.textfiledin.withOpacity(0.80),
+            ),
             decoration: InputDecoration(
               filled: true,
               fillColor: ColorPalette.whitetext.withOpacity(0.50),

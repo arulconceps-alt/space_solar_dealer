@@ -19,7 +19,7 @@ class DescriptionField extends StatelessWidget {
     double s(double v) => v * scale;
 
     return SizedBox(
-      width: s(362),
+      width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

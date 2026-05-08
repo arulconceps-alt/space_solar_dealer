@@ -8,7 +8,7 @@ class ProfileRepository {
 
   Future<ProfileModel> getProfile() async {
     final response = await api.getRequest('auth/profile');
-
+  print("Profile API Response: $response");
     return ProfileModel.fromJson(response['data']);
   }
 

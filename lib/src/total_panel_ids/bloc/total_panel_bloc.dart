@@ -18,7 +18,9 @@ class TotalPanelBloc extends Bloc<TotalPanelEvent, TotalPanelState> {
     try {
       emit(state.copyWith(status: TotalPanelStatus.loading));
 
-      final data = await repository.getPanelIds();
+      final data = await repository.getPanelIds(
+         customerId: event.customerId,
+      );
 
       emit(state.copyWith(
         status: TotalPanelStatus.success,

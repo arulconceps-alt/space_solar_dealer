@@ -1,14 +1,30 @@
-abstract class TotalPanelEvent {}
+import 'package:equatable/equatable.dart';
+
+abstract class TotalPanelEvent extends Equatable {
+  const TotalPanelEvent();
+
+  @override
+  List<Object?> get props => [];
+}
 
 class LoadPanelsEvent extends TotalPanelEvent {
   final int page;
-  final int limit;
+  final String? customerId;
 
-  LoadPanelsEvent({this.page = 1, this.limit = 10});
+  const LoadPanelsEvent({
+    this.page = 1,
+    this.customerId,
+  });
+
+  @override
+  List<Object?> get props => [page, customerId];
 }
 
 class SearchPanelEvent extends TotalPanelEvent {
   final String query;
 
-  SearchPanelEvent(this.query);
+  const SearchPanelEvent(this.query);
+
+  @override
+  List<Object?> get props => [query];
 }

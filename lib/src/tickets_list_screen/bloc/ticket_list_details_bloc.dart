@@ -19,40 +19,39 @@ class TicketListDetailsBloc
     });
   }
 
-  Future<void> _onCreateTicket(
-    CreateTicketEvent event,
-    Emitter<TicketListDetailsState> emit,
-  ) async {
-    try {
-      print("🔥 CREATE EVENT STARTED");
-      final data = event.ticketData;
-      final response = await repository.createTicket(
-        customerId: data["customerId"],
-        title: data["title"],
-        description: data["description"],
-        category: data["category"] ?? "MAINTENANCE",
-        priority: data["priority"] ?? "HIGH",
-        scheduledAt: data["scheduledAt"],
-        products: List<Map<String, dynamic>>.from(data["products"]),
-      );
-      print("✅ CREATE SUCCESS RESPONSE: $response");
-      final newTicket = TicketModel.fromJson(response);
-      emit(state.copyWith(
-        status: TicketListDetailsStatus.create,
-        tickets: [newTicket],
-      ));
-
-      // Refresh full list after create
-      add(LoadTicketsEvent());
-    } catch (e, stackTrace) {
-      print("❌ CREATE ERROR: $e");
-      print(stackTrace);
-      emit(state.copyWith(
-        status: TicketListDetailsStatus.failure,
-        message: e.toString(),
-      ));
-    }
+ Future<void> _onCreateTicket(
+  CreateTicketEvent event,
+  Emitter<TicketListDetailsState> emit,
+) async {
+  try {
+    print("🔥 CREATE EVENT STARTED");
+    final data = event.ticketData;
+    final response = await repository.createTicket(
+      customerId: data["customerId"],
+      title: data["title"],
+      description: data["description"],
+      category: data["category"] ?? "MAINTENANCE",
+      priority: data["priority"] ?? "HIGH",
+      scheduledAt: data["scheduledAt"],
+      products: List<Map<String, dynamic>>.from(data["products"]),
+      images: event.images, // ✅ Pass images here
+    );
+    print("✅ CREATE SUCCESS RESPONSE: $response");
+    final newTicket = TicketModel.fromJson(response);
+    emit(state.copyWith(
+      status: TicketListDetailsStatus.create,
+      tickets: [newTicket],
+    ));
+    add(LoadTicketsEvent());
+  } catch (e, stackTrace) {
+    print("❌ CREATE ERROR: $e");
+    print(stackTrace);
+    emit(state.copyWith(
+      status: TicketListDetailsStatus.failure,
+      message: e.toString(),
+    ));
   }
+}
 
   Future<void> _onLoadTickets(
     LoadTicketsEvent event,

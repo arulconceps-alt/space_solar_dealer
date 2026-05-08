@@ -4,13 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_state.dart';
 import 'package:space_solar_dealer/src/customer_list/view/widget/customer_item.dart';
 import 'package:space_solar_dealer/src/customer_list/view/widget/search_box.dart';
+import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
 
 class CustomerList extends StatefulWidget {
-  const CustomerList({super.key});
+  final bool showAppBar;
+
+  const CustomerList({super.key, this.showAppBar = false,});
 
   @override
   State<CustomerList> createState() => _CustomerListState();
@@ -19,15 +23,10 @@ class CustomerList extends StatefulWidget {
 class _CustomerListState extends State<CustomerList> {
   final TextEditingController _searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _searchController.clear();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CustomerListBloc>().add(LoadCustomers());
-    });
-  }
-
+ @override
+void didPopNext() {
+  context.read<CustomerListBloc>().add(LoadCustomers());
+}
 
   @override
   Widget build(BuildContext context) {
@@ -36,101 +35,120 @@ class _CustomerListState extends State<CustomerList> {
 
     double s(double v) => v * scale;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton: _buildFAB(s),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: s(24)),
-
-            /// HEADER
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: s(20)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Customer List",
-                    style: GoogleFonts.poppins(
-                      fontSize: s(20),
-                      fontWeight: FontWeight.w600,
-                      color: ColorPalette.bottomtext,
-                    ),
-                  ),
-                  SizedBox(height: s(4)),
-                  Text(
-                    "Customer Information",
-                    style: GoogleFonts.lato(
-                      fontSize: s(14),
-                      color: ColorPalette.textfiledin.withValues(alpha: .80),
-                    ),
-                  ),
-                ],
-              ),
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+         appBar: widget.showAppBar
+        ? PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: CommonAppBar(
+              scale: scale,
+              showBack: true,
+              showNotification: true,
+              onBackTap: () {
+                context.go('/home');
+              },
             ),
-            SizedBox(height: s(20)),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: s(20)),
-              child: SearchBox(
-                scale: scale,
-                controller: _searchController,
-                onChanged: (value) {
-                  context.read<CustomerListBloc>().add(SearchCustomers(value));
-                },
+          )
+        : null,
+        floatingActionButton: _buildFAB(s),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: s(24)),
+      
+              /// HEADER
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Customer List",
+                      style: GoogleFonts.poppins(
+                        fontSize: s(20),
+                        fontWeight: FontWeight.w600,
+                        color: ColorPalette.bottomtext,
+                      ),
+                    ),
+                    SizedBox(height: s(4)),
+                    Text(
+                      "Customer Information",
+                      style: GoogleFonts.lato(
+                        fontSize: s(14),
+                        color: ColorPalette.textfiledin.withValues(alpha: .80),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: s(20)),
-            Expanded(
-              child: BlocBuilder<CustomerListBloc, CustomerListState>(
-                builder: (context, state) {
-                  final isLoading = state.status == CustomerListStatus.loading;
-                  return Stack(
-                    children: [
-                      if (state.filteredCustomers.isNotEmpty)
-                        ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: s(20)),
-                          itemCount: state.filteredCustomers.length,
-                          itemBuilder: (context, index) {
-                            final customer = state.filteredCustomers[index];
-                            return CustomerItem(
-                              customer: customer,
-                              isFirst: index == 0,
-                              isLast: index == state.filteredCustomers.length - 1,
-                              onTap: () {
-                                context.push('/customer_detail', extra: customer);
-                              },
-                            );
-                          },
-                        )
-                      else if (state.status == CustomerListStatus.success)
-                        const Center(child: Text("No customers found")),
-                      if (state.status == CustomerListStatus.failure)
-                        Center(child: Text(state.message)),
-                      /*if(isLoading)
-                        Positioned.fill(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                            child: Container(
-                              color: Colors.black26, // Lighter tint for better visibility of the background
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.background),
+              SizedBox(height: s(20)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: s(20)),
+                child: SearchBox(
+                  scale: scale,
+                  controller: _searchController,
+                  onChanged: (value) {
+                    context.read<CustomerListBloc>().add(SearchCustomers(value));
+                  },
+                ),
+              ),
+              SizedBox(height: s(20)),
+              Expanded(
+                child: BlocBuilder<CustomerListBloc, CustomerListState>(
+                  builder: (context, state) {
+                    final isLoading = state.status == CustomerListStatus.loading;
+                    return Stack(
+                      children: [
+                        if (state.filteredCustomers.isNotEmpty)
+                          ListView.builder(
+                            padding: EdgeInsets.symmetric(horizontal: s(20)),
+                            itemCount: state.filteredCustomers.length,
+                            itemBuilder: (context, index) {
+                              final customer = state.filteredCustomers[index];
+                              return CustomerItem(
+                                customer: customer,
+                                isFirst: index == 0,
+                                isLast:
+                                    index == state.filteredCustomers.length - 1,
+                                onTap: () {
+                                  context.push(
+                                    '/customer_detail',
+                                    extra: customer,
+                                  );
+                                },
+                              );
+                            },
+                          )
+                        else if (state.status == CustomerListStatus.success)
+                          const Center(child: Text("No customers found")),
+                        if (state.status == CustomerListStatus.failure)
+                          Center(child: Text(state.message)),
+                        /*if(isLoading)
+                          Positioned.fill(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                              child: Container(
+                                color: Colors.black26, // Lighter tint for better visibility of the background
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 5,
+                                    valueColor: AlwaysStoppedAnimation<Color>(ColorPalette.background),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),*/
-                    ],
-                  );
-                },
+                          ),*/
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: s(10)),
-          ],
+              SizedBox(height: s(10)),
+            ],
+          ),
         ),
       ),
     );
@@ -153,22 +171,21 @@ class _CustomerListState extends State<CustomerList> {
       ),
       child: InkWell(
         onTap: () {
-          context.push('/customer_register');
+          context.push('/customer_register').then((_) {
+            context.read<CustomerListBloc>().add(LoadCustomers());
+          });
         },
         borderRadius: BorderRadius.circular(s(10)),
 
         child: Padding(
-          padding: EdgeInsets.only(
-            left: s(13),
-            right: s(19),
-          ),
+          padding: EdgeInsets.only(left: s(13), right: s(19)),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               /// ICON
               Image.asset(
                 "assets/images/customer/add_icon.png",
-                color:  ColorPalette.whitetext,
+                color: ColorPalette.whitetext,
                 height: s(22),
                 width: s(22),
               ),

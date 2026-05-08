@@ -74,8 +74,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                     onTap: () => context.push('/notification_screen'),
                     child: SvgPicture.asset(
                       "assets/images/home/notification.svg",
-                      width: s(24),
-                      height: s(24),
+                      width: s(26),
+                      height: s(26),
                     ),
                   ),
 
@@ -83,8 +83,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                     right: -1,
                     top: -2,
                     child: Container(
-                      width: s(12),
-                      height: s(12),
+                      width: s(14),
+                      height: s(14),
                       alignment: Alignment.center,
                       padding: EdgeInsets.all(s(2)),
                       decoration: BoxDecoration(
@@ -94,7 +94,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: Text(
                         "16",
                         style: GoogleFonts.poppins(
-                          fontSize: s(6),
+                          fontSize: s(8),
                           fontWeight: FontWeight.w500,
                           height: 1,
                           letterSpacing: 0,

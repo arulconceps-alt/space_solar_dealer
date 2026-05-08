@@ -4,11 +4,10 @@ class NewRegisterRepositary {
   final ApiRepository _apiRepository;
   NewRegisterRepositary(this._apiRepository);
 
-  // ✅ REGISTER CUSTOMER
   Future<void> registerCustomer({
     required String name,
     required String phone,
-    required String email, // ✅ ADD THIS
+    required String email, 
     required int countryId,
     required int stateId,
     required int districtId,
@@ -120,6 +119,8 @@ class NewRegisterRepositary {
       throw Exception("API Error: $e");
     }
   }
+
+  
   Future<void> addOrderToExistingCustomer({
     required String customerId,
     required List<String> panels,

@@ -87,25 +87,40 @@ class TicketCard extends StatelessWidget {
                 SizedBox(height: s(27)),
 
                 /// Panel ID + Date
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Panel ID : $panelId',
-                    //'Panel ID :',
-                      style: GoogleFonts.lato(
-                        color: ColorPalette.textfiledin,
-                        fontSize: s(14),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    Text(
-                      date,
-                      style: GoogleFonts.lato(
-                        color: ColorPalette.textfiled,
-                        fontSize: s(14),
-                        fontWeight: FontWeight.w400,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Panel IDs : ${panelId.split(",").map((e) => e.trim()).join(", ")}',
+                                style: GoogleFonts.lato(
+                                  color: ColorPalette.textfiledin,
+                                  fontSize: s(14),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(width: s(12)),
+
+                        Text(
+                          date,
+                          style: GoogleFonts.lato(
+                            color: ColorPalette.textfiled,
+                            fontSize: s(14),
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -122,7 +137,7 @@ class TicketCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                 'SLA : $sla',
+                  'SLA : $sla',
                   style: GoogleFonts.lato(
                     color: ColorPalette.textfiledin,
                     fontSize: s(14),
@@ -137,7 +152,9 @@ class TicketCard extends StatelessWidget {
                     child: Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: ColorPalette.background.withOpacity(0.3), // 30% opacity background
+                        color: ColorPalette.background.withOpacity(
+                          0.3,
+                        ), // 30% opacity background
                         borderRadius: BorderRadius.circular(s(10)), // radius 10
                       ),
                       child: Text(
@@ -161,11 +178,11 @@ class TicketCard extends StatelessWidget {
 
   Widget _buildBadge(double Function(double) s) {
     return Container(
-      width: s(72), 
-      height: s(20), 
+      width: s(72),
+      height: s(20),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: statusBgColor, // ✅ Use the passed background color
+        color: statusBgColor, 
         borderRadius: BorderRadius.circular(s(10)),
       ),
       child: Text(
@@ -173,7 +190,7 @@ class TicketCard extends StatelessWidget {
         textAlign: TextAlign.center,
         style: GoogleFonts.lato(
           color: statusColor,
-          fontSize: s(10), 
+          fontSize: s(10),
           fontWeight: FontWeight.w400,
         ),
       ),

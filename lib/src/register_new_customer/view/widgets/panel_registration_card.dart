@@ -1,12 +1,10 @@
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class PanelRegistrationCard extends StatelessWidget {
   final double scale;
-
-  // ✅ ADD THIS (to return scanned value)
   final Function(String) onScanResult;
 
   const PanelRegistrationCard({
@@ -38,75 +36,91 @@ class PanelRegistrationCard extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+
           SizedBox(height: s(33)),
+
           Center(
             child: Column(
               children: [
                 DottedBorder(
                   options: RoundedRectDottedBorderOptions(
-                    color: const Color(0xFF000000).withOpacity(0.50),
+                    color: Colors.black.withOpacity(0.5),
                     strokeWidth: 1,
                     dashPattern: const [6, 4],
                     radius: Radius.circular(s(10)),
                   ),
+
                   child: Container(
                     width: s(180),
                     height: s(180),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.50),
+                      color: Colors.white.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(s(10)),
                     ),
+
                     child: Padding(
                       padding: EdgeInsets.all(s(40)),
                       child: Image.asset(
                         "assets/images/new_register/qr_scan.png",
-                        width: s(100),
-                        height: s(100),
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.qr_code_scanner,
-                          size: s(80),
-                          color: const Color(0xFF484848),
-                        ),
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) {
+                          return Icon(
+                            Icons.qr_code_scanner,
+                            size: s(80),
+                            color: const Color(0xFF484848),
+                          );
+                        },
                       ),
                     ),
                   ),
                 ),
+
                 SizedBox(height: s(32)),
+
                 Text(
-                  'Position QR code within the frame',
+                  'Position QR / Barcode within the frame',
                   style: GoogleFonts.lato(
                     fontSize: s(14),
                     color: const Color(0xCC484848),
                   ),
                 ),
+
                 SizedBox(height: s(32)),
               ],
             ),
           ),
 
-          // ✅ SCAN BUTTON FIXED
-          _buildBlueButton("Scan", scale, () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => QRScannerScreen(
-                  onScan: (code) {
-                    print("✅ SCANNED RESULT: $code");
+          /// SCAN BUTTON
+          _buildBlueButton(
+            "Scan",
+            scale,
+            () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => QRScannerScreen(
+                    onScan: (code) {
+                      debugPrint("✅ SCANNED RESULT: $code");
 
-                    // send to parent
-                    onScanResult(code);
-                  },
+                      onScanResult(code);
+                    },
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBlueButton(String text, double scale, VoidCallback onTap) {
+  Widget _buildBlueButton(
+    String text,
+    double scale,
+    VoidCallback onTap,
+  ) {
     double s(double v) => v * scale;
+
     return Material(
       color: const Color(0xFF26A7DF),
       borderRadius: BorderRadius.circular(s(10)),
@@ -130,10 +144,7 @@ class PanelRegistrationCard extends StatelessWidget {
   }
 }
 
-// ==========================================
-// ✅ QR SCANNER SCREEN (FIXED)
-// ==========================================
-class QRScannerScreen extends StatelessWidget {
+class QRScannerScreen extends StatefulWidget {
   final Function(String) onScan;
 
   const QRScannerScreen({
@@ -142,26 +153,108 @@ class QRScannerScreen extends StatelessWidget {
   });
 
   @override
+  State<QRScannerScreen> createState() => _QRScannerScreenState();
+}
+
+class _QRScannerScreenState extends State<QRScannerScreen> {
+  final MobileScannerController controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.noDuplicates,
+
+    /// ALL TYPES SUPPORT
+    formats: [
+      BarcodeFormat.qrCode,
+      BarcodeFormat.code128,
+      BarcodeFormat.code39,
+      BarcodeFormat.code93,
+      BarcodeFormat.ean13,
+      BarcodeFormat.ean8,
+      BarcodeFormat.upcA,
+      BarcodeFormat.upcE,
+      BarcodeFormat.itf,
+      BarcodeFormat.pdf417,
+      BarcodeFormat.aztec,
+      BarcodeFormat.dataMatrix,
+      BarcodeFormat.codabar,
+    ],
+  );
+
+  bool isScanned = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Scan QR")),
-      body: MobileScanner(
-        onDetect: (capture) {
-          final List<Barcode> barcodes = capture.barcodes;
+      backgroundColor: Colors.black,
 
-          for (final barcode in barcodes) {
-            final String? code = barcode.rawValue;
+      appBar: AppBar(
+        title: const Text("Scan QR / Barcode"),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
 
-            if (code != null) {
-              print("📷 SCANNED: $code");
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: controller,
 
-              onScan(code);
+            onDetect: (capture) {
+              if (isScanned) return;
 
-              Navigator.pop(context);
-              break;
-            }
-          }
-        },
+              final List<Barcode> barcodes = capture.barcodes;
+
+              for (final barcode in barcodes) {
+                final String? code = barcode.rawValue;
+
+                if (code != null && code.isNotEmpty) {
+                  isScanned = true;
+
+                  debugPrint("📷 SCANNED: $code");
+
+                  widget.onScan(code);
+
+                  Navigator.pop(context);
+
+                  break;
+                }
+              }
+            },
+          ),
+
+          /// SCAN BOX UI
+          Center(
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.white,
+                  width: 3,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Text(
+              "Scan any QR or Barcode",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -16,6 +16,7 @@ import 'package:space_solar_dealer/src/dashboard/view/widgets/dashboard_card_des
 import 'package:space_solar_dealer/src/dashboard/view/widgets/action_card.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/activity_tile.dart';
 import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_event.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/bloc/total_panel_bloc.dart';
@@ -59,10 +60,10 @@ class _DashboardState extends State<Dashboard> {
       case "RESOLVED":
         return Colors.green;
       case "PENDING":
-        return Color(0xFFEA1F27);
+        return const Color(0xFFEA1F27);
       case "IN_PROGRESS":
         return ColorPalette.textfiledin;
-        
+
       default:
         return Colors.grey;
     }
@@ -90,13 +91,15 @@ class _DashboardState extends State<Dashboard> {
             final isLoading =
                 dashboardState.status == DashboardStatus.loading &&
                 _selectedIndex == 0;
-            final activities =
-    (dashboard?.recentActivities ?? []).take(5).toList();
+            final activities = (dashboard?.recentActivities ?? [])
+                .take(5)
+                .toList();
             return Stack(
               children: [
                 IndexedStack(
                   index: _selectedIndex,
                   children: [
+                    // Dashboard Tab (Index 0)
                     RefreshIndicator(
                       onRefresh: () async {
                         context.read<DashboardBloc>().add(LoadDashboardEvent());
@@ -147,6 +150,7 @@ class _DashboardState extends State<Dashboard> {
                                       "icon":
                                           "assets/images/dashboard/solar_panel.png",
                                       "iconsize": iconLarge,
+                                      "route": RouteName.total_panel_list,
                                     },
                                     {
                                       "title": "Total Customers",
@@ -157,6 +161,7 @@ class _DashboardState extends State<Dashboard> {
                                       "icon":
                                           "assets/images/dashboard/people.png",
                                       "iconsize": iconMedium,
+                                      "route": RouteName.customer_list, // Add navigation route
                                     },
                                     {
                                       "title": "Active Warranties",
@@ -167,6 +172,7 @@ class _DashboardState extends State<Dashboard> {
                                       "icon":
                                           "assets/images/dashboard/active_shield.png",
                                       "iconsize": iconSmall,
+                                      "route": null, // No navigation
                                     },
                                     {
                                       "title": "Tickets",
@@ -178,16 +184,28 @@ class _DashboardState extends State<Dashboard> {
                                       "icon":
                                           "assets/images/dashboard/tickets_notify_icon.png",
                                       "iconsize": iconMedium,
+                                      "route": RouteName.ticket_list, // Add navigation route
                                     },
                                   ];
-
                                   final item = items[index];
 
                                   return GestureDetector(
                                     onTap: () {
-                                      context.goNamed(
-                                        RouteName.total_panel_list,
-                                      );
+                                      // Navigate if route exists
+                                      if (item["route"] != null && item["route"]!.toString().isNotEmpty) {
+                                        final routeName = item["route"] as String;
+                                        
+                                        // Navigate to the screen
+                                        context.pushNamed(routeName).then((_) {
+                                          // Refresh data when coming back
+                                          context.read<DashboardBloc>().add(LoadDashboardEvent());
+                                          if (routeName == RouteName.customer_list) {
+                                            context.read<CustomerListBloc>().add(LoadCustomers());
+                                          } else if (routeName == RouteName.ticket_list) {
+                                            context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
+                                          }
+                                        });
+                                      }
                                     },
                                     child: DashboardCard(
                                       title: item["title"] as String,
@@ -198,6 +216,7 @@ class _DashboardState extends State<Dashboard> {
                                       iconSize:
                                           item["iconsize"] as double? ??
                                           iconMedium,
+                                      route: item["route"] as String? ?? "",
                                     ),
                                   );
                                 },
@@ -239,7 +258,7 @@ class _DashboardState extends State<Dashboard> {
                                     children: [
                                       Expanded(
                                         child: ActionCard(
-                                          title: "Register\nNew Customer",
+                                          title: "Register\n Customer",
                                           iconSize: 16,
                                           color: ColorPalette.background,
                                           imagePath:
@@ -249,7 +268,12 @@ class _DashboardState extends State<Dashboard> {
                                           onTap: () {
                                             context.pushNamed(
                                               RouteName.customer_register,
-                                            );
+                                            ).then((_) {
+                                              // Refresh customer list when returning
+                                              context.read<CustomerListBloc>().add(LoadCustomers());
+                                              // Refresh dashboard
+                                              context.read<DashboardBloc>().add(LoadDashboardEvent());
+                                            });
                                           },
                                         ),
                                       ),
@@ -264,8 +288,13 @@ class _DashboardState extends State<Dashboard> {
                                           arrowSvgPath:
                                               "assets/images/home/arrow_right.svg",
                                           onTap: () {
-                                            setState(() {
-                                              _selectedIndex = 2;
+                                            // Navigate to raise ticket screen
+                                            context.pushNamed(
+                                              RouteName.ticket_list, // Make sure this route exists
+                                            ).then((_) {
+                                              // Refresh tickets when returning
+                                              context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
+                                              context.read<DashboardBloc>().add(LoadDashboardEvent());
                                             });
                                           },
                                         ),
@@ -327,8 +356,13 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
 
+                    // Customer List Tab (Index 1)
                     const CustomerList(),
+
+                    // Tickets List Tab (Index 2)
                     const TicketsListDetails(),
+
+                    // Profile Tab (Index 3)
                     const ProfileScreen(),
                   ],
                 ),
@@ -364,6 +398,8 @@ class _DashboardState extends State<Dashboard> {
 
               if (index == 1) {
                 context.read<CustomerListBloc>().add(LoadCustomers());
+              } else if (index == 2) {
+                context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
               }
             },
           ),

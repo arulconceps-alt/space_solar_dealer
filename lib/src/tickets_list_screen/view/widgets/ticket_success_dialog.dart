@@ -5,7 +5,6 @@ import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/ticket_success_animated_tick.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/tickets_details_dialog.dart';
 
-
 class TicketSuccessDialog extends StatelessWidget {
   final TicketModel ticket;
   final BuildContext parentContext;
@@ -27,7 +26,7 @@ class TicketSuccessDialog extends StatelessWidget {
       insetPadding: EdgeInsets.symmetric(horizontal: s(20)),
       child: Container(
         width: s(400),
-         padding: EdgeInsets.only(
+        padding: EdgeInsets.only(
           left: s(20),
           right: s(20),
           bottom: s(48),
@@ -41,25 +40,8 @@ class TicketSuccessDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-      
-            // /// 🔹 ICON
-            // Container(
-            //   width: s(110),
-            //   height: s(110),
-            //   decoration: const BoxDecoration(
-            //     color: Color(0x4C319F43),
-            //     shape: BoxShape.circle,
-            //   ),
-            //   child: Center(
-            //     child: Image.asset(
-            //       "assets/images/success/tick_circle_outline.png",
-            //       width: s(44),
-            //       height: s(44),
-            //     ),
-            //   ),
-            // ),
             TicketSuccessAnimatedTick(scale: scale),
-      
+
             SizedBox(height: s(26)),
             Text(
               "Ticket Submitted",
@@ -69,12 +51,12 @@ class TicketSuccessDialog extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-      
+
             SizedBox(height: s(24)),
-      
+
             /// 🔹 DESCRIPTION
             Text(
-              "Your Ticket has been created.\nYour Ticket ID is ${ticket.ticketId}",
+              "Your Ticket has been created.\nYour Ticket ID is ${ticket.ticketNumber}",
               textAlign: TextAlign.center,
               style: GoogleFonts.lato(
                 color: ColorPalette.textfiledin.withValues(alpha: .80),
@@ -82,64 +64,29 @@ class TicketSuccessDialog extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
             ),
-              SizedBox(height: s(30)),
+            SizedBox(height: s(30)),
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                // showGeneralDialog(
-                //   context: context,
-                //   barrierDismissible: true,
-                //   barrierLabel: "Ticket Details", 
-                //   barrierColor: Colors.black54,
-                //   transitionDuration: const Duration(milliseconds: 300),
-
-                //   pageBuilder: (context, animation, secondaryAnimation) {
-                //     return Center(
-                //       child: TicketDetailsDialog(ticket: ticket),
-                //     );
-                //   },
-
-                //   transitionBuilder: (context, animation, secondaryAnimation, child) {
-                //     return Transform.scale(
-                //       scale: animation.value,
-                //       child: Opacity(
-                //         opacity: animation.value,
-                //         child: child,
-                //       ),
-                //     );
-                //   },
-                // );
-                 showGeneralDialog(
-              context: context,
-              barrierDismissible: true,
-              barrierLabel: "Ticket Details",
-              barrierColor: Colors.black54,
-              transitionDuration: const Duration(milliseconds: 400),
-              pageBuilder: (context, animation, secondaryAnimation) {
-                return const SizedBox(); // required
-              },
-              transitionBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    final curvedAnimation = CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutBack,
-                    );
-
-                    return Transform.scale(
-                      scale: curvedAnimation.value,
-                      child: Opacity(
-                        opacity: animation.value,
-                        child: Dialog(
-                          backgroundColor: Colors.transparent,
-                          insetPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: TicketDetailsDialog(ticket: ticket,),
-                        ),
-                      ),
+                showModalBottomSheet(
+                  context: parentContext,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) {
+                    return DraggableScrollableSheet(
+                      initialChildSize: 0.85,
+                      minChildSize: 0.5,
+                      maxChildSize: 0.95,
+                      expand: false,
+                      builder: (_, controller) {
+                        return TicketDetailsDialog(
+                          ticket: ticket,
+                          scrollController: controller,
+                        );
+                      },
                     );
                   },
-            );
+                );
               },
               child: Container(
                 width: double.infinity,

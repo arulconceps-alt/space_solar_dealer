@@ -7,8 +7,9 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/common/bloc/alert/alert_state.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/common/widgets/custom_snackbar.dart';
+import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
-import 'package:space_solar_dealer/src/register_new_customer/bloc/new_register_bloc.dart';
+import 'package:space_solar_dealer/src/register_new_customer/bloc/new_register_bloc.dart' hide LoadCustomers;
 import 'package:space_solar_dealer/src/register_new_customer/view/widgets/OrDivider.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/widgets/added_panel_tile.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/widgets/blue_button.dart';
@@ -27,8 +28,9 @@ class RegisterCustomerScreen extends StatefulWidget {
 class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
   bool _dialogShown = false;
-  List<String> panels = [];
-  String customerType = "New Customer";
+  List<String> allPanels = []; // Combined panels (existing + new)
+  List<String> newPanelsOnly = []; // Only new panels added
+  String _selectedCustomerType = "New Customer";
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -67,7 +69,8 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     stateController.clear();
     districtController.clear();
     areaController.clear();
-    panels.clear();
+    allPanels.clear();
+    newPanelsOnly.clear();
     setState(() {});
   }
 
@@ -87,8 +90,11 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       return _showError("Select pincode");
     if (addressController.text.trim().isEmpty)
       return _showError("Enter address");
-    //if (panels.isEmpty) return _showError("Add at least one panel");
- 
+    
+    if (_selectedCustomerType == "Register Panles" && allPanels.isEmpty) {
+      return _showError("Add at least one panel");
+    }
+    
     return true;
   }
 
@@ -104,6 +110,18 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     return false;
   }
 
+  void _updatePanels(List<String> panels) {
+    setState(() {
+      allPanels = panels;
+    });
+  }
+
+  void _updateNewPanels(List<String> newPanels) {
+    setState(() {
+      newPanelsOnly = newPanels;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -114,16 +132,20 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
       listener: (context, state) {
         if (state.status == NewRegisterStatus.success && !_dialogShown) {
           _dialogShown = true;
-          _showSuccessDialog(context, scale);
-          _clearForm();
-          context.read<NewRegisterBloc>().add(ResetRegisterState());
           
+           context.read<CustomerListBloc>().add(LoadCustomers());
+          final newPanels = customerKey.currentState?.getNewPanelsOnly() ?? [];
+          
+          _showSuccessDialog(context, scale, newPanels, _selectedCustomerType);
+          _clearForm();
         }
         if (state.status == NewRegisterStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error: ${state.message}"),
-              backgroundColor: Colors.red,
+          CustomSnackBar.show(
+            context,
+            AlertState(
+              message: state.message,
+              type: AlertType.failure,
+              timestamp: DateTime.now(),
             ),
           );
         }
@@ -168,68 +190,93 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           districtController: districtController,
                           pincodeController: pincodeController,
                           addressController: addressController,
-                          onClearPanels: () => setState(() => panels.clear()),
-                          onPanelsLoaded: (apiPanels) =>
-                              setState(() => panels = apiPanels),
-                              
+                          onCustomerTypeChanged: (type) {
+                            setState(() => _selectedCustomerType = type);
+                          },
+                          onClearPanels: () => setState(() {
+                            allPanels.clear();
+                            newPanelsOnly.clear();
+                          }),
+                          onPanelsLoaded: (apiPanels) {
+                            setState(() => allPanels = apiPanels);
+                          },
                         ),
 
                         SizedBox(height: s(20)),
+
+                        if (_selectedCustomerType == "Register Panels") ...[
                         PanelRegistrationCard(
-                          scale: scale,
-                          onScanResult: (serial) {
-                            print("🔥 PANEL SERIAL: $serial");
-                          },
-                        ),
-                        SizedBox(height: s(30)),
-                        OrDivider(scale: scale),
-                        SizedBox(height: s(30)),
+  scale: scale,
+  onScanResult: (serial) {
+    final formattedId = serial.startsWith("SS-78A00-S")
+        ? serial
+        : "SS-78A00-S${serial.padLeft(3, '0')}";
 
-                        ManualPanelEntry(
-                          scale: scale,
-                          panels: panels,
-                          onAdd: (value) {
-                            setState(() {
-                              if (!panels.contains(value)) {
-                                panels.add(value);
-                              }
-                            });
-                          },
-                          onRemove: (value) {
-                            setState(() {
-                              panels.remove(value);
-                            });
-                          },
-                        ),
-                        SizedBox(height: s(31)),
+    customerKey.currentState?.addNewPanel(formattedId);
 
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: panels.length,
-                          itemBuilder: (context, index) {
-                            final panel = panels[index];
-
-                            /// ✅ Detect if already formatted or manual
-                            final displayId = panel.startsWith("SS-78A00-S")
-                                ? panel
-                                : "SS-78A00-S${panel.padLeft(3, '0')}";
-
-                            return AddedPanelTile(
-                              id: displayId, 
-                              scale: scale,
-                              onRemove: () {
-                                setState(() {
-                                  panels.removeAt(
-                                    index,
-                                  ); 
-                                });
+    setState(() {
+      allPanels = customerKey.currentState?.allPanels ?? [];
+      newPanelsOnly =
+          customerKey.currentState?.getNewPanelsOnly() ?? [];
+    });
+  },
+),
+                          SizedBox(height: s(30)),
+                          OrDivider(scale: scale),
+                          SizedBox(height: s(30)),
+                          ManualPanelEntry(
+                            scale: scale,
+                            panels: allPanels,
+                            onAdd: (value) {
+                              final formattedId = value.startsWith("SS-78A00-S")
+                                  ? value
+                                  : "SS-78A00-S${value.padLeft(3, '0')}";
+                              customerKey.currentState?.addNewPanel(formattedId);
+                              _updateNewPanels(customerKey.currentState?.getNewPanelsOnly() ?? []);
+                            },
+                            onRemove: (value) {
+                              customerKey.currentState?.removeNewPanel(value);
+                              _updateNewPanels(customerKey.currentState?.getNewPanelsOnly() ?? []);
+                            },
+                          ),
+                          SizedBox(height: s(31)),
+                          
+                          // Display all panels (existing + new)
+                          if (allPanels.isNotEmpty) ...[
+                            Text(
+                              "Registered Panels",
+                              style: GoogleFonts.lato(
+                                fontSize: s(14),
+                                fontWeight: FontWeight.w600,
+                                color: ColorPalette.bottomtext,
+                              ),
+                            ),
+                            SizedBox(height: s(12)),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: allPanels.length,
+                              separatorBuilder: (_, __) => SizedBox(height: s(16)),
+                              itemBuilder: (context, index) {
+                                final panel = allPanels[index];
+                                final isExisting = customerKey.currentState?.existingPanels.contains(panel) ?? false;
+                                
+                                return AddedPanelTile(
+                                  id: panel,
+                                  scale: scale,
+                                  showRemove: !isExisting,
+                                  isExisting: isExisting,
+                                  onRemove: () {
+                                    customerKey.currentState?.removeNewPanel(panel);
+                                    _updateNewPanels(customerKey.currentState?.getNewPanelsOnly() ?? []);
+                                  },
+                                );
                               },
-                            );
-                          },
-                          separatorBuilder: (context, index) =>
-                              SizedBox(height: s(16)),
-                        ),
+                            ),
+                            SizedBox(height: s(31)),
+                          ],
+                        ],
+
                         SizedBox(height: s(31)),
 
                         BlueButton(
@@ -240,9 +287,18 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                           onTap: () {
                             if (!_validateFields()) return;
 
-                            final blocState = context
-                                .read<NewRegisterBloc>()
-                                .state;
+                            final blocState = context.read<NewRegisterBloc>().state;
+                            
+                            // Use only NEW panels for registration
+                            final panelsToRegister = _selectedCustomerType == "Register Panels"
+                                ? (customerKey.currentState?.getNewPanelsOnly() ?? [])
+                                : allPanels;
+
+                            if (_selectedCustomerType == "Register Panels" && panelsToRegister.isEmpty) {
+                              _showError("Add at least one NEW panel to register");
+                              return;
+                            }
+
 
                             context.read<NewRegisterBloc>().add(
                               NewRegisterSubmit(
@@ -250,7 +306,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                                 phone: phoneController.text.trim(),
                                 email: emailController.text.trim(),
                                 addressLine: addressController.text.trim(),
-                                panels: panels,
+                                panels: panelsToRegister,
                                 stateId: blocState.selectedStateId ?? 0,
                                 districtId: blocState.selectedDistrictId ?? 0,
                                 pincodeId: blocState.selectedPincodeId ?? 0,
@@ -288,7 +344,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     );
   }
 
-  void _showSuccessDialog(BuildContext context, double scale) {
+  void _showSuccessDialog(BuildContext context, double scale, List<String> newPanels, String customerType,) {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -306,11 +362,18 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
             opacity: animation.value,
             child: Dialog(
               backgroundColor: Colors.transparent,
-              child: RegistrationSuccessScreen(scale: scale),
+              child: RegistrationSuccessScreen(
+                customerType: customerType,
+                scale: scale,
+                newPanels: newPanels, 
+              ),
             ),
           ),
         );
       },
-    );
+    ).then((_) {
+      _dialogShown = false;
+       context.read<NewRegisterBloc>().add(ResetRegisterState());
+    });
   }
 }

@@ -209,6 +209,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             style: GoogleFonts.lato(
               fontSize: s(16),
               fontWeight: FontWeight.w600,
+              color: ColorPalette.bottomtext,
             ),
           ),
           SizedBox(height: s(14)),
@@ -220,7 +221,12 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
               borderRadius: BorderRadius.circular(s(10)),
               border: Border.all(color: ColorPalette.whitetext),
             ),
-            child: Text(value),
+            child: Text(value,
+            style: GoogleFonts.lato(
+              fontSize: s(16),
+              fontWeight: FontWeight.w400,
+              color: ColorPalette.textfiledin.withOpacity(0.80),
+            ),),
           ),
         ],
       ),

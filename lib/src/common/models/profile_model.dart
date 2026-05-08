@@ -21,13 +21,14 @@ class ProfileModel {
   final String? email;
   final String? phone;
   final String? status;
+  final String? roleType; // ✅ ADD THIS
   final String? addressLine1;
   final String? createdAt;
 
   final StateModel? state;
   final DistrictModel? district;
 
-  final DealerProfile? dealerProfile; // ✅ ADD THIS
+  final DealerProfile? dealerProfile;
 
   ProfileModel({
     this.id,
@@ -35,6 +36,7 @@ class ProfileModel {
     this.email,
     this.phone,
     this.status,
+    this.roleType, // ✅ ADD THIS
     this.addressLine1,
     this.createdAt,
     this.state,
@@ -49,6 +51,7 @@ class ProfileModel {
       email: json['email'],
       phone: json['phone'],
       status: json['status'],
+      roleType: json['roleType'], // ✅ ADD THIS
       addressLine1: json['addressLine1'],
       createdAt: json['createdAt'],
 

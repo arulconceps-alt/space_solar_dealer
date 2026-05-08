@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 
@@ -64,7 +67,6 @@ class TicketListDetailsRepositary {
 
   //   return response["data"];
   // }
-
 Future<Map<String, dynamic>> createTicket({
   required String customerId,
   required String title,
@@ -73,24 +75,40 @@ Future<Map<String, dynamic>> createTicket({
   required String priority,
   required String scheduledAt,
   required List<Map<String, dynamic>> products,
+  List<File>? images, // Add this parameter
 }) async {
 
-  final body = {
+  // Build FormData instead of a plain Map
+  final formData = FormData.fromMap({
     "customerId": customerId,
     "title": title,
     "description": description,
     "category": category,
     "priority": priority,
     "scheduledAt": scheduledAt,
-    "products": products,
-  };
 
-  // 🔥 PRINT REQUEST HERE
-  print("📤 CREATE TICKET REQUEST => $body");
+    // Flatten products list into bracket-notation fields
+    for (int i = 0; i < products.length; i++) ...{
+      "products[$i][productId]": products[i]["productId"],
+      "products[$i][serialNo]":  products[i]["serialNo"],
+    },
 
-  final response = await _apiRepository.postRequest(
+    // Attach image files if provided
+    if (images != null)
+      "images": [
+        for (final file in images)
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+      ],
+  });
+
+  print("📤 CREATE TICKET FORM DATA => ${formData.fields}");
+
+  final response = await _apiRepository.postMultipartRequest(
     url: "/dealer/tickets",
-    data: body,
+    data: formData,
   );
 
   print("📥 CREATE TICKET RESPONSE => $response");
@@ -101,22 +119,25 @@ Future<Map<String, dynamic>> createTicket({
 
   return response["data"];
 }
-  /// Panel ID's
-  /// 🔥 GET PANEL IDS
-  // Future<List<PanelModel>> getPanelIds() async {
-  //   final response = await _apiRepository.getRequest("/dealer/sold-serials");
 
-  //   print("📥 PANEL API RESPONSE: $response");
+Future<TicketModel> getTicketDetails(String ticketId) async {
+  try {
+    final response = await _apiRepository.getRequest(
+      "/dealer/tickets/$ticketId",
+    );
 
-  //   if (response["success"] != true) {
-  //     throw Exception(response["message"]);
-  //   }
+    print("✅ TICKET DETAILS API: $response");
 
-  //   final List list = response["data"] ?? [];
+    final data = response["data"];
 
-  //   return list.map((e) => PanelModel.fromJson(e)).toList();
-  // }
-  Future<List<PanelModel>> getPanelIds(String customerId) async {
+    return TicketModel.fromJson(data);
+  } catch (e) {
+    print("❌ GET TICKET DETAILS ERROR: $e");
+    rethrow;
+  }
+}
+
+Future<List<PanelModel>> getPanelIds(String customerId) async {
   final response = await _apiRepository.getRequest(
     "/dealer/sold-serials?customerId=$customerId",
   );
@@ -131,5 +152,4 @@ Future<Map<String, dynamic>> createTicket({
 
   return list.map((e) => PanelModel.fromJson(e)).toList();
 }
-
 }

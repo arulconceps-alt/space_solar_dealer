@@ -9,13 +9,13 @@ enum TicketListDetailsStatus { initial, loading, success, failure,create }
 class TicketListDetailsState extends Equatable {
   final TicketListDetailsStatus status;
   final List<TicketModel> tickets;
-  final List<PanelModel> panels; // ✅ ADD THIS
+  final List<PanelModel> panels; 
   final String message;
 
   const TicketListDetailsState({
     this.status = TicketListDetailsStatus.initial,
     this.tickets = const [],
-    this.panels = const [], // ✅ ADD THIS
+    this.panels = const [], 
     this.message = "",
   });
 

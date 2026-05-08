@@ -5,7 +5,7 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/widget/panel_details_dialog.dart';
 
 class PanelItemList extends StatelessWidget {
-  final dynamic panel;
+  final dynamic panel; 
   final String name;
   final bool isFirst;
   final bool isLast;
@@ -23,7 +23,6 @@ class PanelItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    // Use your Figma design width (usually 440 or 428) as the base
     final scale = w / 440;
     double s(double v) => v * scale;
 
@@ -40,18 +39,14 @@ class PanelItemList extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: s(5), sigmaY: s(5)),
           child: Container(
-            // MATCH FIGMA: Height 70px
             height: s(70),
-            // width: double.infinity is better than 400 because
-            // the horizontal padding of 20px on a 440px screen
-            // naturally creates a 400px card.
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: s(24)), // Space for icon/text
+            padding: EdgeInsets.symmetric(horizontal: s(24)),
             decoration: BoxDecoration(
               color: ColorPalette.whitetext.withOpacity(0.50),
               border: Border.all(
                 color: ColorPalette.whitetext,
-                width: s(1), // MATCH FIGMA: Border 1px
+                width: s(1),
               ),
             ),
             child: Row(
@@ -66,7 +61,6 @@ class PanelItemList extends StatelessWidget {
                     ),
                   ),
                 ),
-                // MATCH FIGMA: Spacing/Size for Eye Icon
                 Material(
                   color: Colors.transparent,
                   child: InkWell(

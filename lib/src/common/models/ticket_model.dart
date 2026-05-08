@@ -12,6 +12,9 @@ class TicketModel {
   final String email;
 final String phone;
 final String addressLine1;  
+ final String assignedToName;
+ final List<String> attachments;
+
 
   TicketModel({
   required this.ticketId,
@@ -27,23 +30,31 @@ final String addressLine1;
   required this.email,
   required this.phone,
   required this.addressLine1,
+  required this.assignedToName,
+  this.attachments = const [],
 });
 
  factory TicketModel.fromJson(Map<String, dynamic> json) {
   try {
     final customer = json["customer"];
     final products = json["products"];
+    final assignedTo = json["assignedTo"];
 
     String panelId = "-";
-
     if (products != null && products is List && products.isNotEmpty) {
-      panelId = products[0]?["serialNo"] ?? "-";
+      panelId = products
+          .map((e) => e["serialNo"]?.toString() ?? "")
+          .where((e) => e.isNotEmpty)
+          .join(",");
     } else if (customer != null &&
         customer["soldSerials"] != null &&
         customer["soldSerials"] is List &&
         customer["soldSerials"].isNotEmpty) {
       final panels = customer["soldSerials"];
-      panelId = panels.first["serialNumber"] ?? "-";
+      panelId = panels
+          .map((e) => e["serialNumber"]?.toString() ?? "")
+          .where((e) => e.isNotEmpty)
+          .join(",");
     }
 
     return TicketModel(
@@ -59,11 +70,13 @@ final String addressLine1;
       createdAt: json["createdAt"] != null
           ? DateTime.parse(json["createdAt"]).toLocal()
           : DateTime.now(),
-
-      /// ✅ NEW FIELDS
       email: customer?["email"] ?? "",
       phone: (customer?["phone"] ?? "").toString().replaceAll("+91", ""),
       addressLine1: customer?["addressLine1"] ?? "",
+      assignedToName: assignedTo?["name"] ?? "",
+
+      // ✅ இது மட்டும் சேர்க்கவும்
+      attachments: List<String>.from(json["attachments"] ?? []),
     );
   } catch (e, stack) {
     print("❌ MODEL ERROR: $e");

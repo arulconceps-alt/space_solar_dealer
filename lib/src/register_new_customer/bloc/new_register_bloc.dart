@@ -251,13 +251,21 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
         );
       }
 
-      emit(state.copyWith(status: NewRegisterStatus.success));
-
+       emit(
+        state.copyWith(
+          status: NewRegisterStatus.success,
+          message: isExisting
+              ? "Panel added successfully"
+              : "Customer registered successfully",
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: NewRegisterStatus.failure,
-        message: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: NewRegisterStatus.failure,
+          message: e.toString(),
+        ),
+      );
     }
   }
 }

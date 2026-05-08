@@ -20,7 +20,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       final profile = await repo.getProfile();
 
-      emit(state.copyWith(status: ProfileStatus.success, profile: profile));
+      emit(
+  state.copyWith(
+    status: ProfileStatus.loading,
+    profile: profile,
+  ),
+);
     } catch (e) {
       emit(
         state.copyWith(status: ProfileStatus.failure, message: e.toString()),

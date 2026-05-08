@@ -20,7 +20,7 @@ class ProfileInfoCard extends StatelessWidget {
     required this.isActive,
     required this.profile,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     double s(double v) => v * scale;
@@ -93,6 +93,15 @@ class ProfileInfoCard extends StatelessWidget {
                     ),
 
                     SizedBox(height: s(17)),
+
+                     ProfileInfoRow(
+                      s: s,
+                      iconSize: 18,
+                      iconPath: "assets/images/profile/company.png",
+                     text: profile?.dealerProfile?.businessName ?? "-",
+                    ),
+
+                     SizedBox(height: s(13)),
 
                     /// INFO ROWS
                     ProfileInfoRow(

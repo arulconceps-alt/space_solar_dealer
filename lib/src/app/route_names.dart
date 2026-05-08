@@ -16,5 +16,7 @@ mixin RouteName {
   static const edit_profile_screen = "edit_profile_screen";
   static const notification_screen = "notification_screen";
   static const total_panel_list = "total_panel_list";
-
+  static const about = "about";
+   static const privacy = "privacy";
+  static const termscondition = "termscondition";
 }

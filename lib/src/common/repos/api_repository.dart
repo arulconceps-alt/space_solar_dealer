@@ -115,6 +115,21 @@ class ApiRepository {
     }
     throw Exception("HTTP error: ${response.statusCode}");
   }
+ Future<Map<String, dynamic>> postMultipartRequest({
+  required String url,
+  required FormData data,
+}) async {
+  final response = await _dio.post(
+    url,
+    data: data,
+    options: Options(
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    ),
+  );
+  return response.data;
+}
 
   Exception _handleError(DioException error) {
     String errorMessage = "Something went wrong";

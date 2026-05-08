@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:space_solar_dealer/src/about/about_view.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
 import 'package:space_solar_dealer/src/common/models/customer_model.dart';
 import 'package:space_solar_dealer/src/common/models/profile_model.dart';
@@ -25,12 +26,14 @@ import 'package:space_solar_dealer/src/onboarding/view/onboarding_screen.dart';
 import 'package:space_solar_dealer/src/otp_screen/bloc/otp_bloc.dart';
 import 'package:space_solar_dealer/src/otp_screen/repo/otp_repositary.dart';
 import 'package:space_solar_dealer/src/otp_screen/view/otp_screen.dart';
+import 'package:space_solar_dealer/src/privacy_policy/view/privacy_policy.dart';
 import 'package:space_solar_dealer/src/profile/view/profile_screen.dart';
 import 'package:space_solar_dealer/src/register_new_customer/bloc/new_register_bloc.dart';
 import 'package:space_solar_dealer/src/register_new_customer/repo/new_register_repositary.dart';
 import 'package:space_solar_dealer/src/register_new_customer/view/register_customer_screen.dart';
 import 'package:space_solar_dealer/src/registration_success_screen/view/registration_success_screen.dart';
 import 'package:space_solar_dealer/src/signup/view/signup_screen.dart';
+import 'package:space_solar_dealer/src/terms_condition.dart/terms_condition_view.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/tickets_list_details.dart';
 import 'package:space_solar_dealer/src/total_panel_ids/view/total_panel_List.dart';
 
@@ -134,11 +137,13 @@ class Routes {
         name: RouteName.customer_list,
         path: "/customer_list",
         builder: (context, state) =>
-            const CustomerList(), // Simply return the screen
+            const CustomerList(
+               showAppBar: true,
+            ), // Simply return the screen
       ),
       GoRoute(
         name: RouteName
-            .customer_edit, // add  customer_edit  to your RouteName constants
+            .customer_edit, 
         path: "/customer_edit",
         builder: (context, state) {
           final customer = state.extra as CustomerModel;
@@ -166,7 +171,9 @@ class Routes {
       GoRoute(
         name: RouteName.ticket_list,
         path: "/ticket_list",
-        builder: (context, state) => const TicketsListDetails(),
+        builder: (context, state) => const TicketsListDetails(
+           showAppBar: true,
+        ),
       ),
 
       ///profile screen
@@ -194,11 +201,32 @@ class Routes {
         builder: (context, state) => const NotificationScreen(),
       ),
 
+       GoRoute(
+        name: RouteName.about,
+        path: "/about",
+        builder: (context, state) => const AboutView(),
+      ),
+
+        GoRoute(
+        name: RouteName.termscondition,
+        path: "/termscondition",
+        builder: (context, state) => const TermsConditionView(),
+      ),
+
+       GoRoute(
+        name: RouteName.privacy,
+        path: "/privacy",
+        builder: (context, state) => const PrivacyPolicyView(),
+      ),
       ///Panel Id's List screen
       GoRoute(
-        name: RouteName.total_panel_list,
-        path: "/total_panel_list",
-        builder: (context, state) => const TotalPanelList(),
+        path: '/total-total_panel_list',
+        name: 'total_panel_list',
+        builder: (context, state) {
+          final customerId = state.extra as String?;
+
+          return TotalPanelList(customerId: customerId);
+        },
       ),
     ],
   );

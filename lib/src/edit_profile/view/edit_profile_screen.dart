@@ -36,8 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     emailController.text = widget.profile.email ?? "";
     phoneController.text = widget.profile.phone ?? "";
     addressController.text = widget.profile.addressLine1 ?? "";
-    companyController.text =
-        widget.profile.dealerProfile?.businessName ?? "";
+    companyController.text = widget.profile.dealerProfile?.businessName ?? "";
   }
 
   @override
@@ -58,31 +57,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     double s(double v) => v * scale;
 
     return BlocListener<ProfileBloc, ProfileState>(
-      listener: (context, state) {
-        if (state.status == ProfileStatus.success) {
-          CustomSnackBar.show(
-            context,
-            AlertState(
-              type: AlertType.success,
-              message: state.message ?? "Profile updated successfully",
-              timestamp: DateTime.now(),
-            ),
-          );
+  listenWhen: (previous, current) {
+    return previous.status != current.status;
+  },
 
-          context.pop(); 
-        }
+  listener: (context, state) {
 
-        if (state.status == ProfileStatus.failure) {
-          CustomSnackBar.show(
-            context,
-            AlertState(
-              type: AlertType.failure,
-              message: state.message ?? "Update failed",
-              timestamp: DateTime.now(),
-            ),
-          );
-        }
-      },
+    /// SUCCESS
+    if (state.status == ProfileStatus.success &&
+        state.message.trim().isNotEmpty) {
+
+      CustomSnackBar.show(
+        context,
+        AlertState(
+          type: AlertType.success,
+          message: state.message,
+          timestamp: DateTime.now(),
+        ),
+      );
+
+      context.pop();
+    }
+
+    /// FAILURE
+    if (state.status == ProfileStatus.failure &&
+        state.message.trim().isNotEmpty) {
+
+      CustomSnackBar.show(
+        context,
+        AlertState(
+          type: AlertType.failure,
+          message: state.message,
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
+  },
 
       child: Scaffold(
         extendBodyBehindAppBar: true,
@@ -161,17 +171,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         final body = {
                           "name": nameController.text.trim(),
                           "email": emailController.text.trim(),
-                          "addressLine1":
-                              addressController.text.trim(),
+                          "addressLine1": addressController.text.trim(),
                           "dealerProfile": {
-                            "businessName":
-                                companyController.text.trim(),
+                            "businessName": companyController.text.trim(),
                           },
                         };
 
-                        context
-                            .read<ProfileBloc>()
-                            .add(UpdateProfileEvent(body));
+                        context.read<ProfileBloc>().add(
+                          UpdateProfileEvent(body),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorPalette.background,

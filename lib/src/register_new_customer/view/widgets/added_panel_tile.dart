@@ -5,7 +5,8 @@ class AddedPanelTile extends StatelessWidget {
   final String id;
   final double scale;
   final VoidCallback? onRemove;
-  final bool showRemove; 
+  final bool showRemove;
+  final bool isExisting; 
 
   const AddedPanelTile({
     super.key,
@@ -13,6 +14,7 @@ class AddedPanelTile extends StatelessWidget {
     required this.scale,
     this.onRemove,
     this.showRemove = true,
+    this.isExisting = false, 
   });
 
   @override
@@ -23,7 +25,7 @@ class AddedPanelTile extends StatelessWidget {
       height: s(50),
       padding: EdgeInsets.symmetric(horizontal: s(16)),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.50),
+        color : Colors.white.withOpacity(0.50),
         borderRadius: BorderRadius.circular(s(10)),
         border: Border.all(color: Colors.white),
       ),
@@ -38,7 +40,8 @@ class AddedPanelTile extends StatelessWidget {
               color: const Color(0xFF484848).withOpacity(0.80),
             ),
           ),
-          if (showRemove)
+          // Show remove button ONLY for new panels (not existing)
+          if (showRemove && !isExisting)
             GestureDetector(
               onTap: onRemove,
               child: Icon(
