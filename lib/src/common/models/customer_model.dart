@@ -22,6 +22,7 @@ class CustomerModel {
   final Profile? customerProfile;
   final List<Order> orders;
   final List<PanelModel> panels;
+  final List<SoldSerial> soldSerials;
 
   CustomerModel({
     required this.id,
@@ -43,6 +44,7 @@ class CustomerModel {
     this.customerProfile,
     required this.orders,
     required this.panels,
+    required this.soldSerials,
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
@@ -78,6 +80,9 @@ class CustomerModel {
       panels: (json['panels'] as List? ?? [])
           .map((i) => PanelModel.fromJson(i))
           .toList(),
+          soldSerials: (json['soldSerials'] as List? ?? [])
+    .map((e) => SoldSerial.fromJson(e))
+    .toList(),
     );
   }
   CustomerModel copyWith({
@@ -100,6 +105,7 @@ class CustomerModel {
   Profile? customerProfile,
   List<Order>? orders,
   List<PanelModel>? panels,
+  List<SoldSerial>? soldSerials, 
 }) {
   return CustomerModel(
     id: id ?? this.id,
@@ -121,6 +127,7 @@ class CustomerModel {
     customerProfile: customerProfile ?? this.customerProfile,
     orders: orders ?? this.orders,
     panels: panels ?? this.panels,
+     soldSerials: soldSerials ?? this.soldSerials,
   );
 }
 }
@@ -298,6 +305,18 @@ class PanelModel {
   factory PanelModel.fromJson(Map<String, dynamic> json) {
     return PanelModel(
       serialNumber: json['serialNumber'] ?? json['serial_number'],
+    );
+  }
+}
+
+class SoldSerial {
+  final String serialNumber;
+
+  SoldSerial({required this.serialNumber});
+
+  factory SoldSerial.fromJson(Map<String, dynamic> json) {
+    return SoldSerial(
+      serialNumber: json['serialNumber'] ?? '',
     );
   }
 }

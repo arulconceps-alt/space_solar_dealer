@@ -112,6 +112,9 @@ class CustomerItem extends StatelessWidget {
                         "assets/images/customer/eye_icon.png",
                         width: s(23.9),
                         height: s(23.9),
+                        color: ColorPalette.textfiledin.withValues(
+                              alpha: .80,
+                            ),
                       ),
                     ),
                   ),
@@ -138,6 +141,9 @@ class CustomerItem extends StatelessWidget {
                         "assets/images/customer/edit_icon.png",
                         width: s(23.9),
                         height: s(23.9),
+                        color: ColorPalette.textfiledin.withValues(
+                              alpha: .80,
+                            ),
                       ),
                     ),
                   ),

@@ -60,6 +60,7 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
   final ImagePicker _picker = ImagePicker();
   List<File> selectedImages = [];
   final List<String> _priorityOptions = ["High", "Medium", "Low"];
+  String? _tempSelectedPanel;
 
   @override
   void initState() {
@@ -143,43 +144,37 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
   }
 
   void _onCustomerSelected(Map<String, dynamic> customer) {
-    // Extract all serial numbers from orders > items
     final List<PanelModel> panels = [];
 
-    final orders = customer["orders"] as List<dynamic>? ?? [];
-    for (final order in orders) {
-      final items =
-          (order as Map<String, dynamic>)["items"] as List<dynamic>? ?? [];
-      for (final item in items) {
-        final itemMap = item as Map<String, dynamic>;
-        final serial = itemMap["serialNumber"]?.toString() ?? "";
-        final productId = itemMap["productId"] as int? ?? 0;
-        final productName =
-            (itemMap["product"] as Map<String, dynamic>?)?["name"]
-                ?.toString() ??
-            "";
-        final orderNumber = order["orderNumber"]?.toString() ?? "";
+    final soldSerials = (customer["soldSerials"] as List?) ?? [];
 
-        if (serial.isNotEmpty) {
-          panels.add(
-            PanelModel(
-              productId: productId,
-              productName: productName,
-              serialNumber: serial,
-              orderNumber: orderNumber,
-              soldAt: null,
-              customerId: customer["id"]?.toString() ?? "",
-              customerName: customer["name"]?.toString() ?? "",
-              customerPhone: customer["phone"]?.toString() ?? "",
-              customerEmail: customer['email'] ?? '',
-              customerAddress: customer['addressLine1'] ?? '',
-              performanceWarrantyEndDate: null,
-              physicalWarrantyEndDate: null,
-              warrantyStartDate: null,
-            ),
-          );
-        }
-      }
+    for (final item in soldSerials) {
+      if (item is! Map<String, dynamic>) continue;
+
+      final serial = (item["serialNumber"] ?? "").toString();
+      if (serial.trim().isEmpty) continue;
+
+      panels.add(
+        PanelModel(
+          productId: item["productId"] ?? 0,
+          productName: item["productName"] ?? "",
+          serialNumber: serial,
+          orderNumber: item["orderNumber"] ?? "",
+          soldAt: DateTime.tryParse(item["soldAt"] ?? ""),
+          customerId: customer["id"]?.toString() ?? "",
+          customerName: customer["name"] ?? "",
+          customerPhone: customer["phone"] ?? "",
+          customerEmail: customer["email"] ?? "",
+          customerAddress: customer["addressLine1"] ?? "",
+          performanceWarrantyEndDate: DateTime.tryParse(
+            item["performanceWarrantyEndDate"] ?? "",
+          ),
+          physicalWarrantyEndDate: DateTime.tryParse(
+            item["physicalWarrantyEndDate"] ?? "",
+          ),
+          warrantyStartDate: DateTime.tryParse(item["warrantyStartDate"] ?? ""),
+        ),
+      );
     }
 
     String phone = (customer["phone"] ?? "").toString();
@@ -190,12 +185,14 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     setState(() {
       _selectedCustomer = customer;
       _availablePanels = panels;
+
       _phoneController.text = phone;
       _customerNameController.text = customer["name"] ?? "";
+
       _searchController.clear();
       _showSuggestions = false;
       _searchResults = [];
-      _selectedPanelIds = [];
+      _selectedPanelIds.clear();
       _panelIdController.clear();
     });
   }
@@ -380,40 +377,51 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Search Input Field
+        // SEARCH FIELD
         Container(
-          height: s(50),
+          height: s(52),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.05),
+            color: Color(0xFFF6F6F6),
             borderRadius: BorderRadius.circular(s(10)),
-            border: Border.all(color: Colors.grey.withOpacity(0.5)),
+            border: Border.all(color: Color(0xFF000000).withOpacity(0.20)),
           ),
-          padding: EdgeInsets.symmetric(horizontal: s(14)),
-          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.symmetric(horizontal: s(16)),
           child: Row(
             children: [
-              Icon(Icons.search, color: Colors.grey, size: s(20)),
+              Icon(
+                Icons.search,
+                color: ColorPalette.textfiledin.withOpacity(0.80),
+                size: s(18),
+              ),
+
               SizedBox(width: s(10)),
+
               Expanded(
                 child: TextField(
                   controller: _searchController,
                   style: GoogleFonts.lato(
-                    fontSize: s(15),
-                    color: ColorPalette.bottomtext,
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF6D6D6D),
                   ),
+
                   decoration: InputDecoration(
                     isCollapsed: true,
                     border: InputBorder.none,
-                    hintText: "Search by Phone Number or Customer Name",
+
+                    hintText: "Search by Phone Number or Customer",
+
                     hintStyle: GoogleFonts.lato(
                       fontSize: s(16),
                       fontWeight: FontWeight.w400,
-                      color: const Color(0xFF484848).withOpacity(0.80),
+                      color: ColorPalette.textfiledin.withOpacity(0.80),
                     ),
                   ),
+
                   onChanged: _onSearch,
                 ),
               ),
+
               if (_isSearching)
                 SizedBox(
                   width: s(18),
@@ -427,63 +435,77 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
           ),
         ),
 
-        // Suggestions dropdown
-        if (_showSuggestions && _searchResults.isNotEmpty)
+        // DROPDOWN SUGGESTIONS
+        if (_showSuggestions && _searchResults.isNotEmpty) ...[
+          SizedBox(height: s(10)),
+
           Container(
-            margin: EdgeInsets.only(top: s(4)),
-            constraints: BoxConstraints(maxHeight: s(200)),
+            constraints: BoxConstraints(maxHeight: s(280)),
+
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(s(10)),
+              color: Colors.white.withOpacity(0.96),
+              borderRadius: BorderRadius.circular(s(20)),
+              border: Border.all(color: Colors.white),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: s(8),
-                  offset: Offset(0, s(2)),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: s(10),
+                  offset: Offset(0, s(4)),
                 ),
               ],
             ),
+
             child: ListView.builder(
+              padding: EdgeInsets.symmetric(vertical: s(8)),
               shrinkWrap: true,
-              physics: const AlwaysScrollableScrollPhysics(),
               itemCount: _searchResults.length,
+
               itemBuilder: (context, index) {
                 final c = _searchResults[index];
+
                 final name = c["name"] ?? "";
+
                 String phone = (c["phone"] ?? "").toString();
+
                 if (phone.startsWith("+91")) {
                   phone = phone.substring(3);
                 }
+
                 return GestureDetector(
                   onTap: () => _onCustomerSelected(c),
+
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: s(14),
-                      vertical: s(12),
+                    height: s(50),
+
+                    margin: EdgeInsets.symmetric(
+                      horizontal: s(10),
+                      vertical: s(6),
                     ),
+
+                    padding: EdgeInsets.symmetric(horizontal: s(16)),
+
                     decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey.withOpacity(0.15),
-                        ),
-                      ),
+                      color: const Color(0xFFF1F1F1),
+                      borderRadius: BorderRadius.circular(s(18)),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                    alignment: Alignment.centerLeft,
+
+                    child: Row(
                       children: [
-                        Text(
-                          name,
-                          style: GoogleFonts.lato(
-                            fontSize: s(14),
-                            fontWeight: FontWeight.w600,
-                            color: ColorPalette.bottomtext,
-                          ),
-                        ),
-                        Text(
-                          phone,
-                          style: GoogleFonts.lato(
-                            fontSize: s(12),
-                            color: Colors.grey,
+                        Expanded(
+                          child: Text(
+                            "$name - $phone",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+
+                            style: GoogleFonts.lato(
+                              fontSize: s(16),
+                              fontWeight: FontWeight.w400,
+                              color: ColorPalette.textfiledin.withValues(
+                                alpha: .80,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -493,316 +515,339 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
               },
             ),
           ),
+        ],
 
-        // No results message
+        // NO RESULT UI
         if (_showSuggestions &&
             !_isSearching &&
             _searchResults.isEmpty &&
-            _searchController.text.trim().isNotEmpty)
+            _searchController.text.trim().isNotEmpty) ...[
+          SizedBox(height: s(10)),
+
           Container(
-            margin: EdgeInsets.only(top: s(4)),
-            padding: EdgeInsets.all(s(12)),
+            height: s(60),
+
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(s(10)),
+              color: Colors.white.withOpacity(0.96),
+              borderRadius: BorderRadius.circular(s(20)),
+              border: Border.all(color: Colors.white),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: s(8),
-                  offset: Offset(0, s(2)),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: s(10),
+                  offset: Offset(0, s(4)),
                 ),
               ],
             ),
-            child: Center(
-              child: Text(
-                "No customers found",
-                style: GoogleFonts.lato(fontSize: s(14), color: Colors.grey),
+
+            alignment: Alignment.center,
+
+            child: Text(
+              "No customers found",
+
+              style: GoogleFonts.lato(
+                fontSize: s(16),
+                fontWeight: FontWeight.w400,
+                color: ColorPalette.textfiledin.withValues(alpha: .80),
               ),
             ),
           ),
+        ],
       ],
     );
   }
 
-  // Widget _buildPanelIdRow(double Function(double) s) {
-  //   final panelOptions = _availablePanels
-  //       .map((p) => p.serialNumber)
-  //       .where((v) => v.isNotEmpty)
-  //       .where((v) => !_selectedPanelIds.contains(v)) // already added ones hide
-  //       .toList();
+  Widget _buildPanelIdRow(double Function(double) s) {
+    final panelOptions = _availablePanels
+        .map((p) => p.serialNumber)
+        .where((v) => v.isNotEmpty)
+        .where((v) => !_selectedPanelIds.contains(v))
+        .toList();
 
-  //   return _selectedCustomer != null && _availablePanels.isNotEmpty
-  //       ? Container(
-  //           height: s(52),
-  //           decoration: BoxDecoration(
-  //             color: Colors.grey.withOpacity(0.05),
-  //             borderRadius: BorderRadius.circular(s(10)),
-  //           ),
-  //           padding: EdgeInsets.symmetric(horizontal: s(14)),
-  //           alignment: Alignment.centerLeft,
-  //           child: panelOptions.isEmpty
-  //               ? Text(
-  //                   "All panels added",
-  //                   style: GoogleFonts.lato(
-  //                     fontSize: s(15),
-  //                     color: Colors.grey,
-  //                   ),
-  //                 )
-  //               : DropdownButtonHideUnderline(
-  //                   child: DropdownButton<String>(
-  //                     value:
-  //                         null, // always null so hint shows after each select
-  //                     isExpanded: true,
-  //                     hint: Text(
-  //                       "Select Panel ID",
-  //                       style: GoogleFonts.lato(
-  //                         fontSize: s(16),
-  //                         fontWeight: FontWeight.w400,
-  //                         color: const Color(0xFF484848).withOpacity(0.80),
-  //                       ),
-  //                     ),
-  //                     icon: Icon(
-  //                       Icons.keyboard_arrow_down_rounded,
-  //                       color: Colors.grey,
-  //                       size: s(24),
-  //                     ),
-  //                     style: GoogleFonts.lato(
-  //                       fontSize: s(15),
-  //                       color: ColorPalette.bottomtext,
-  //                     ),
-  //                     items: panelOptions
-  //                         .map(
-  //                           (id) => DropdownMenuItem(
-  //                             value: id,
-  //                             child: Text(id, overflow: TextOverflow.ellipsis),
-  //                           ),
-  //                         )
-  //                         .toList(),
-  //                     onChanged: (val) {
-  //                       if (val == null) return;
-  //                       if (_selectedPanelIds.contains(val)) {
-  //                         CustomSnackBar.show(
-  //                           context,
-  //                           AlertState(
-  //                             message: "Panel ID '$val' already added",
-  //                             type: AlertType.failure,
-  //                             timestamp: DateTime.now(),
-  //                           ),
-  //                         );
-  //                         return;
-  //                       }
-  //                       setState(() => _selectedPanelIds.add(val));
-  //                     },
-  //                   ),
-  //                 ),
-  //         )
-  //       : Container(
-  //           height: s(52),
-  //           decoration: BoxDecoration(
-  //             color: Colors.grey.withOpacity(0.05),
-  //             borderRadius: BorderRadius.circular(s(10)),
-  //           ),
-  //           padding: EdgeInsets.symmetric(horizontal: s(14)),
-  //           alignment: Alignment.centerLeft,
-  //           child: Text(
-  //             _selectedCustomer == null
-  //                 ? "Select a customer first"
-  //                 : "No panels available",
-  //             style: GoogleFonts.lato(
-  //               fontSize: s(15),
-  //               color: Colors.grey.withOpacity(0.80),
-  //             ),
-  //           ),
-  //         );
-  // }
-  /// =========================
-/// PANEL ID DROPDOWN
-/// =========================
-
-Widget _buildPanelIdRow(double Function(double) s) {
-  final panelOptions = _availablePanels
-      .map((p) => p.serialNumber)
-      .where((v) => v.isNotEmpty)
-      .where((v) => !_selectedPanelIds.contains(v))
-      .toList();
-
-  if (_selectedCustomer == null) {
-    return Container(
-      height: s(52),
-      decoration: BoxDecoration(
-         color: Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(s(10)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: s(14)),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        "Select a customer first",
-        style: GoogleFonts.lato(
-            fontSize: s(15),
+    // SELECT CUSTOMER FIRST
+    if (_selectedCustomer == null) {
+      return Container(
+        height: s(52),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(s(10)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: s(18)),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "Select a customer first",
+          style: GoogleFonts.lato(
+            fontSize: s(16),
             fontWeight: FontWeight.w400,
-            color: const Color(0xFF484848).withOpacity(0.80),
+            color: const Color(0xFF6D6D6D),
           ),
-      ),
-    );
-  }
-
-  if (_availablePanels.isEmpty) {
-    return Container(
-      height: s(52),
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(s(10)),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.25),
         ),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: s(14)),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        "No panels available",
-        style: GoogleFonts.lato(
-          fontSize: s(15),
-          color: Colors.grey.withOpacity(0.80),
-        ),
-      ),
-    );
-  }
+      );
+    }
 
-  if (panelOptions.isEmpty) {
-    return Container(
-      height: s(52),
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(s(10)),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.25),
+    // NO PANELS
+    if (_availablePanels.isEmpty) {
+      return Container(
+        height: s(52),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(s(10)),
         ),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: s(14)),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        "All panels added",
-        style: GoogleFonts.lato(
-          fontSize: s(15),
-          color: Colors.grey.withOpacity(0.80),
-        ),
-      ),
-    );
-  }
-
-  return _buildCommonDropdown(
-    s: s,
-    hint: "Select Panel ID",
-    value: null,
-    items: panelOptions,
-    onChanged: (val) {
-      if (val == null) return;
-
-      if (_selectedPanelIds.contains(val)) {
-        CustomSnackBar.show(
-          context,
-          AlertState(
-            message: "Panel ID '$val' already added",
-            type: AlertType.failure,
-            timestamp: DateTime.now(),
+        padding: EdgeInsets.symmetric(horizontal: s(18)),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "No panels available",
+          style: GoogleFonts.lato(
+            fontSize: s(16),
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF6D6D6D),
           ),
-        );
-        return;
-      }
+        ),
+      );
+    }
 
-      setState(() {
-        _selectedPanelIds.add(val);
-      });
-    },
-  );
-}
+    // ALL PANELS ADDED
+    if (panelOptions.isEmpty) {
+      return Container(
+        height: s(52),
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(s(10)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: s(18)),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "All panels added",
+          style: GoogleFonts.lato(
+            fontSize: s(16),
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF6D6D6D),
+          ),
+        ),
+      );
+    }
+
+    // DROPDOWN UI
+      return Container(
+        height: s(52),
+
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(s(10)),
+        ),
+
+        padding: EdgeInsets.symmetric(horizontal: s(16)),
+
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: null,
+            isExpanded: true,
+
+            menuMaxHeight: s(280),
+
+            dropdownColor: Colors.white,
+
+            borderRadius: BorderRadius.circular(s(20)),
+
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: const Color(0xFF6D6D6D),
+              size: s(22),
+            ),
+
+            hint: Text(
+              "Select Panel ID",
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.lato(
+                fontSize: s(16),
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF6D6D6D),
+              ),
+            ),
+
+            style: GoogleFonts.lato(
+              fontSize: s(16),
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF6D6D6D),
+            ),
+
+            items: panelOptions.map((item) {
+              return DropdownMenuItem<String>(
+                value: item,
+
+                child: Text(
+                  item,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                    color: ColorPalette.textfiledin.withValues(alpha: .80),
+                  ),
+                ),
+              );
+            }).toList(),
+
+            onChanged: (val) {
+              if (val == null) return;
+
+              if (_selectedPanelIds.contains(val)) {
+                CustomSnackBar.show(
+                  context,
+                  AlertState(
+                    message: "Panel ID '$val' already added",
+                    type: AlertType.failure,
+                    timestamp: DateTime.now(),
+                  ),
+                );
+                return;
+              }
+
+              setState(() {
+                _selectedPanelIds.add(val);
+              });
+            },
+          ),
+        ),
+      );
+    }
 
   Widget _buildPanelChips(double Function(double) s) {
-    return Wrap(
-      spacing: s(8),
-      runSpacing: s(8),
-      children: _selectedPanelIds.map((id) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: s(12), vertical: s(7)),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(s(8)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                id,
-                style: GoogleFonts.lato(
-                  fontSize: s(13),
-                  color: ColorPalette.bottomtext,
-                  fontWeight: FontWeight.w500,
+    return Container(
+      width: double.infinity,
+
+      padding: EdgeInsets.all(s(16)),
+
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(s(10)),
+        border: Border.all(
+          color: Color(0xFF000000).withOpacity(0.30),
+          width: s(1),
+        ),
+      ),
+
+      child: Wrap(
+        spacing: s(8),
+        runSpacing: s(8),
+
+        children: _selectedPanelIds.map((id) {
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: s(12), vertical: s(7)),
+
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(s(8)),
+            ),
+
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  id,
+                  style: GoogleFonts.lato(
+                    fontSize: s(13),
+                    color: ColorPalette.bottomtext,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              SizedBox(width: s(6)),
-              GestureDetector(
-                onTap: () => _removePanelId(id),
-                child: Icon(
-                  Icons.close,
-                  size: s(14),
-                  color: Colors.grey.shade500,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+
+                //SizedBox(width: s(6)),
+
+                // GestureDetector(
+                //   onTap: () => _removePanelId(id),
+                //   child: Icon(
+                //     Icons.close,
+                //     size: s(14),
+                //     color: Colors.grey.shade500,
+                //   ),
+                // ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
-  // Widget _buildPriorityDropdown(double Function(double) s) {
-  //   return Container(
-  //     height: s(52),
-  //     decoration: BoxDecoration(
-  //       color: Colors.grey.withOpacity(0.05),
-  //       borderRadius: BorderRadius.circular(s(10)),
-  //     ),
-  //     padding: EdgeInsets.symmetric(horizontal: s(14)),
-  //     child: DropdownButtonHideUnderline(
-  //       child: DropdownButton<String>(
-  //         value: selectedPriority,
-  //         isExpanded: true,
-  //         hint: Text(
-  //           "Select Priority",
-  //           style: GoogleFonts.lato(
-  //             fontSize: s(16),
-  //             fontWeight: FontWeight.w400,
-  //             color: const Color(0xFF484848).withOpacity(0.80),
-  //           ),
-  //         ),
-  //         icon: Icon(
-  //           Icons.keyboard_arrow_down_rounded,
-  //           color: Colors.grey,
-  //           size: s(24),
-  //         ),
-  //         style: GoogleFonts.lato(
-  //           fontSize: s(15),
-  //           color: ColorPalette.bottomtext,
-  //         ),
-  //         items: _priorityOptions.map((p) {
-  //           return DropdownMenuItem(value: p, child: Text(p));
-  //         }).toList(),
-  //         onChanged: (val) => setState(() => selectedPriority = val),
-  //       ),
-  //     ),
-  //   );
-  // }
-  Widget _buildPriorityDropdown(double Function(double) s) {
-  return _buildCommonDropdown(
-    s: s,
-    hint: "Select Priority",
-    value: selectedPriority,
-    items: _priorityOptions,
-    onChanged: (val) {
-      setState(() {
-        selectedPriority = val;
-      });
-    },
+
+ Widget _buildPriorityDropdown(double Function(double) s) {
+  return Container(
+    height: s(52),
+
+    decoration: BoxDecoration(
+      color:  Colors.grey.withOpacity(0.05),
+      borderRadius: BorderRadius.circular(s(10)),
+    ),
+
+    padding: EdgeInsets.symmetric(horizontal: s(16)),
+
+    child: DropdownButtonHideUnderline(
+      child: DropdownButton<String>(
+        value: selectedPriority,
+
+        isExpanded: true,
+
+        menuMaxHeight: s(300),
+
+        dropdownColor: Colors.white,
+
+        borderRadius: BorderRadius.circular(s(20)),
+
+        icon: Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: const Color(0xFF6D6D6D),
+          size: s(22),
+        ),
+
+        hint: Text(
+          "Select Priority",
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.lato(
+            fontSize: s(16),
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF6D6D6D),
+          ),
+        ),
+
+        style: GoogleFonts.lato(
+          fontSize: s(16),
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFF6D6D6D),
+        ),
+
+        items: _priorityOptions.map((item) {
+          return DropdownMenuItem<String>(
+            value: item,
+
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: s(6),
+                vertical: s(4),
+              ),
+
+              child: Text(
+                item,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+
+                style: GoogleFonts.lato(
+                  fontSize: s(16),
+                  fontWeight: FontWeight.w400,
+                  color:
+                      ColorPalette.textfiledin.withValues(alpha: .80),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+
+        onChanged: (val) {
+          setState(() {
+            selectedPriority = val;
+          });
+        },
+      ),
+    ),
   );
 }
 
@@ -953,62 +998,57 @@ Widget _buildPanelIdRow(double Function(double) s) {
     );
   }
 
-
-Widget _buildCommonDropdown({
-  required double Function(double) s,
-  required String hint,
-  required String? value,
-  required List<String> items,
-  required Function(String?) onChanged,
-}) {
-  return Container(
-    height: s(52),
-    decoration: BoxDecoration(
+  Widget _buildCommonDropdown({
+    required double Function(double) s,
+    required String hint,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return Container(
+      height: s(52),
+      decoration: BoxDecoration(
         color: Colors.grey.withOpacity(0.05),
-      borderRadius: BorderRadius.circular(s(10)),
-    ),
-    padding: EdgeInsets.symmetric(horizontal: s(14)),
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: value,
-        isExpanded: true,
-        dropdownColor: Colors.white,
-        borderRadius: BorderRadius.circular(s(12)),
+        borderRadius: BorderRadius.circular(s(10)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: s(14)),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(s(12)),
 
-        hint: Text(
-          hint,
+          hint: Text(
+            hint,
+            style: GoogleFonts.lato(
+              fontSize: s(15),
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF484848).withOpacity(0.80),
+            ),
+          ),
+
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Colors.grey,
+            size: s(24),
+          ),
+
           style: GoogleFonts.lato(
             fontSize: s(15),
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF484848).withOpacity(0.80),
+            color: ColorPalette.bottomtext,
+            fontWeight: FontWeight.w500,
           ),
+
+          items: items.map((item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+          onChanged: onChanged,
         ),
-
-        icon: Icon(
-          Icons.keyboard_arrow_down_rounded,
-          color: Colors.grey,
-          size: s(24),
-        ),
-
-        style: GoogleFonts.lato(
-          fontSize: s(15),
-          color: ColorPalette.bottomtext,
-          fontWeight: FontWeight.w500,
-        ),
-
-        items: items.map((item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(
-              item,
-              overflow: TextOverflow.ellipsis,
-            ),
-          );
-        }).toList(),
-
-        onChanged: onChanged,
       ),
-    ),
-  );
-}
+    );
+  }
 }

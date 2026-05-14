@@ -17,14 +17,20 @@ class OtpRepositary {
     required String otp,
   }) async {
     try {
+         final deviceToken = _preferencesRepository.getPreference(
+      Constants.store.DEVICE_TOKEN,
+    );
+
       final responseData = await _apiRepository.postRequest(
         url: "auth/otp/verify",
         data: {
           "phone": "+91$mobileNumber",
           "otp": otp,
+          "deviceToken": deviceToken,
         },
         includeRequester: false,
       );
+ print("🚀 VERIFY OTP REQUEST => $responseData");
 
       final loginResponse = LoginResponse.fromJson(responseData);
 
@@ -33,7 +39,6 @@ class OtpRepositary {
         final refreshToken = loginResponse.data!.refreshToken;
         final userId = loginResponse.data!.user.id;
 
-        // ✅ SAVE TOKENS
         await _preferencesRepository.setPreference(
           Constants.store.AUTH_TOKEN,
           accessToken,

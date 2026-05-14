@@ -98,7 +98,7 @@ class NewRegisterRepositary {
   // ✅ CUSTOMERS
   Future<List<Map<String, dynamic>>> getCustomers() async {
     try {
-      final response = await _apiRepository.getRequest("dealer/customers");
+      final response = await _apiRepository.getRequest("dealer/users");
 
       if (response == null) {
         throw Exception("No response from server");

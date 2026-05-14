@@ -17,6 +17,24 @@ class TicketDetailsDialog extends StatelessWidget {
     this.scrollController,
   });
 
+  // Signature: from technicianAttachments only
+  String? _getSignatureUrl() {
+    try {
+      return ticket.technicianAttachments.firstWhere(
+        (url) => Uri.parse(url).path.contains('sig_'),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // Technician images without signature
+  List<String> _getTechnicianImages() {
+    return ticket.technicianAttachments
+        .where((url) => !Uri.parse(url).path.contains('sig_'))
+        .toList();
+  }
+
   String _formatDate(String? date) {
     if (date == null || date.isEmpty) return "-";
     final parsed = DateTime.tryParse(date);
@@ -24,6 +42,133 @@ class TicketDetailsDialog extends StatelessWidget {
     return "${parsed.day.toString().padLeft(2, '0')}-"
         "${parsed.month.toString().padLeft(2, '0')}-"
         "${parsed.year}";
+  }
+
+  List<TimelineItemModel> _buildTimeline() {
+  final List<TimelineItemModel> items = [];
+
+  for (final history in ticket.statusHistory) {
+    final toStatus = (history["toStatus"] ?? "").toString();
+    final changedAt = history["changedAt"] != null
+        ? _formatDateTime(history["changedAt"])
+        : "-";
+    final reason = (history["reason"] ?? "").toString().trim();
+    final reasonOrNull = reason.isNotEmpty ? reason : null;
+    final changedBy = (history["changedByName"] ?? "").toString().trim();
+final changedByOrNull = changedBy.isNotEmpty ? changedBy : null;
+
+    switch (toStatus) {
+      case "OPEN":
+  items.add(TimelineItemModel(
+    title: "Ticket Created ",
+    statusLabel: "Open",
+    value: changedAt,
+    statusColor: ColorPalette.textfiledin.withOpacity(0.60),
+    reason: reasonOrNull,
+    changedByName: changedByOrNull, 
+  ));
+  break;
+
+case "PENDING":
+  items.add(TimelineItemModel(
+    title: "Status changed to ",
+    statusLabel: "Assigned",
+    value: changedAt,
+    statusColor: Colors.blue,
+    reason: reasonOrNull,
+    changedByName: changedByOrNull, 
+  ));
+  break;
+
+case "IN_PROGRESS":
+  items.add(TimelineItemModel(
+    title: "Status changed to ",
+    statusLabel: "In Progress",
+    value: changedAt,
+    highlight: true,
+    statusColor: Colors.orange,
+    reason: reasonOrNull,
+    changedByName: changedByOrNull, 
+  ));
+  break;
+
+case "RE_SCHEDULED":
+  items.add(TimelineItemModel(
+    title: "Status changed to ",
+    statusLabel: "Re-Scheduled",
+    value: changedAt,
+    statusColor: Colors.blue,
+    reason: reasonOrNull,
+    changedByName: changedByOrNull,
+  ));
+  if (ticket.revisitDate != null && ticket.revisitDate!.isNotEmpty) {
+    items.add(TimelineItemModel(
+      title: "Rescheduled to ",
+      statusLabel: "Reschedule Date",
+      value: _formatDateTime(ticket.revisitDate!),
+      statusColor: Colors.blue,
+    ));
+  }
+  break;
+
+case "RESOLVED":
+  items.add(TimelineItemModel(
+    title: "Status changed to ",
+    statusLabel: "Resolved",
+    value: changedAt,
+    statusColor: Colors.green,
+    reason: reasonOrNull,
+    changedByName: changedByOrNull, 
+  ));
+  break;
+
+case "CLOSED":
+  items.add(TimelineItemModel(
+    title: "Ticket ",
+    statusLabel: "Closed",
+    value: changedAt,
+    statusColor: ColorPalette.textfiledin.withOpacity(0.60),
+    reason: reasonOrNull,
+    changedByName: changedByOrNull, 
+  ));
+  break;
+
+case "CANCELLED":
+  items.add(TimelineItemModel(
+    title: "Ticket ",
+    statusLabel: "Cancelled",
+    value: changedAt,
+    statusColor: Colors.red,
+    reason: reasonOrNull,
+    changedByName: changedByOrNull, 
+  ));
+  break;
+    }
+  }
+
+  return items; 
+}
+  String _formatDateTime(String dateStr) {
+    final parsed = DateTime.tryParse(dateStr)?.toLocal();
+    if (parsed == null) return "-";
+    final hour = parsed.hour > 12 ? parsed.hour - 12 : parsed.hour;
+    final amPm = parsed.hour >= 12 ? "PM" : "AM";
+    final monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return "${monthNames[parsed.month - 1]} ${parsed.day}, ${parsed.year}, "
+        "${hour.toString().padLeft(2, '0')}:${parsed.minute.toString().padLeft(2, '0')} $amPm";
   }
 
   @override
@@ -73,32 +218,13 @@ class TicketDetailsDialog extends StatelessWidget {
             SizedBox(height: s(16)),
             _inspectedImages(s),
             SizedBox(height: s(16)),
-            CustomerSignatureCard(signatureImage: "", scale: scale),
-            SizedBox(height: s(16)),
-            TicketTimelineWidget(
+            //CustomerSignatureCard(signatureImage: "", scale: scale),
+            CustomerSignatureCard(
+              signatureImage: _getSignatureUrl(),
               scale: scale,
-              items: [
-                TimelineItemModel(
-                  title: 'Ticket created by (You)',
-                  value: 'March 20,2026, 02:24 PM',
-                ),
-                TimelineItemModel(
-                  title: 'Status changed to In Progress',
-                  value: 'March 20,2026, 05:24 PM',
-                  highlight: true,
-                ),
-                TimelineItemModel(
-                  title: 'In progress reason',
-                  value:
-                      'Repair could not be completed due to additional technical work required. Rescheduled for tomorrow.',
-                ),
-                TimelineItemModel(title: 'Worked hours', value: '02:41 hrs'),
-                TimelineItemModel(
-                  title: 'Reschedule date',
-                  value: 'March 21,2026, 11:24 AM',
-                ),
-              ],
             ),
+            SizedBox(height: s(16)),
+            TicketTimelineWidget(scale: scale, items: _buildTimeline()),
           ],
         ),
       ),
@@ -141,7 +267,7 @@ class TicketDetailsDialog extends StatelessWidget {
           _panelIdsSection(s),
           Divider(thickness: 1, color: Colors.grey.shade300),
           SizedBox(height: s(16)),
-         SizedBox(height: s(16)),
+          SizedBox(height: s(16)),
           _issueSection(s),
           SizedBox(height: s(16)),
           _imageSection(s, context),
@@ -149,62 +275,57 @@ class TicketDetailsDialog extends StatelessWidget {
       ),
     );
   }
-Widget _panelIdsSection(double Function(double) s) {
-  final panelIds = ticket.panelId.isNotEmpty
-      ? ticket.panelId
-          .split(",")
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList()
-      : <String>[];
 
-  if (panelIds.isEmpty) {
-    return const SizedBox();
-  }
+  Widget _panelIdsSection(double Function(double) s) {
+    final panelIds = ticket.panelId.isNotEmpty
+        ? ticket.panelId
+              .split(",")
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList()
+        : <String>[];
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        "Panel IDs",
-        style: GoogleFonts.lato(
-          fontSize: s(16),
-          fontWeight: FontWeight.w600,
+    if (panelIds.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Panel IDs",
+          style: GoogleFonts.lato(fontSize: s(16), fontWeight: FontWeight.w600),
         ),
-      ),
 
-      SizedBox(height: s(12)),
+        SizedBox(height: s(12)),
 
-      Wrap(
-        spacing: s(12),
-        runSpacing: s(10),
-        children: panelIds.map((id) {
-          return Container(
-            width: s(160),
-            padding: EdgeInsets.symmetric(
-              horizontal: s(12),
-              vertical: s(10),
-            ),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              id,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.lato(
-                fontSize: s(14),
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
+        Wrap(
+          spacing: s(12),
+          runSpacing: s(10),
+          children: panelIds.map((id) {
+            return Container(
+              width: s(160),
+              padding: EdgeInsets.symmetric(horizontal: s(12), vertical: s(10)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
               ),
-            ),
-          );
-        }).toList(),
-      ),
-    ],
-  );
-}
+              alignment: Alignment.center,
+              child: Text(
+                id,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.lato(
+                  fontSize: s(14),
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black54,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
 
   Widget _issueSection(double Function(double) s) {
     return Column(
@@ -258,6 +379,8 @@ Widget _panelIdsSection(double Function(double) s) {
   }
 
   Widget _imageSection(double Function(double) s, BuildContext context) {
+    final displayImages = ticket.dealerAttachments;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -269,35 +392,43 @@ Widget _panelIdsSection(double Function(double) s) {
             color: Colors.black87,
           ),
         ),
-        SizedBox(height: s(8)),
-        ticket.attachments.isEmpty
-            ? Container(
-                height: s(114),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  "No images",
-                  style: GoogleFonts.lato(
-                    fontSize: s(13),
-                    color: Colors.grey,
-                  ),
-                ),
-              )
-            : SizedBox(
-                height: s(114),
-                child: ListView.separated(
+        SizedBox(height: s(12)),
+        SizedBox(
+          height: s(114),
+          child:
+              displayImages
+                  .isEmpty // ← ticket.attachments → displayImages
+              ? ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: ticket.attachments.length,
+                  itemCount: 3,
                   separatorBuilder: (_, __) => SizedBox(width: s(8)),
                   itemBuilder: (_, index) {
-                    final url = ticket.attachments[index];
+                    return Container(
+                      width: s(114),
+                      height: s(114),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEDEDED),
+                        borderRadius: BorderRadius.circular(s(10)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.image_outlined,
+                        color: Colors.grey.shade400,
+                        size: s(28),
+                      ),
+                    );
+                  },
+                )
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: displayImages.length,
+                  separatorBuilder: (_, __) => SizedBox(width: s(8)),
+                  itemBuilder: (_, index) {
+                    final url = displayImages[index];
                     return GestureDetector(
                       onTap: () => _showImageFullScreen(context, url, s),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(s(10)),
                         child: CachedNetworkImage(
                           imageUrl: url,
                           width: s(114),
@@ -306,38 +437,38 @@ Widget _panelIdsSection(double Function(double) s) {
                           placeholder: (_, __) => Container(
                             width: s(114),
                             height: s(114),
-                            color: Colors.grey.shade200,
+                            color: const Color(0xFFEDEDED),
                             alignment: Alignment.center,
-                            child: CircularProgressIndicator(
+                            child: const CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Color(0xFF26A7DF),
                             ),
                           ),
-                          errorWidget: (_, url, error) {
-                            print("❌ IMAGE ERROR: $error | URL: $url");
-                            return Container(
-                              width: s(114),
-                              height: s(114),
-                              color: Colors.grey.shade200,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.broken_image,
-                                color: Colors.grey,
-                              ),
-                            );
-                          },
+                          errorWidget: (_, __, ___) => Container(
+                            width: s(114),
+                            height: s(114),
+                            color: const Color(0xFFEDEDED),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
-              ),
+        ),
       ],
     );
   }
 
   void _showImageFullScreen(
-      BuildContext context, String url, double Function(double) s) {
+    BuildContext context,
+    String url,
+    double Function(double) s,
+  ) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -353,11 +484,8 @@ Widget _panelIdsSection(double Function(double) s) {
                   placeholder: (_, __) => Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   ),
-                  errorWidget: (_, __, ___) => Icon(
-                    Icons.broken_image,
-                    color: Colors.white,
-                    size: 48,
-                  ),
+                  errorWidget: (_, __, ___) =>
+                      Icon(Icons.broken_image, color: Colors.white, size: 48),
                 ),
               ),
             ),
@@ -434,33 +562,139 @@ Widget _panelIdsSection(double Function(double) s) {
     );
   }
 
-  Widget _inspectedImages(double Function(double) s) {
-    return Container(
-      padding: EdgeInsets.all(s(10)),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Inspected Site Image", style: _titleStyle(s)),
-          SizedBox(height: s(10)),
-          Row(
-            children: List.generate(3, (index) {
-              return Expanded(
-                child: Container(
-                  height: s(114),
-                  margin: EdgeInsets.only(right: index == 2 ? 0 : s(8)),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+  // _inspectedImages → uses technicianAttachments (excluding signature)
+ Widget _inspectedImages(double Function(double) s) {
+  final techImages = _getTechnicianImages();
+
+  return Container(
+    padding: EdgeInsets.all(s(10)),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.grey.shade300),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Inspected Site Image", style: _titleStyle(s)),
+        SizedBox(height: s(10)),
+
+        SizedBox(
+          height: s(114),
+          child: techImages.isEmpty
+              ? Row(
+                  children: List.generate(3, (index) {
+                    return Expanded(
+                      child: Container(
+                        height: s(114),
+                        margin: EdgeInsets.only(
+                            right: index == 2 ? 0 : s(8)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEDEDED),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }),
+                )
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: techImages.length,
+                  separatorBuilder: (_, __) => SizedBox(width: s(8)),
+                  itemBuilder: (context, index) {
+                    final imageUrl = techImages[index];
+
+                    return GestureDetector(
+                      onTap: () {
+                        _openFullScreenImage(context, imageUrl);
+                      },
+                      child: _networkImage(imageUrl, s),
+                    );
+                  },
                 ),
-              );
-            }),
+        ),
+      ],
+    ),
+  );
+}
+
+ void _openFullScreenImage(BuildContext context, String imageUrl) {
+  showDialog(
+    context: context,
+    barrierColor: Colors.black.withOpacity(0.9),
+    builder: (_) {
+      return Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 40,
+            right: 20,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                icon:  Icon(Icons.close, color: ColorPalette.textfiledin,),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
           ),
         ],
+      );
+    },
+  );
+}
+
+  Widget _placeholderBox(double Function(double) s) {
+    return Container(
+      width: s(114),
+      height: s(114),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEDEDED),
+        borderRadius: BorderRadius.circular(s(10)),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.image_outlined,
+        color: Colors.grey.shade400,
+        size: s(28),
+      ),
+    );
+  }
+
+  Widget _networkImage(String url, double Function(double) s) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(s(10)),
+      child: CachedNetworkImage(
+        imageUrl: url,
+        width: s(114),
+        height: s(114),
+        fit: BoxFit.cover,
+        placeholder: (_, __) => Container(
+          width: s(114),
+          height: s(114),
+          color: const Color(0xFFEDEDED),
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Color(0xFF26A7DF),
+          ),
+        ),
+        errorWidget: (_, __, ___) => Container(
+          width: s(114),
+          height: s(114),
+          color: const Color(0xFFEDEDED),
+          alignment: Alignment.center,
+          child: const Icon(Icons.broken_image, color: Colors.grey),
+        ),
       ),
     );
   }
@@ -548,7 +782,7 @@ Widget _panelIdsSection(double Function(double) s) {
         bgColor = Colors.grey.shade100;
         textColor = Colors.grey;
         break;
-        case "PENDING":
+      case "PENDING":
         bgColor = Colors.red.shade100;
         textColor = Colors.red;
         break;
@@ -599,15 +833,11 @@ Widget _panelIdsSection(double Function(double) s) {
         break;
       case "MEDIUM":
         bgColor = Colors.orange.shade100;
-        textColor = Colors.orange.shade800;
+        textColor = Colors.orange;
         break;
       case "HIGH":
         bgColor = Colors.red.shade100;
         textColor = Colors.red.shade700;
-        break;
-      case "CRITICAL":
-        bgColor = Colors.red.shade300;
-        textColor = Colors.white;
         break;
       default:
         bgColor = Colors.grey.shade200;

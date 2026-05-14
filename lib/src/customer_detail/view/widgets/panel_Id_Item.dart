@@ -5,12 +5,14 @@ import 'package:space_solar_dealer/src/app/color_palette.dart';
 class PanelIdItem extends StatelessWidget {
   final String id;
   final double scale;
+  final bool isFirst;
   final bool isLast;
 
   const PanelIdItem({
     super.key,
     required this.id,
     required this.scale,
+    required this.isFirst,
     required this.isLast,
   });
 
@@ -26,7 +28,14 @@ class PanelIdItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: ColorPalette.whitetext.withOpacity(0.5),
 
-        // ✅ FULL BORDER ALL SIDES
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(isFirst ? 10 : 0),
+          topRight: Radius.circular(isFirst ? 10 : 0),
+
+          // bottomLeft: Radius.circular(isLast ? 10 : 0),
+          // bottomRight: Radius.circular(isLast ? 10 : 0),
+        ),
+
         border: Border.all(
           color: ColorPalette.whitetext,
           width: 1,
@@ -36,8 +45,8 @@ class PanelIdItem extends StatelessWidget {
         id,
         style: GoogleFonts.lato(
           fontSize: s(16),
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFF484848),
+          fontWeight: FontWeight.w400,
+          color: ColorPalette.bottomtext,
         ),
       ),
     );

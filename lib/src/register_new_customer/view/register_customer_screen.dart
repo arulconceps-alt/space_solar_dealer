@@ -28,8 +28,8 @@ class RegisterCustomerScreen extends StatefulWidget {
 class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final GlobalKey<CustomerDetailsCardState> customerKey = GlobalKey();
   bool _dialogShown = false;
-  List<String> allPanels = []; // Combined panels (existing + new)
-  List<String> newPanelsOnly = []; // Only new panels added
+  List<String> allPanels = []; 
+  List<String> newPanelsOnly = []; 
   String _selectedCustomerType = "New Customer";
 
   final TextEditingController nameController = TextEditingController();

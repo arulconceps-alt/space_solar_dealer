@@ -24,6 +24,7 @@ class TicketListDetailsBloc
   Emitter<TicketListDetailsState> emit,
 ) async {
   try {
+    emit(state.copyWith(status: TicketListDetailsStatus.loading));
     print("🔥 CREATE EVENT STARTED");
     final data = event.ticketData;
     final response = await repository.createTicket(

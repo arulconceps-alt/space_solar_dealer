@@ -67,41 +67,47 @@ class _TotalPanelListState extends State<TotalPanelList> {
   }
 
   void _onSearch(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _showSuggestions = false;
-      });
-
-      context.read<TotalPanelBloc>().add(
-        const LoadPanelsEvent(customerId: null),
-      );
-      return;
-    }
-
-    final results = _allCustomers
-        .where((c) => c.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
+  if (query.isEmpty) {
     setState(() {
-      _searchResults = results;
-      _showSuggestions = true;
-    });
-  }
-
-  void _onCustomerTap(CustomerModel customer) {
-    _searchController.text = customer.name;
-
-    setState(() {
-      _selectedCustomer = customer;
-      _selectedCustomerController.text = customer.name;
+      _searchResults = [];
       _showSuggestions = false;
+
+      /// CLEAR SELECTED CUSTOMER ALSO
+      _selectedCustomer = null;
+      _selectedCustomerController.clear();
     });
 
     context.read<TotalPanelBloc>().add(
-      LoadPanelsEvent(customerId: customer.id.toString()),
+      const LoadPanelsEvent(customerId: null),
     );
+
+    return;
   }
+
+  final results = _allCustomers.where((c) {
+    return c.name.toLowerCase().contains(query.toLowerCase()) ||
+        (c.phone ?? "").toLowerCase().contains(query.toLowerCase());
+  }).toList();
+
+  setState(() {
+    _searchResults = results;
+    _showSuggestions = true;
+  });
+}
+
+ void _onCustomerTap(CustomerModel customer) {
+  _searchController.text = customer.name;
+
+  setState(() {
+    _selectedCustomer = customer;
+    _selectedCustomerController.text = customer.name;
+    _showSuggestions = false;
+  });
+
+  context.read<TotalPanelBloc>().add(
+    LoadPanelsEvent(customerId: customer.id.toString()),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -157,46 +163,112 @@ class _TotalPanelListState extends State<TotalPanelList> {
                               ),
 
                               /// SUGGESTIONS
+                              /// SUGGESTIONS
                               if (_showSuggestions && _searchResults.isNotEmpty)
                                 Container(
                                   margin: EdgeInsets.only(top: s(10)),
+                                  constraints: BoxConstraints(
+                                    maxHeight: s(300),
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.95),
-                                    borderRadius: BorderRadius.circular(s(12)),
+                                    color: Colors.white.withOpacity(0.96),
+                                    borderRadius: BorderRadius.circular(s(24)),
+                                    border: Border.all(color: Colors.white),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.08),
+                                        blurRadius: s(10),
+                                        offset: Offset(0, s(4)),
+                                      ),
+                                    ],
                                   ),
                                   child: ListView.builder(
                                     shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: s(8),
+                                    ),
                                     itemCount: _searchResults.length,
                                     itemBuilder: (context, index) {
                                       final customer = _searchResults[index];
 
-                                      return ListTile(
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal: s(12),
-                                        ),
-                                        title: Text(
-                                          customer.name,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: s(15),
-                                            fontWeight: FontWeight.w500,
-                                            color: ColorPalette.bottomtext,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          customer.phone ?? "",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: s(12),
-                                            color: Colors.grey,
-                                          ),
-                                        ),
+                                      return GestureDetector(
                                         onTap: () => _onCustomerTap(customer),
+                                        child: Container(
+                                          height: s(50),
+                                          margin: EdgeInsets.symmetric(
+                                            horizontal: s(10),
+                                            vertical: s(6),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: s(20),
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF1F1F1),
+                                            borderRadius: BorderRadius.circular(
+                                              s(18),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      customer.name,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: GoogleFonts.lato(
+                                                        fontSize: s(16),
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color: ColorPalette
+                                                            .textfiledin
+                                                            .withValues(
+                                                              alpha: .80,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: s(5),),
+                                                    Text(
+                                                      "-",
+                                                      maxLines: 1,
+                                                      style: GoogleFonts.lato(
+                                                        fontSize: s(16),
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color: ColorPalette
+                                                            .textfiledin
+                                                            .withValues(
+                                                              alpha: .80,
+                                                            ),
+                                                      ),
+                                                    ), SizedBox(width: s(5),),
+                                                    Text(
+                                                      customer.phone ?? "",
+                                                      style: GoogleFonts.lato(
+                                                        fontSize: s(16),
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        color: ColorPalette
+                                                            .textfiledin
+                                                            .withValues(
+                                                              alpha: .80,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       );
                                     },
                                   ),
                                 ),
-
                               SizedBox(height: s(16)),
 
                               /// SELECTED CUSTOMER
@@ -230,8 +302,7 @@ class _TotalPanelListState extends State<TotalPanelList> {
                                       child: Center(
                                         child: TextField(
                                           readOnly: true,
-                                          textAlign: TextAlign
-                                              .left,
+                                          textAlign: TextAlign.left,
                                           controller: TextEditingController(
                                             text: _selectedCustomer!.name,
                                           ),
@@ -251,9 +322,10 @@ class _TotalPanelListState extends State<TotalPanelList> {
                                               color: ColorPalette.textfiled
                                                   .withValues(alpha: .80),
                                             ),
-                                            contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                            ),
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                ),
                                           ),
                                         ),
                                       ),

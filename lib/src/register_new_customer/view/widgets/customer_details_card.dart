@@ -50,10 +50,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   // Store existing panels separately
   List<String> existingPanels = [];
   List<String> newPanels = [];
-  List<String> get allPanels => [
-  ...existingPanels,
-  ...newPanels,
-];
+  List<String> get allPanels => [...existingPanels, ...newPanels];
 
   // Focus nodes for dropdown text fields
   final FocusNode _stateFocusNode = FocusNode();
@@ -110,32 +107,78 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     super.dispose();
   }
 
+  // Future<void> _onUserSelected(Map<String, dynamic> customer) async {
+  //   final bloc = context.read<NewRegisterBloc>();
+
+  //   final orders = customer["orders"] ?? [];
+  //   final Set<String> existingPanelSet = {};
+
+  //   for (var order in orders) {
+  //     for (var item in (order["items"] ?? [])) {
+  //       final serial = item["serialNumber"]?.toString();
+  //       if (serial != null && serial.isNotEmpty) {
+  //         existingPanelSet.add(serial);
+  //       }
+  //     }
+  //   }
+
+  //   setState(() {
+  //     isUserSelected = true;
+  //     existingPanels = existingPanelSet.toList();
+  //     newPanels = []; // Clear new panels when selecting existing customer
+  //     _searchController.clear();
+
+  //     widget.nameController.text = customer["name"] ?? "";
+  //     widget.phoneController.text = (customer["phone"] ?? "").replaceAll(
+  //       "+91",
+  //       "",
+  //     );
+  //     widget.emailController.text = customer["email"] ?? "";
+  //     widget.addressController.text = customer["addressLine1"] ?? "";
+  //   });
+
+  //   bloc.add(
+  //     SelectExistingCustomer(
+  //       id: customer["id"].toString(),
+  //       stateId: customer["stateId"],
+  //       districtId: customer["districtId"],
+  //       pincodeId: customer["pincodeId"],
+  //     ),
+  //   );
+
+  //   widget.onPanelsLoaded(existingPanelSet.toList());
+  // }
   Future<void> _onUserSelected(Map<String, dynamic> customer) async {
     final bloc = context.read<NewRegisterBloc>();
 
-    final orders = customer["orders"] ?? [];
+    final soldSerials = customer["soldSerials"] as List<dynamic>? ?? [];
+
     final Set<String> existingPanelSet = {};
 
-    for (var order in orders) {
-      for (var item in (order["items"] ?? [])) {
-        final serial = item["serialNumber"]?.toString();
-        if (serial != null && serial.isNotEmpty) {
-          existingPanelSet.add(serial);
-        }
+    for (final item in soldSerials) {
+      final map = item as Map<String, dynamic>;
+
+      final serial = map["serialNumber"]?.toString();
+
+      if (serial != null && serial.isNotEmpty) {
+        existingPanelSet.add(serial);
       }
     }
 
     setState(() {
       isUserSelected = true;
       existingPanels = existingPanelSet.toList();
-      newPanels = []; // Clear new panels when selecting existing customer
+      newPanels = [];
       _searchController.clear();
 
       widget.nameController.text = customer["name"] ?? "";
-      widget.phoneController.text = (customer["phone"] ?? "").replaceAll(
-        "+91",
-        "",
-      );
+
+      String phone = (customer["phone"] ?? "").toString();
+      if (phone.startsWith("+91")) {
+        phone = phone.substring(3);
+      }
+      widget.phoneController.text = phone;
+
       widget.emailController.text = customer["email"] ?? "";
       widget.addressController.text = customer["addressLine1"] ?? "";
     });
@@ -491,6 +534,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                   controller: controller,
                   focusNode: focusNode,
                   enabled: enabled,
+                  readOnly: true,
                   style: GoogleFonts.lato(
                     fontSize: s(16),
                     color: ColorPalette.bottomtext,
@@ -506,6 +550,16 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                   ),
                   onTap: () {
                     if (enabled && suggestions.isNotEmpty) {
+                      setState(() {
+                        _showStateSuggestions = focusNode == _stateFocusNode;
+
+                        _showDistrictSuggestions =
+                            focusNode == _districtFocusNode;
+
+                        _showPincodeSuggestions =
+                            focusNode == _pincodeFocusNode;
+                      });
+
                       focusNode.requestFocus();
                     }
                   },
@@ -521,13 +575,14 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
             margin: EdgeInsets.only(top: s(4)),
             constraints: BoxConstraints(maxHeight: s(200)),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(s(10)),
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(s(20)),
+              border: Border.all(color: Colors.white),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: s(8),
-                  offset: Offset(0, s(2)),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: s(10),
+                  offset: Offset(0, s(4)),
                 ),
               ],
             ),
@@ -541,15 +596,28 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                     onSuggestionSelected(suggestion);
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: s(14),
-                      vertical: s(12),
+                     height: s(50),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: s(10),
+                      vertical: s(6),
                     ),
-                    child: Text(
-                      suggestion,
-                      style: GoogleFonts.lato(
-                        fontSize: s(14),
-                        color: ColorPalette.bottomtext,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s(20),
+                      vertical: s(10),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F1F1),
+                      borderRadius: BorderRadius.circular(s(10)),
+                    ),
+                    child: Container(
+                      child: Text(
+                        suggestion,
+                        style: GoogleFonts.lato(
+                          fontSize: s(16),
+                          fontWeight: FontWeight.w400,
+                           color: ColorPalette.textfiledin
+                                                .withValues(alpha: .80),
+                        ),
                       ),
                     ),
                   ),

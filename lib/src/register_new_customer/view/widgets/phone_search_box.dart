@@ -24,6 +24,7 @@ class PhoneSearchBox extends StatefulWidget {
 
 class _PhoneSearchBoxState extends State<PhoneSearchBox> {
   final LayerLink _layerLink = LayerLink();
+
   OverlayEntry? _overlayEntry;
 
   void _showOverlay() {
@@ -41,7 +42,7 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
   }
 
   void _updateOverlay() {
-    if (widget.controller.text.trim().length >= 3 &&
+    if (widget.controller.text.trim().isNotEmpty &&
         widget.suggestions.isNotEmpty) {
       _showOverlay();
     } else {
@@ -60,13 +61,18 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
 
     double s(double v) => v * widget.scale;
 
+    final searchText = widget.controller.text.toLowerCase();
+
+    final filteredSuggestions = widget.suggestions.where((user) {
+      final name = (user["name"] ?? "").toString().toLowerCase();
+
+      final phone = (user["phone"] ?? "").toString().toLowerCase();
+
+      return name.contains(searchText) || phone.contains(searchText);
+    }).toList();
+
     return OverlayEntry(
       builder: (context) {
-        final double dynamicHeight = (widget.suggestions.length * s(58)).clamp(
-          s(0),
-          s(220),
-        );
-
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: _hideOverlay,
@@ -81,10 +87,11 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
-                      height: dynamicHeight,
+                      constraints: BoxConstraints(maxHeight: s(300)),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(s(12)),
+                        color: Colors.white.withOpacity(0.96),
+                        borderRadius: BorderRadius.circular(s(20)),
+                        border: Border.all(color: Colors.white),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.08),
@@ -93,69 +100,86 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(s(12)),
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: widget.suggestions.length,
-                          itemBuilder: (context, index) {
-                            final user = widget.suggestions[index];
+                      child: ListView.builder(
+                        padding: EdgeInsets.symmetric(vertical: s(8)),
+                        shrinkWrap: true,
+                        itemCount: filteredSuggestions.length,
+                        itemBuilder: (context, index) {
+                          final user = filteredSuggestions[index];
 
-                            final String name = user["name"]?.toString() ?? "";
+                          final String name = user["name"]?.toString() ?? "";
 
-                            final String phone =
-                                user["phone"]?.toString() ?? "";
+                          final String phone = user["phone"]?.toString() ?? "";
 
-                            return InkWell(
-                              onTap: () {
-                                _hideOverlay();
+                          return GestureDetector(
+                            onTap: () {
+                              _hideOverlay();
 
-                                widget.controller.text = phone;
+                              widget.controller.text = phone;
 
-                                widget.controller.selection =
-                                    TextSelection.fromPosition(
-                                      TextPosition(offset: phone.length),
-                                    );
+                              widget.controller.selection =
+                                  TextSelection.fromPosition(
+                                    TextPosition(offset: phone.length),
+                                  );
 
-                                widget.onSelected(user);
-                              },
-                              child: Container(
-                                alignment: Alignment.centerLeft,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: s(14),
-                                  vertical: s(14),
-                                ),
-                                decoration: BoxDecoration(
-                                  border: index != widget.suggestions.length - 1
-                                      ? Border(
-                                          bottom: BorderSide(
-                                            color: Colors.grey.shade200,
-                                            width: 0.8,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: s(10)),
-                                    Expanded(
-                                      child: Text(
-                                        "$name - $phone",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.lato(
-                                          fontSize: s(14),
-                                          fontWeight: FontWeight.w500,
-                                          color: const Color(0xFF484848),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              widget.onSelected(user);
+                            },
+                            child: Container(
+                              height: s(50),
+                              margin: EdgeInsets.symmetric(
+                                horizontal: s(10),
+                                vertical: s(6),
                               ),
-                            );
-                          },
-                        ),
+                              padding: EdgeInsets.symmetric(horizontal: s(10)),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F1F1),
+                                borderRadius: BorderRadius.circular(s(18)),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.lato(
+                                            fontSize: s(16),
+                                            fontWeight: FontWeight.w400,
+                                            color: ColorPalette.textfiledin
+                                                .withValues(alpha: .80),
+                                          ),
+                                        ), SizedBox(width: s(5),),
+                                        Text(
+                                          "-",
+                                          maxLines: 1,
+                                          style: GoogleFonts.lato(
+                                            fontSize: s(16),
+                                            fontWeight: FontWeight.w400,
+                                            color: ColorPalette.textfiledin
+                                                .withValues(alpha: .80),
+                                          ),
+                                        ), SizedBox(width: s(5),),
+                                        Text(
+                                          phone,
+                                          style: GoogleFonts.lato(
+                                            fontSize: s(16),
+                                            fontWeight: FontWeight.w400,
+                                            color: ColorPalette.textfiledin
+                                                .withValues(alpha: .80),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -181,7 +205,7 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
     return CompositedTransformTarget(
       link: _layerLink,
       child: Container(
-        height: s(50),
+        height: s(52),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.5),
           borderRadius: BorderRadius.circular(s(10)),
@@ -214,6 +238,8 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                       _updateOverlay();
                     }
                   });
+
+                  setState(() {});
                 },
 
                 onTap: () {
@@ -222,13 +248,14 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
 
                 style: GoogleFonts.lato(
                   fontSize: s(16),
+                  fontWeight: FontWeight.w400,
                   color: ColorPalette.bottomtext,
                 ),
 
                 decoration: InputDecoration(
                   isCollapsed: true,
                   border: InputBorder.none,
-                  hintText: "Search by Phone Number",
+                  hintText: "Search by Name / Phone Number",
                   hintStyle: GoogleFonts.lato(
                     fontSize: s(16),
                     color: ColorPalette.textfiled,
@@ -236,24 +263,6 @@ class _PhoneSearchBoxState extends State<PhoneSearchBox> {
                 ),
               ),
             ),
-
-            if (widget.controller.text.isNotEmpty)
-              GestureDetector(
-                onTap: () {
-                  widget.controller.clear();
-                  _hideOverlay();
-
-                  setState(() {});
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(right: s(14)),
-                  child: Icon(
-                    Icons.close,
-                    size: s(18),
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
           ],
         ),
       ),

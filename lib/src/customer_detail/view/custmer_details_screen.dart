@@ -11,10 +11,7 @@ import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dar
 class CustomerDetailsScreen extends StatefulWidget {
   final CustomerModel customer;
 
-  const CustomerDetailsScreen({
-    super.key,
-    required this.customer,
-  });
+  const CustomerDetailsScreen({super.key, required this.customer});
 
   @override
   State<CustomerDetailsScreen> createState() => _CustomerDetailsScreenState();
@@ -30,16 +27,26 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     _loadPanels();
   }
 
-  void _loadPanels() {
-    final List<String> temp = [];
+  // void _loadPanels() {
+  //   final List<String> temp = [];
 
-    for (var order in widget.customer.orders) {
-      for (var item in order.items) {
-        if (item.serialNumber != null && item.serialNumber!.isNotEmpty) {
-          temp.add(item.serialNumber!);
-        }
-      }
-    }
+  //   for (var order in widget.customer.orders) {
+  //     for (var item in order.items) {
+  //       if (item.serialNumber != null && item.serialNumber!.isNotEmpty) {
+  //         temp.add(item.serialNumber!);
+  //       }
+  //     }
+  //   }
+
+  //   setState(() {
+  //     panels = temp;
+  //   });
+  // }
+  void _loadPanels() {
+    final temp = widget.customer.soldSerials
+        .map((e) => e.serialNumber)
+        .where((e) => e.isNotEmpty)
+        .toList();
 
     setState(() {
       panels = temp;
@@ -129,13 +136,9 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
 
                       _buildField("Phone Number", widget.customer.phone, scale),
 
-                      _buildField(
-                        "Email",
-                        widget.customer.email ?? "-",
-                        scale,
-                      ),
+                      _buildField("Email", widget.customer.email ?? "-", scale),
 
-                      _buildField(
+                      _buildemailField(
                         "Address",
                         widget.customer.addressLine1,
                         scale,
@@ -170,13 +173,21 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                       SizedBox(height: s(12)),
 
                       Column(
-                        children: List.generate(panels.length, (index) {
-                          return PanelIdItem(
-                            id: panels[index],
-                            scale: scale,
-                            isLast: index == panels.length - 1,
-                          );
-                        }),
+                        children: List.generate(
+                          widget.customer.soldSerials.length,
+                          (index) {
+                            final item = widget.customer.soldSerials[index];
+                            return PanelIdItem(
+                              id: item.serialNumber,
+                              scale: scale,
+                                isFirst: index == 0,
+
+                              isLast:
+                                  index ==
+                                  widget.customer.soldSerials.length - 1,
+                            );
+                          },
+                        ),
                       ),
 
                       SizedBox(height: s(40)),
@@ -192,11 +203,11 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
   }
 
   Widget _buildField(
-      String title,
-      String value,
-      double scale, {
-        bool isAddress = false,
-      }) {
+    String title,
+    String value,
+    double scale, {
+    bool isAddress = false,
+  }) {
     double s(double v) => v * scale;
 
     return Padding(
@@ -221,12 +232,58 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
               borderRadius: BorderRadius.circular(s(10)),
               border: Border.all(color: ColorPalette.whitetext),
             ),
-            child: Text(value,
+            child: Text(
+              value,
+              style: GoogleFonts.lato(
+                fontSize: s(16),
+                fontWeight: FontWeight.w400,
+                color: ColorPalette.textfiledin.withOpacity(0.80),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+   Widget _buildemailField(
+    String title,
+    String value,
+    double scale, {
+    bool isAddress = false,
+  }) {
+    double s(double v) => v * scale;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: s(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
             style: GoogleFonts.lato(
               fontSize: s(16),
-              fontWeight: FontWeight.w400,
-              color: ColorPalette.textfiledin.withOpacity(0.80),
-            ),),
+              fontWeight: FontWeight.w600,
+              color: ColorPalette.bottomtext,
+            ),
+          ),
+          SizedBox(height: s(14)),
+          Container(
+            height: s(71),
+            width: double.infinity,
+            padding: EdgeInsets.all(s(14)),
+            decoration: BoxDecoration(
+              color: ColorPalette.whitetext.withOpacity(0.50),
+              borderRadius: BorderRadius.circular(s(10)),
+              border: Border.all(color: ColorPalette.whitetext),
+            ),
+            child: Text(
+              value,
+              style: GoogleFonts.lato(
+                fontSize: s(16),
+                fontWeight: FontWeight.w400,
+                color: ColorPalette.textfiledin.withOpacity(0.80),
+              ),
+            ),
           ),
         ],
       ),

@@ -10,49 +10,49 @@ class TicketModel {
   final String panelId;
   final DateTime createdAt;
   final String email;
-final String phone;
-final String addressLine1;  
- final String assignedToName;
- final List<String> attachments;
-
+  final String phone;
+  final String addressLine1;
+  final String assignedToName;
+  final List<Map<String, dynamic>> statusHistory;
+  final int totalWorkedInMinutes;
+  final List<String> dealerAttachments;
+  final List<String> technicianAttachments;
+  final String? resolutionNote;
+final String? revisitDate;
 
   TicketModel({
-  required this.ticketId,
-  required this.ticketNumber,
-  required this.customerName,
-  required this.status,
-  required this.issue,
-  required this.description,
-  required this.priority,
-  required this.category,
-  required this.panelId,
-  required this.createdAt,
-  required this.email,
-  required this.phone,
-  required this.addressLine1,
-  required this.assignedToName,
-  this.attachments = const [],
-});
+    required this.ticketId,
+    required this.ticketNumber,
+    required this.customerName,
+    required this.status,
+    required this.issue,
+    required this.description,
+    required this.priority,
+    required this.category,
+    required this.panelId,
+    required this.createdAt,
+    required this.email,
+    required this.phone,
+    required this.addressLine1,
+    required this.assignedToName,
+    this.statusHistory = const [],
+    this.totalWorkedInMinutes = 0,
+    this.dealerAttachments = const [],
+    this.technicianAttachments = const [],
+    this.resolutionNote,
+this.revisitDate,
+  });
 
- factory TicketModel.fromJson(Map<String, dynamic> json) {
-  try {
+  factory TicketModel.fromJson(Map<String, dynamic> json) {
     final customer = json["customer"];
-    final products = json["products"];
     final assignedTo = json["assignedTo"];
+    final products = json["products"];
 
     String panelId = "-";
-    if (products != null && products is List && products.isNotEmpty) {
+
+    if (products is List && products.isNotEmpty) {
       panelId = products
           .map((e) => e["serialNo"]?.toString() ?? "")
-          .where((e) => e.isNotEmpty)
-          .join(",");
-    } else if (customer != null &&
-        customer["soldSerials"] != null &&
-        customer["soldSerials"] is List &&
-        customer["soldSerials"].isNotEmpty) {
-      final panels = customer["soldSerials"];
-      panelId = panels
-          .map((e) => e["serialNumber"]?.toString() ?? "")
           .where((e) => e.isNotEmpty)
           .join(",");
     }
@@ -74,15 +74,15 @@ final String addressLine1;
       phone: (customer?["phone"] ?? "").toString().replaceAll("+91", ""),
       addressLine1: customer?["addressLine1"] ?? "",
       assignedToName: assignedTo?["name"] ?? "",
+      statusHistory: List<Map<String, dynamic>>.from(json["statusHistory"] ?? []),
+      totalWorkedInMinutes: json["totalWorkedInMinutes"] ?? 0,
+      dealerAttachments:
+          List<String>.from(json["dealerAttachments"] ?? []),
 
-      // ✅ இது மட்டும் சேர்க்கவும்
-      attachments: List<String>.from(json["attachments"] ?? []),
+      technicianAttachments:
+          List<String>.from(json["technicianAttachments"] ?? []),
+          resolutionNote: json["resolutionNote"],
+revisitDate: json["revisitDate"],
     );
-  } catch (e, stack) {
-    print("❌ MODEL ERROR: $e");
-    print("❌ STACK: $stack");
-    print("❌ FAILED JSON: $json");
-    rethrow;
   }
-}
 }

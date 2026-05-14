@@ -11,7 +11,7 @@ class CustomerListRepositary {
     int limit = 10,
   }) async {
     final response = await _apiRepository.getRequest(
-      "dealer/customers?page=$page&limit=$limit",
+      "dealer/users?page=$page&limit=$limit",
     );
 
     print("📥 API RESPONSE: $response");

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "113739012144",
+    "project_id": "ssdealer-14f85",
+    "storage_bucket": "ssdealer-14f85.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113739012144:android:81148285938943913fb5f5",
+        "android_client_info": {
+          "package_name": "com.example.space_solar_dealer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEhDmzByZXzqxL6ap2CAaP-MJXaHZnr8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113739012144:android:5772f50c1fbe9d8e3fb5f5",
+        "android_client_info": {
+          "package_name": "com.example.space_solar_technician"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEhDmzByZXzqxL6ap2CAaP-MJXaHZnr8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

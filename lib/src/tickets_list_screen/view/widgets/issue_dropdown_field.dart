@@ -32,51 +32,69 @@ class _IssueDropdownFieldState extends State<IssueDropdownField> {
 
     return Container(
       height: s(52),
+
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.05),
+         color: Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(s(10)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: s(14)),
+
+      padding: EdgeInsets.symmetric(horizontal: s(16)),
+
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: selectedIssue,
+
           isExpanded: true,
 
-          /// Dropdown below field
-          dropdownColor: Colors.white,
-          borderRadius: BorderRadius.circular(s(12)),
+          menuMaxHeight: s(300),
 
-          hint: Text(
-            "Select Issue Type",
-            style: GoogleFonts.lato(
-              fontSize: s(15),
-              fontWeight: FontWeight.w400,
-              color: const Color(0xFF484848).withOpacity(0.80),
-            ),
-          ),
+          dropdownColor: Colors.white,
+
+          borderRadius: BorderRadius.circular(s(20)),
 
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
-            color: Colors.grey,
-            size: s(24),
+            color: const Color(0xFF6D6D6D),
+            size: s(22),
+          ),
+
+          hint: Text(
+            "Select Issue Type",
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.lato(
+              fontSize: s(16),
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFF6D6D6D),
+            ),
           ),
 
           style: GoogleFonts.lato(
-            fontSize: s(15),
-            color: ColorPalette.bottomtext,
-            fontWeight: FontWeight.w500,
+            fontSize: s(16),
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF6D6D6D),
           ),
 
           items: issues.map((issue) {
             return DropdownMenuItem<String>(
               value: issue,
-              child: Text(
-                issue,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.lato(
-                  fontSize: s(15),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF484848).withOpacity(0.80),
+
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: s(6),
+                  vertical: s(4),
+                ),
+
+                child: Text(
+                  issue,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: GoogleFonts.lato(
+                    fontSize: s(16),
+                    fontWeight: FontWeight.w400,
+                    color:
+                        ColorPalette.textfiledin.withValues(alpha: .80),
+                  ),
                 ),
               ),
             );

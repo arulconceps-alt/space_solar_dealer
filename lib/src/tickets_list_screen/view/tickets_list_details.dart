@@ -338,7 +338,7 @@ Color _getStatusTextColor(String status) {
               builder: (_, controller) {
                 return Container(
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: Color(0xFFFFFFFF),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(20),
                     ),
