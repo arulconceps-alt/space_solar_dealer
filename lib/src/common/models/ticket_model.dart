@@ -14,11 +14,13 @@ class TicketModel {
   final String addressLine1;
   final String assignedToName;
   final List<Map<String, dynamic>> statusHistory;
+  final List<Map<String, dynamic>> assignmentHistory;
   final int totalWorkedInMinutes;
   final List<String> dealerAttachments;
   final List<String> technicianAttachments;
   final String? resolutionNote;
-final String? revisitDate;
+  final String? revisitDate;
+  final AssignedTo? assignedTo;
 
   TicketModel({
     required this.ticketId,
@@ -36,11 +38,13 @@ final String? revisitDate;
     required this.addressLine1,
     required this.assignedToName,
     this.statusHistory = const [],
+    this.assignmentHistory = const [],
     this.totalWorkedInMinutes = 0,
     this.dealerAttachments = const [],
     this.technicianAttachments = const [],
     this.resolutionNote,
-this.revisitDate,
+    this.revisitDate,
+    required this.assignedTo,
   });
 
   factory TicketModel.fromJson(Map<String, dynamic> json) {
@@ -74,15 +78,44 @@ this.revisitDate,
       phone: (customer?["phone"] ?? "").toString().replaceAll("+91", ""),
       addressLine1: customer?["addressLine1"] ?? "",
       assignedToName: assignedTo?["name"] ?? "",
-      statusHistory: List<Map<String, dynamic>>.from(json["statusHistory"] ?? []),
+      statusHistory: List<Map<String, dynamic>>.from(
+        json["statusHistory"] ?? [],
+      ),
+      assignmentHistory: List<Map<String, dynamic>>.from(
+        json["assignmentHistory"] ?? [],
+      ),
       totalWorkedInMinutes: json["totalWorkedInMinutes"] ?? 0,
-      dealerAttachments:
-          List<String>.from(json["dealerAttachments"] ?? []),
+      dealerAttachments: List<String>.from(
+        json["dealerAttachments"] ?? [],
+      ),
+      technicianAttachments: List<String>.from(
+        json["technicianAttachments"] ?? [],
+      ),
+      resolutionNote: json["resolutionNote"],
+      revisitDate: json["revisitDate"],
+      assignedTo: json["assignedTo"] != null
+    ? AssignedTo.fromJson(json["assignedTo"])
+    : null,
+    );
+  }
+}
 
-      technicianAttachments:
-          List<String>.from(json["technicianAttachments"] ?? []),
-          resolutionNote: json["resolutionNote"],
-revisitDate: json["revisitDate"],
+class AssignedTo {
+  final String id;
+  final String name;
+  final String phone;
+
+  AssignedTo({
+    required this.id,
+    required this.name,
+    required this.phone,
+  });
+
+  factory AssignedTo.fromJson(Map<String, dynamic> json) {
+    return AssignedTo(
+      id: json["id"] ?? "",
+      name: json["name"] ?? "",
+      phone: json["phone"] ?? "",
     );
   }
 }

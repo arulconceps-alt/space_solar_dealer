@@ -7,8 +7,15 @@ abstract class CustomerListEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// 🔥 Load API
-class LoadCustomers extends CustomerListEvent {}
+
+class LoadCustomers extends CustomerListEvent {
+  final int page;
+
+  const LoadCustomers({this.page = 1});
+
+  @override
+  List<Object?> get props => [page];
+}
 
 /// 🔍 Search
 class SearchCustomers extends CustomerListEvent {

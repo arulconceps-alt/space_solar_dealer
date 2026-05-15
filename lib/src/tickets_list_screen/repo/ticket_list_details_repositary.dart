@@ -32,41 +32,8 @@ class TicketListDetailsRepositary {
   print("📊 Tickets data: $list");
     return list.map((e) => TicketModel.fromJson(e)).toList();
   }
-  /// create Ticket
-  // Future<Map<String, dynamic>> createTicket({
-  //   required String customerId,
-  //   required String title,
-  //   required String description,
-  //   required String category,
-  //   required String priority,
-  //   required String scheduledAt,
-  //   required List<Map<String, dynamic>> products,
-  // }) async {
 
-    
-  //   final body = {
-  //     "customerId": customerId,
-  //     "title": title,
-  //     "description": description,
-  //     "category": category,
-  //     "priority": priority,
-  //     "scheduledAt": scheduledAt,
-  //     "products": products,
-  //   };
-
-  //   final response = await _apiRepository.postRequest(
-  //     url: "/dealer/tickets",
-  //     data: body,
-  //   );
-
-  //   print("✅ CREATE TICKET RESPONSE: $response");
-
-  //   if (response["success"] != true) {
-  //     throw Exception(response["message"]);
-  //   }
-
-  //   return response["data"];
-  // }
+  
 Future<Map<String, dynamic>> createTicket({
   required String customerId,
   required String title,

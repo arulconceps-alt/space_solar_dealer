@@ -16,6 +16,7 @@ class TicketListDetailsBloc
     on<LoadPanelsEvent>((event, emit) async {
       final data = await repository.getPanelIds(event.customerId);
       emit(state.copyWith(panels: data));
+       on<LoadTicketByIdEvent>(_onLoadTicketById);
     });
   }
 
@@ -35,7 +36,7 @@ class TicketListDetailsBloc
       priority: data["priority"] ?? "HIGH",
       scheduledAt: data["scheduledAt"],
       products: List<Map<String, dynamic>>.from(data["products"]),
-      images: event.images, // ✅ Pass images here
+      images: event.images, 
     );
     print("✅ CREATE SUCCESS RESPONSE: $response");
     final newTicket = TicketModel.fromJson(response);
@@ -54,32 +55,71 @@ class TicketListDetailsBloc
   }
 }
 
-  Future<void> _onLoadTickets(
-    LoadTicketsEvent event,
-    Emitter<TicketListDetailsState> emit,
-  ) async {
-    try {
-      // ✅ Only show loading on FIRST load (when tickets list is empty)
-      // This prevents page flash/refresh when search triggers a reload
-      if (state.tickets.isEmpty) {
-        emit(state.copyWith(status: TicketListDetailsStatus.loading));
-      }
+ Future<void> _onLoadTickets(
+  LoadTicketsEvent event,
+  Emitter<TicketListDetailsState> emit,
+) async {
+  try {
+    final isFirstPage = event.page == 1;
 
-      final tickets = await repository.fetchTickets(
-        page: event.page,
-      );
-
+    if (isFirstPage) {
       emit(state.copyWith(
-        status: TicketListDetailsStatus.success,
-        tickets: tickets,
+        status: TicketListDetailsStatus.loading,
+        page: 1,
+        hasReachedMax: false,
       ));
-    } catch (e) {
-      emit(state.copyWith(
-        status: TicketListDetailsStatus.failure,
-        message: e.toString(),
-      ));
+    } else {
+      emit(state.copyWith(isLoadingMore: true));
     }
+
+    await Future.delayed(const Duration(seconds: 1));
+
+
+    final tickets = await repository.fetchTickets(page: event.page);
+
+    final hasReachedMax = tickets.length < 10;
+
+    final updatedList = isFirstPage
+        ? tickets
+        : [...state.tickets, ...tickets];
+
+    emit(state.copyWith(
+      status: TicketListDetailsStatus.success,
+      tickets: updatedList,
+      page: event.page,
+      hasReachedMax: hasReachedMax,
+      isLoadingMore: false,
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      status: TicketListDetailsStatus.failure,
+      message: e.toString(),
+      isLoadingMore: false,
+    ));
   }
+}
+
+ Future<void> _onLoadTicketById(
+  LoadTicketByIdEvent event,
+  Emitter<TicketListDetailsState> emit,
+) async {
+  try {
+    emit(state.copyWith(status: TicketListDetailsStatus.loading));
+
+    final TicketModel ticket =
+        await repository.getTicketDetails(event.ticketId);
+
+    emit(state.copyWith(
+      status: TicketListDetailsStatus.success,
+      selectedTicket: ticket,
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      status: TicketListDetailsStatus.failure,
+      message: e.toString(),
+    ));
+  }
+}
 
   Future<void> _onRefreshTickets(
     RefreshTicketsEvent event,

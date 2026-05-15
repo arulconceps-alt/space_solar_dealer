@@ -107,47 +107,6 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
     super.dispose();
   }
 
-  // Future<void> _onUserSelected(Map<String, dynamic> customer) async {
-  //   final bloc = context.read<NewRegisterBloc>();
-
-  //   final orders = customer["orders"] ?? [];
-  //   final Set<String> existingPanelSet = {};
-
-  //   for (var order in orders) {
-  //     for (var item in (order["items"] ?? [])) {
-  //       final serial = item["serialNumber"]?.toString();
-  //       if (serial != null && serial.isNotEmpty) {
-  //         existingPanelSet.add(serial);
-  //       }
-  //     }
-  //   }
-
-  //   setState(() {
-  //     isUserSelected = true;
-  //     existingPanels = existingPanelSet.toList();
-  //     newPanels = []; // Clear new panels when selecting existing customer
-  //     _searchController.clear();
-
-  //     widget.nameController.text = customer["name"] ?? "";
-  //     widget.phoneController.text = (customer["phone"] ?? "").replaceAll(
-  //       "+91",
-  //       "",
-  //     );
-  //     widget.emailController.text = customer["email"] ?? "";
-  //     widget.addressController.text = customer["addressLine1"] ?? "";
-  //   });
-
-  //   bloc.add(
-  //     SelectExistingCustomer(
-  //       id: customer["id"].toString(),
-  //       stateId: customer["stateId"],
-  //       districtId: customer["districtId"],
-  //       pincodeId: customer["pincodeId"],
-  //     ),
-  //   );
-
-  //   widget.onPanelsLoaded(existingPanelSet.toList());
-  // }
   Future<void> _onUserSelected(Map<String, dynamic> customer) async {
     final bloc = context.read<NewRegisterBloc>();
 
@@ -235,7 +194,20 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
       _districtTextController.clear();
       _pincodeTextController.clear();
     });
+
+    // optional but important
+    context.read<NewRegisterBloc>().add(ResetRegisterState());
+    context.read<NewRegisterBloc>().add(LoadLocationData());
+
     widget.onClearPanels();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && selectedCustomerType == "New Customer") {
+        _stateFocusNode.unfocus();
+        _districtFocusNode.unfocus();
+        _pincodeFocusNode.unfocus();
+      }
+    });
   }
 
   @override
@@ -379,9 +351,11 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                     widget.scale,
                     controller: _stateTextController,
                     focusNode: _stateFocusNode,
-                    suggestions: state.states
-                        .map((e) => e["name"].toString())
-                        .toList(),
+                    suggestions: (state.states).isEmpty
+                        ? []
+                        : state.states
+                              .map((e) => e["name"].toString())
+                              .toList(),
                     showSuggestions: _showStateSuggestions,
                     onSuggestionSelected: (val) {
                       final selected = state.states.firstWhere(
@@ -408,9 +382,11 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                     widget.scale,
                     controller: _districtTextController,
                     focusNode: _districtFocusNode,
-                    suggestions: state.districts
-                        .map((e) => e["name"].toString())
-                        .toList(),
+                    suggestions: (state.districts).isEmpty
+                        ? []
+                        : state.districts
+                              .map((e) => e["name"].toString())
+                              .toList(),
                     showSuggestions: _showDistrictSuggestions,
                     onSuggestionSelected: (val) {
                       final selected = state.districts.firstWhere(
@@ -438,10 +414,11 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                     widget.scale,
                     controller: _pincodeTextController,
                     focusNode: _pincodeFocusNode,
-                    suggestions: state.pincodesList
-                        .map((e) => e["code"].toString())
-                        .toSet()
-                        .toList(),
+                    suggestions: (state.pincodesList).isEmpty
+                        ? []
+                        : state.pincodesList
+                              .map((e) => e["code"].toString())
+                              .toList(),
                     showSuggestions: _showPincodeSuggestions,
                     onSuggestionSelected: (val) {
                       final selected = state.pincodesList.firstWhere(
@@ -497,14 +474,7 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
   }) {
     double s(double v) => v * scale;
 
-    final filteredSuggestions = controller.text.isEmpty
-        ? suggestions
-        : suggestions
-              .where(
-                (item) =>
-                    item.toLowerCase().contains(controller.text.toLowerCase()),
-              )
-              .toList();
+    final filteredSuggestions = suggestions;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,17 +520,23 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                   ),
                   onTap: () {
                     if (enabled && suggestions.isNotEmpty) {
+                      controller.clear();
+
                       setState(() {
-                        _showStateSuggestions = focusNode == _stateFocusNode;
+                        _showStateSuggestions = false;
+                        _showDistrictSuggestions = false;
+                        _showPincodeSuggestions = false;
 
-                        _showDistrictSuggestions =
-                            focusNode == _districtFocusNode;
-
-                        _showPincodeSuggestions =
-                            focusNode == _pincodeFocusNode;
+                        if (focusNode == _stateFocusNode) {
+                          _showStateSuggestions = true;
+                        } else if (focusNode == _districtFocusNode) {
+                          _showDistrictSuggestions = true;
+                        } else if (focusNode == _pincodeFocusNode) {
+                          _showPincodeSuggestions = true;
+                        }
                       });
 
-                      focusNode.requestFocus();
+                      FocusScope.of(context).requestFocus(focusNode);
                     }
                   },
                 ),
@@ -596,18 +572,18 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                     onSuggestionSelected(suggestion);
                   },
                   child: Container(
-                     height: s(50),
+                    height: s(50),
                     margin: EdgeInsets.symmetric(
                       horizontal: s(10),
                       vertical: s(6),
                     ),
                     padding: EdgeInsets.symmetric(
                       horizontal: s(20),
-                      vertical: s(10),
+                      vertical: s(12),
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F1F1),
-                      borderRadius: BorderRadius.circular(s(10)),
+                      borderRadius: BorderRadius.circular(s(18)),
                     ),
                     child: Container(
                       child: Text(
@@ -615,8 +591,9 @@ class CustomerDetailsCardState extends State<CustomerDetailsCard> {
                         style: GoogleFonts.lato(
                           fontSize: s(16),
                           fontWeight: FontWeight.w400,
-                           color: ColorPalette.textfiledin
-                                                .withValues(alpha: .80),
+                          color: ColorPalette.textfiledin.withValues(
+                            alpha: .80,
+                          ),
                         ),
                       ),
                     ),

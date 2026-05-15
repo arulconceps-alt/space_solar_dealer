@@ -190,7 +190,7 @@ class TicketCard extends StatelessWidget {
         textAlign: TextAlign.center,
         style: GoogleFonts.lato(
           color: statusColor,
-          fontSize: s(10),
+          fontSize: status == "RE_SCHEDULED" ? s(8.5) : s(10),
           fontWeight: FontWeight.w400,
         ),
       ),

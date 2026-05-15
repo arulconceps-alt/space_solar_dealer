@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/dashboard/view/widgets/app_background.dart';
+import 'package:space_solar_dealer/src/notifications/data/notification_store.dart';
 import 'package:space_solar_dealer/src/notifications/view/widgets/notification_list.dart';
 import 'package:space_solar_dealer/src/notifications/view/widgets/notification_title.dart';
-
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -20,13 +20,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   void initState() {
     super.initState();
-    loadNotifications();
+
+    NotificationStore.instance
+      .markAllAsRead();
   }
 
   Future<void> loadNotifications() async {
     setState(() => isLoading = true);
 
-    await Future.delayed(const Duration(seconds: 2)); // 👈 replace with API
+    await Future.delayed(const Duration(seconds: 2));
 
     setState(() => isLoading = false);
   }
@@ -52,7 +54,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              /// ✅ MAIN UI
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -68,7 +69,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
                           SizedBox(height: s(20)),
 
-                          NotificationList(scale: scale),
+                          ValueListenableBuilder<List<Map<String, dynamic>>>(
+                            valueListenable:
+                                NotificationStore.instance.notifications,
+
+                            builder: (context, notifications, _) {
+                              return NotificationList(
+                                scale: scale,
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -82,9 +92,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   child: AbsorbPointer(
                     child: Container(
                       color: Colors.black.withOpacity(0.3),
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: const Center(child: CircularProgressIndicator()),
                     ),
                   ),
                 ),

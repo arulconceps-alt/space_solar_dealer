@@ -26,6 +26,16 @@ class RefreshTicketsEvent extends TicketListDetailsEvent {
   const RefreshTicketsEvent();
 }
 
+class LoadTicketByIdEvent extends TicketListDetailsEvent {
+  final String ticketId;
+
+  const LoadTicketByIdEvent(this.ticketId);
+
+  @override
+  List<Object?> get props => [ticketId];
+}
+
+
 class CreateTicketEvent extends TicketListDetailsEvent {
   final Map<String, dynamic> ticketData;
   final List<File> images;

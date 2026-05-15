@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:space_solar_dealer/src/notifications/data/notification_store.dart';
 import 'notification_card.dart';
 
 class NotificationList extends StatelessWidget {
@@ -11,22 +12,48 @@ class NotificationList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        NotificationCard(
-          scale: scale,
-          title: "New Ticket Assigned",
-          desc: "TKT-005 has been assigned to you.\nLocation: Coimbatore",
-          isNew: true,
-        ),
-        NotificationCard(
-          scale: scale,
-          title: "New Ticket Assigned",
-          desc: "TKT-006 has been assigned to you.\nLocation: Coimbatore",
-          isNew: true,
-        ),
-      
-      ],
+
+    return ValueListenableBuilder<
+        List<Map<String, dynamic>>>(
+      valueListenable:
+          NotificationStore
+              .instance
+              .notifications,
+
+      builder: (
+        context,
+        notifications,
+        _,
+      ) {
+
+        if (notifications.isEmpty) {
+          return const Center(
+            child: Text(
+              "No Notifications",
+            ),
+          );
+        }
+
+        return Column(
+          children:
+              notifications.map((notification) {
+
+            return NotificationCard(
+              scale: scale,
+
+              title:
+                  notification["title"] ?? '',
+
+              desc:
+                  notification["body"] ?? '',
+
+              isNew:
+                  !(notification["isRead"] ?? false),
+            );
+
+          }).toList(),
+        );
+      },
     );
   }
 }

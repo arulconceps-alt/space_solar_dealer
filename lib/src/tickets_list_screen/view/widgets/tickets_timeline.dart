@@ -13,6 +13,9 @@ class TicketTimelineWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double s(double v) => v * scale;
 
+   final sortedItems = [...items]
+  ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,15 +28,15 @@ class TicketTimelineWidget extends StatelessWidget {
           ),
         ),
         SizedBox(height: s(18)),
+
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: items.length,
+          itemCount: sortedItems.length,
           itemBuilder: (context, index) {
-            final item = items[index];
-            final isLast = index == items.length - 1;
+            final item = sortedItems[index];
+            final isLast = index == sortedItems.length - 1;
 
-            // ✅ dot color — statusColor இருந்தா அது, இல்லன்னா default blue
             final dotColor = item.statusColor ?? const Color(0xFF2DA8E0);
 
             return IntrinsicHeight(
@@ -55,7 +58,7 @@ class TicketTimelineWidget extends StatelessWidget {
                           child: Container(
                             width: 1,
                             margin: EdgeInsets.symmetric(vertical: s(4)),
-                            color: ColorPalette.textfiledin.withOpacity(0.20),
+                            color: Colors.grey.withOpacity(0.2),
                           ),
                         ),
                     ],
@@ -69,16 +72,20 @@ class TicketTimelineWidget extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Title (with In Progress highlight)
                           RichText(
                             text: TextSpan(
                               style: GoogleFonts.poppins(
                                 fontSize: s(16),
                                 fontWeight: FontWeight.w500,
-                                color: ColorPalette.bottomtext,
+                                color: const Color(0xFF2C2C2C),
                               ),
                               children: [
                                 TextSpan(text: item.title),
+
+                                /// FIX: spacing added
+                                if (item.statusLabel != null)
+                                  TextSpan(text: " "),
+
                                 if (item.statusLabel != null)
                                   TextSpan(
                                     text: item.statusLabel,
@@ -87,7 +94,7 @@ class TicketTimelineWidget extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                       color:
                                           item.statusColor ??
-                                          ColorPalette.bottomtext,
+                                          const Color(0xFF2C2C2C),
                                     ),
                                   ),
                               ],
@@ -101,61 +108,53 @@ class TicketTimelineWidget extends StatelessWidget {
                             style: GoogleFonts.lato(
                               fontSize: s(14),
                               height: 1.5,
-                              color: ColorPalette.textfiledin.withOpacity(0.80),
-                              fontWeight: FontWeight.w400,
+                              color: Colors.grey.shade700,
                             ),
                           ),
 
                           if (item.reason != null) ...[
                             SizedBox(height: s(6)),
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Icon(
                                   Icons.info_outline,
                                   size: s(14),
-                                  color: Colors.grey.shade500,
+                                  color: Colors.grey,
                                 ),
                                 SizedBox(width: s(6)),
                                 Expanded(
                                   child: Text(
-                                    "Reason: ${item.reason!}",
+                                    "Reason: ${item.reason}",
                                     style: GoogleFonts.lato(
                                       fontSize: s(13),
-                                      color: Colors.grey.shade600,
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.5,
+                                      color: Colors.grey,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                           ],
-                          if (item.changedByName != null) ...[
+
+                          if (item.fromName != null || item.toName != null) ...[
                             SizedBox(height: s(4)),
-                            Row(
-                              children: [
-                                Text(
-                                  "Technician: ",
-                                  style: GoogleFonts.lato(
-                                    fontSize: s(13),
-                                    color: ColorPalette.bottomtext,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                SizedBox(width: s(6)),
-                                Text(
-                                  item.changedByName!,
-                                  style: GoogleFonts.lato(
-                                    fontSize: s(13),
-                                    color: ColorPalette.textfiledin.withOpacity(0.80),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              "From: ${item.fromName ?? '-'} → To: ${item.toName ?? '-'}",
+                              style: GoogleFonts.lato(
+                                fontSize: s(13),
+                                color: Colors.black87,
+                              ),
                             ),
                           ],
+                          // if (item.changedByName != null) ...[
+                          //   SizedBox(height: s(4)),
+                          //   Text(
+                          //     "By: ${item.changedByName}",
+                          //     style: GoogleFonts.lato(
+                          //       fontSize: s(13),
+                          //       color: Colors.black87,
+                          //     ),
+                          //   ),
+                          // ],
                         ],
                       ),
                     ),

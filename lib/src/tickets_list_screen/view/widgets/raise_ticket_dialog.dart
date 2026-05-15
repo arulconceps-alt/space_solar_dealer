@@ -13,6 +13,7 @@ import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_deta
 import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/description_field.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/issue_dropdown_field.dart';
+import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/panelId_field.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/ticket_success_dialog.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/upload_field.dart';
 import '../../bloc/ticket_list_details_event.dart';
@@ -53,7 +54,9 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
   Map<String, dynamic>? _selectedCustomer;
   List<String> _selectedPanelIds = [];
   List<PanelModel> _availablePanels = [];
-
+  bool _showDropdown = false;
+  String? _dropdownHint;
+  List<String> _dropdownItems = [];
   IssueModel? selectedIssue;
   String? selectedPriority;
   DateTime selectedDate = DateTime.now();
@@ -61,6 +64,7 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
   List<File> selectedImages = [];
   final List<String> _priorityOptions = ["High", "Medium", "Low"];
   String? _tempSelectedPanel;
+  
 
   @override
   void initState() {
@@ -235,38 +239,49 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     final scale = w / 440;
     double s(double v) => v * scale;
 
-    return BlocListener<TicketListDetailsBloc, TicketListDetailsState>(
-      listener: (context, state) {
-        if (state.status == TicketListDetailsStatus.create) {
-          Navigator.pop(context);
-          final newTicket = state.tickets.first;
-          _resetForm();
+   return BlocListener<TicketListDetailsBloc, TicketListDetailsState>(
+ listener: (context, state) {
+  if (state.status == TicketListDetailsStatus.create) {
+    final newTicket = state.selectedTicket;
 
-          context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
+    Navigator.pop(context);
 
-          showGeneralDialog(
-            context: widget.parentContext,
-            barrierDismissible: true,
-            barrierLabel: "Success",
-            barrierColor: Colors.black54,
-            transitionDuration: const Duration(milliseconds: 400),
-            pageBuilder: (_, __, ___) => TicketSuccessDialog(
-              parentContext: widget.parentContext,
-              ticket: newTicket,
-            ),
-          );
-        }
-        if (state.status == TicketListDetailsStatus.failure) {
-          CustomSnackBar.show(
-            context,
-            AlertState(
-              message: state.message,
-              type: AlertType.failure,
-              timestamp: DateTime.now(),
-            ),
-          );
-        }
-      },
+    if (newTicket != null) {
+      context.read<TicketListDetailsBloc>().add(
+        LoadTicketByIdEvent(newTicket.ticketId),
+      );
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showGeneralDialog(
+          context: context, // ✅ FIXED
+          barrierDismissible: true,
+          barrierLabel: "Success",
+          barrierColor: Colors.black54,
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (_, __, ___) => TicketSuccessDialog(
+            parentContext: context,
+            ticket: newTicket,
+          ),
+        );
+      });
+    }
+
+    context.read<TicketListDetailsBloc>().add(const LoadTicketsEvent());
+    _resetForm();
+  }
+
+
+    if (state.status == TicketListDetailsStatus.failure) {
+      CustomSnackBar.show(
+        context,
+        AlertState(
+          message: state.message,
+          type: AlertType.failure,
+          timestamp: DateTime.now(),
+        ),
+      );
+    }
+  },
       child: SingleChildScrollView(
         controller: widget.scrollController,
         child: Padding(
@@ -323,8 +338,23 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
               SizedBox(height: s(16)),
 
               _buildLabel("Panel ID*", s),
-              SizedBox(height: s(10)),
-              _buildPanelIdRow(s),
+               SizedBox(height: s(10)),
+              PanelIdField(
+                scale: scale,
+                customerId: _selectedCustomer?["id"]?.toString() ?? "",
+                repository: TicketListDetailsRepositary(
+                  context.read<ApiRepository>(),
+                ),
+                onSelected: (panel) {
+                  setState(() {
+                    if (!_selectedPanelIds.contains(panel.serialNumber)) {
+                      _selectedPanelIds.add(panel.serialNumber);
+                    }
+                  });
+                },
+              ),
+             
+             // _buildPanelIdRow(s),
 
               // Panel ID chips
               if (_selectedPanelIds.isNotEmpty) ...[
@@ -339,7 +369,9 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
               IssueDropdownField(
                 scale: scale,
                 onSelected: (value) {
-                  setState(() => selectedIssue = IssueModel(value));
+                  setState(() {
+                    selectedIssue = IssueModel(value);
+                  });
                 },
               ),
 
@@ -347,8 +379,16 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
 
               _buildLabel("Priority*", s),
               SizedBox(height: s(10)),
-              _buildPriorityDropdown(s),
-
+              // _buildPriorityDropdown(s),
+              _buildCustomDropdown(
+                s: s,
+                hint: "Select Priority",
+                items: _priorityOptions,
+                selectedValue: selectedPriority,
+                onSelected: (val) {
+                  setState(() => selectedPriority = val);
+                },
+              ),
               SizedBox(height: s(16)),
               DescriptionField(scale: scale, controller: descriptionController),
 
@@ -557,161 +597,7 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     );
   }
 
-  Widget _buildPanelIdRow(double Function(double) s) {
-    final panelOptions = _availablePanels
-        .map((p) => p.serialNumber)
-        .where((v) => v.isNotEmpty)
-        .where((v) => !_selectedPanelIds.contains(v))
-        .toList();
-
-    // SELECT CUSTOMER FIRST
-    if (_selectedCustomer == null) {
-      return Container(
-        height: s(52),
-        decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(s(10)),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: s(18)),
-        alignment: Alignment.centerLeft,
-        child: Text(
-          "Select a customer first",
-          style: GoogleFonts.lato(
-            fontSize: s(16),
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF6D6D6D),
-          ),
-        ),
-      );
-    }
-
-    // NO PANELS
-    if (_availablePanels.isEmpty) {
-      return Container(
-        height: s(52),
-        decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(s(10)),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: s(18)),
-        alignment: Alignment.centerLeft,
-        child: Text(
-          "No panels available",
-          style: GoogleFonts.lato(
-            fontSize: s(16),
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF6D6D6D),
-          ),
-        ),
-      );
-    }
-
-    // ALL PANELS ADDED
-    if (panelOptions.isEmpty) {
-      return Container(
-        height: s(52),
-        decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(s(10)),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: s(18)),
-        alignment: Alignment.centerLeft,
-        child: Text(
-          "All panels added",
-          style: GoogleFonts.lato(
-            fontSize: s(16),
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF6D6D6D),
-          ),
-        ),
-      );
-    }
-
-    // DROPDOWN UI
-      return Container(
-        height: s(52),
-
-        decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(s(10)),
-        ),
-
-        padding: EdgeInsets.symmetric(horizontal: s(16)),
-
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: null,
-            isExpanded: true,
-
-            menuMaxHeight: s(280),
-
-            dropdownColor: Colors.white,
-
-            borderRadius: BorderRadius.circular(s(20)),
-
-            icon: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: const Color(0xFF6D6D6D),
-              size: s(22),
-            ),
-
-            hint: Text(
-              "Select Panel ID",
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.lato(
-                fontSize: s(16),
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF6D6D6D),
-              ),
-            ),
-
-            style: GoogleFonts.lato(
-              fontSize: s(16),
-              fontWeight: FontWeight.w400,
-              color: const Color(0xFF6D6D6D),
-            ),
-
-            items: panelOptions.map((item) {
-              return DropdownMenuItem<String>(
-                value: item,
-
-                child: Text(
-                  item,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.lato(
-                    fontSize: s(16),
-                    fontWeight: FontWeight.w400,
-                    color: ColorPalette.textfiledin.withValues(alpha: .80),
-                  ),
-                ),
-              );
-            }).toList(),
-
-            onChanged: (val) {
-              if (val == null) return;
-
-              if (_selectedPanelIds.contains(val)) {
-                CustomSnackBar.show(
-                  context,
-                  AlertState(
-                    message: "Panel ID '$val' already added",
-                    type: AlertType.failure,
-                    timestamp: DateTime.now(),
-                  ),
-                );
-                return;
-              }
-
-              setState(() {
-                _selectedPanelIds.add(val);
-              });
-            },
-          ),
-        ),
-      );
-    }
-
+ 
   Widget _buildPanelChips(double Function(double) s) {
     return Container(
       width: double.infinity,
@@ -769,87 +655,115 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     );
   }
 
-
- Widget _buildPriorityDropdown(double Function(double) s) {
-  return Container(
-    height: s(52),
-
-    decoration: BoxDecoration(
-      color:  Colors.grey.withOpacity(0.05),
-      borderRadius: BorderRadius.circular(s(10)),
-    ),
-
-    padding: EdgeInsets.symmetric(horizontal: s(16)),
-
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: selectedPriority,
-
-        isExpanded: true,
-
-        menuMaxHeight: s(300),
-
-        dropdownColor: Colors.white,
-
-        borderRadius: BorderRadius.circular(s(20)),
-
-        icon: Icon(
-          Icons.keyboard_arrow_down_rounded,
-          color: const Color(0xFF6D6D6D),
-          size: s(22),
-        ),
-
-        hint: Text(
-          "Select Priority",
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.lato(
-            fontSize: s(16),
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF6D6D6D),
+  Widget _buildCustomDropdown({
+    required double Function(double) s,
+    required String hint,
+    required List<String> items,
+    required String? selectedValue,
+    required Function(String) onSelected,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // FIELD
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _dropdownHint = hint;
+              _dropdownItems = items;
+              _showDropdown = !_showDropdown;
+            });
+          },
+          child: Container(
+            height: s(52),
+            padding: EdgeInsets.symmetric(horizontal: s(16)),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(s(10)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    selectedValue ?? hint,
+                    style: GoogleFonts.lato(
+                      fontSize: s(16),
+                      fontWeight: FontWeight.w400,
+                      color: ColorPalette.textfiledin.withOpacity(0.80),
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: const Color(0xFF6D6D6D),
+                  size: s(20),
+                ),
+              ],
+            ),
           ),
         ),
 
-        style: GoogleFonts.lato(
-          fontSize: s(16),
-          fontWeight: FontWeight.w400,
-          color: const Color(0xFF6D6D6D),
-        ),
+        // DROPDOWN LIST (LIKE YOUR SEARCH UI)
+        if (_showDropdown && _dropdownItems == items) ...[
+          SizedBox(height: s(8)),
 
-        items: _priorityOptions.map((item) {
-          return DropdownMenuItem<String>(
-            value: item,
-
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: s(6),
-                vertical: s(4),
-              ),
-
-              child: Text(
-                item,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-
-                style: GoogleFonts.lato(
-                  fontSize: s(16),
-                  fontWeight: FontWeight.w400,
-                  color:
-                      ColorPalette.textfiledin.withValues(alpha: .80),
+          Container(
+            constraints: BoxConstraints(maxHeight: s(180)),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.96),
+              borderRadius: BorderRadius.circular(s(20)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: s(10),
+                  offset: Offset(0, s(4)),
                 ),
-              ),
+              ],
             ),
-          );
-        }).toList(),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
 
-        onChanged: (val) {
-          setState(() {
-            selectedPriority = val;
-          });
-        },
-      ),
-    ),
-  );
-}
+                return GestureDetector(
+                  onTap: () {
+                    onSelected(item);
+                    setState(() {
+                      _showDropdown = false;
+                    });
+                  },
+                  child: Container(
+                    height: s(50),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: s(10),
+                      vertical: s(6),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s(16),
+                      vertical: s(14),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F1F1),
+                      borderRadius: BorderRadius.circular(s(14)),
+                    ),
+                    child: Text(
+                      item,
+                      style: GoogleFonts.lato(
+                        fontSize: s(16),
+                        fontWeight: FontWeight.w400,
+                        color: ColorPalette.textfiledin.withOpacity(0.80),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 
   Widget _buildReadOnlyField({
     required TextEditingController controller,
@@ -998,57 +912,57 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
     );
   }
 
-  Widget _buildCommonDropdown({
-    required double Function(double) s,
-    required String hint,
-    required String? value,
-    required List<String> items,
-    required Function(String?) onChanged,
-  }) {
-    return Container(
-      height: s(52),
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(s(10)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: s(14)),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          dropdownColor: Colors.white,
-          borderRadius: BorderRadius.circular(s(12)),
+  // Widget _buildCommonDropdown({
+  //   required double Function(double) s,
+  //   required String hint,
+  //   required String? value,
+  //   required List<String> items,
+  //   required Function(String?) onChanged,
+  // }) {
+  //   return Container(
+  //     height: s(52),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.withOpacity(0.05),
+  //       borderRadius: BorderRadius.circular(s(10)),
+  //     ),
+  //     padding: EdgeInsets.symmetric(horizontal: s(14)),
+  //     child: DropdownButtonHideUnderline(
+  //       child: DropdownButton<String>(
+  //         value: value,
+  //         isExpanded: true,
+  //         dropdownColor: Colors.white,
+  //         borderRadius: BorderRadius.circular(s(12)),
 
-          hint: Text(
-            hint,
-            style: GoogleFonts.lato(
-              fontSize: s(15),
-              fontWeight: FontWeight.w400,
-              color: const Color(0xFF484848).withOpacity(0.80),
-            ),
-          ),
+  //         hint: Text(
+  //           hint,
+  //           style: GoogleFonts.lato(
+  //             fontSize: s(15),
+  //             fontWeight: FontWeight.w400,
+  //             color: const Color(0xFF484848).withOpacity(0.80),
+  //           ),
+  //         ),
 
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.grey,
-            size: s(24),
-          ),
+  //         icon: Icon(
+  //           Icons.keyboard_arrow_down_rounded,
+  //           color: Colors.grey,
+  //           size: s(24),
+  //         ),
 
-          style: GoogleFonts.lato(
-            fontSize: s(15),
-            color: ColorPalette.bottomtext,
-            fontWeight: FontWeight.w500,
-          ),
+  //         style: GoogleFonts.lato(
+  //           fontSize: s(15),
+  //           color: ColorPalette.bottomtext,
+  //           fontWeight: FontWeight.w500,
+  //         ),
 
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item, overflow: TextOverflow.ellipsis),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
+  //         items: items.map((item) {
+  //           return DropdownMenuItem<String>(
+  //             value: item,
+  //             child: Text(item, overflow: TextOverflow.ellipsis),
+  //           );
+  //         }).toList(),
+  //         onChanged: onChanged,
+  //       ),
+  //     ),
+  //   );
+  // }
 }

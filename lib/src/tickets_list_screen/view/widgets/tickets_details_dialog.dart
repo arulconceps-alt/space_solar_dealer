@@ -6,6 +6,7 @@ import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
 import 'package:space_solar_dealer/src/common/models/ticket_timeline_model.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/customer_sign_card.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/view/widgets/tickets_timeline.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TicketDetailsDialog extends StatelessWidget {
   final TicketModel ticket;
@@ -45,109 +46,103 @@ class TicketDetailsDialog extends StatelessWidget {
   }
 
   List<TimelineItemModel> _buildTimeline() {
-  final List<TimelineItemModel> items = [];
+    final List<TimelineItemModel> items = [];
 
-  for (final history in ticket.statusHistory) {
-    final toStatus = (history["toStatus"] ?? "").toString();
-    final changedAt = history["changedAt"] != null
-        ? _formatDateTime(history["changedAt"])
-        : "-";
-    final reason = (history["reason"] ?? "").toString().trim();
-    final reasonOrNull = reason.isNotEmpty ? reason : null;
-    final changedBy = (history["changedByName"] ?? "").toString().trim();
-final changedByOrNull = changedBy.isNotEmpty ? changedBy : null;
+    DateTime parseDate(String date) =>
+        DateTime.tryParse(date)?.toLocal() ?? DateTime(2000);
 
-    switch (toStatus) {
-      case "OPEN":
-  items.add(TimelineItemModel(
-    title: "Ticket Created ",
-    statusLabel: "Open",
-    value: changedAt,
-    statusColor: ColorPalette.textfiledin.withOpacity(0.60),
-    reason: reasonOrNull,
-    changedByName: changedByOrNull, 
-  ));
-  break;
+    // ---------------- STATUS HISTORY ----------------
+    for (final history in ticket.statusHistory) {
+      final toStatus = (history["toStatus"] ?? "").toString();
+      final changedAt = history["changedAt"] ?? "";
 
-case "PENDING":
-  items.add(TimelineItemModel(
-    title: "Status changed to ",
-    statusLabel: "Assigned",
-    value: changedAt,
-    statusColor: Colors.blue,
-    reason: reasonOrNull,
-    changedByName: changedByOrNull, 
-  ));
-  break;
+      final dateTime = parseDate(changedAt);
 
-case "IN_PROGRESS":
-  items.add(TimelineItemModel(
-    title: "Status changed to ",
-    statusLabel: "In Progress",
-    value: changedAt,
-    highlight: true,
-    statusColor: Colors.orange,
-    reason: reasonOrNull,
-    changedByName: changedByOrNull, 
-  ));
-  break;
+      String label = toStatus;
+      String title = "Status changed to";
+      Color color = Colors.grey;
 
-case "RE_SCHEDULED":
-  items.add(TimelineItemModel(
-    title: "Status changed to ",
-    statusLabel: "Re-Scheduled",
-    value: changedAt,
-    statusColor: Colors.blue,
-    reason: reasonOrNull,
-    changedByName: changedByOrNull,
-  ));
-  if (ticket.revisitDate != null && ticket.revisitDate!.isNotEmpty) {
-    items.add(TimelineItemModel(
-      title: "Rescheduled to ",
-      statusLabel: "Reschedule Date",
-      value: _formatDateTime(ticket.revisitDate!),
-      statusColor: Colors.blue,
-    ));
-  }
-  break;
+      switch (toStatus) {
+        case "OPEN":
+          title = "Ticket Created";
+          label = "Open";
+          color = Colors.grey;
+          break;
 
-case "RESOLVED":
-  items.add(TimelineItemModel(
-    title: "Status changed to ",
-    statusLabel: "Resolved",
-    value: changedAt,
-    statusColor: Colors.green,
-    reason: reasonOrNull,
-    changedByName: changedByOrNull, 
-  ));
-  break;
+        case "PENDING":
+          label = "Pending";
+          color = Colors.red;
+          break;
 
-case "CLOSED":
-  items.add(TimelineItemModel(
-    title: "Ticket ",
-    statusLabel: "Closed",
-    value: changedAt,
-    statusColor: ColorPalette.textfiledin.withOpacity(0.60),
-    reason: reasonOrNull,
-    changedByName: changedByOrNull, 
-  ));
-  break;
+        case "IN_PROGRESS":
+          label = "In Progress";
+          color = Colors.orange;
+          break;
 
-case "CANCELLED":
-  items.add(TimelineItemModel(
-    title: "Ticket ",
-    statusLabel: "Cancelled",
-    value: changedAt,
-    statusColor: Colors.red,
-    reason: reasonOrNull,
-    changedByName: changedByOrNull, 
-  ));
-  break;
+        case "RE_SCHEDULED":
+          label = "Re-Scheduled";
+          color = Colors.blue;
+          break;
+
+        case "RESOLVED":
+          label = "Resolved";
+          color = Colors.green;
+          break;
+
+        case "CLOSED":
+          label = "Closed";
+          color = Colors.green;
+          break;
+
+        default:
+          label = toStatus;
+          color = Colors.grey;
+      }
+
+      items.add(
+        TimelineItemModel(
+          title: title,
+          statusLabel: label,
+          value: _formatDateTime(changedAt),
+          dateTime: dateTime,
+          statusColor: color,
+
+          // ✅ IMPORTANT: ADD THIS
+          reason: history["reason"],
+
+          changedByName: history["changedByName"],
+        ),
+      );
     }
+
+    // ---------------- ASSIGNMENT HISTORY ----------------
+    for (final history in ticket.assignmentHistory) {
+      final changedAt = history["changedAt"] ?? "";
+      final dateTime = parseDate(changedAt);
+
+      items.add(
+        TimelineItemModel(
+          title: "Technician Assigned",
+          statusLabel: null,
+          value: _formatDateTime(changedAt),
+          dateTime: dateTime,
+          statusColor: Colors.purple,
+
+          fromName: history["fromAssignedToName"],
+          toName: history["toAssignedToName"],
+
+          changedByName: history["changedByName"],
+          reason: history["reason"],
+        ),
+      );
+    }
+
+    // OLD → NEW
+    items.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+    return items;
   }
 
-  return items; 
-}
   String _formatDateTime(String dateStr) {
     final parsed = DateTime.tryParse(dateStr)?.toLocal();
     if (parsed == null) return "-";
@@ -554,7 +549,15 @@ case "CANCELLED":
                   ],
                 ),
               ),
-              _buttonn(null, "Call", s),
+              GestureDetector(
+                onTap: () {
+                  final phone = ticket.assignedTo?.phone ?? "";
+                  if (phone.isNotEmpty) {
+                    _makeCall(phone);
+                  }
+                },
+                child: _buttonn("Call", s),
+              ),
             ],
           ),
         ),
@@ -562,96 +565,102 @@ case "CANCELLED":
     );
   }
 
+  Future<void> _makeCall(String phone) async {
+    final Uri uri = Uri(scheme: 'tel', path: phone);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      debugPrint("Cannot launch dialer");
+    }
+  }
+
   // _inspectedImages → uses technicianAttachments (excluding signature)
- Widget _inspectedImages(double Function(double) s) {
-  final techImages = _getTechnicianImages();
+  Widget _inspectedImages(double Function(double) s) {
+    final techImages = _getTechnicianImages();
 
-  return Container(
-    padding: EdgeInsets.all(s(10)),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.grey.shade300),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Inspected Site Image", style: _titleStyle(s)),
-        SizedBox(height: s(10)),
-
-        SizedBox(
-          height: s(114),
-          child: techImages.isEmpty
-              ? Row(
-                  children: List.generate(3, (index) {
-                    return Expanded(
-                      child: Container(
-                        height: s(114),
-                        margin: EdgeInsets.only(
-                            right: index == 2 ? 0 : s(8)),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFEDEDED),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  }),
-                )
-              : ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: techImages.length,
-                  separatorBuilder: (_, __) => SizedBox(width: s(8)),
-                  itemBuilder: (context, index) {
-                    final imageUrl = techImages[index];
-
-                    return GestureDetector(
-                      onTap: () {
-                        _openFullScreenImage(context, imageUrl);
-                      },
-                      child: _networkImage(imageUrl, s),
-                    );
-                  },
-                ),
-        ),
-      ],
-    ),
-  );
-}
-
- void _openFullScreenImage(BuildContext context, String imageUrl) {
-  showDialog(
-    context: context,
-    barrierColor: Colors.black.withOpacity(0.9),
-    builder: (_) {
-      return Stack(
+    return Container(
+      padding: EdgeInsets.all(s(10)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: InteractiveViewer(
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
+          Text("Inspected Site Image", style: _titleStyle(s)),
+          SizedBox(height: s(10)),
 
-          Positioned(
-            top: 40,
-            right: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: IconButton(
-                icon:  Icon(Icons.close, color: ColorPalette.textfiledin,),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
+          SizedBox(
+            height: s(114),
+            child: techImages.isEmpty
+                ? Row(
+                    children: List.generate(3, (index) {
+                      return Expanded(
+                        child: Container(
+                          height: s(114),
+                          margin: EdgeInsets.only(right: index == 2 ? 0 : s(8)),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEDEDED),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                    }),
+                  )
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: techImages.length,
+                    separatorBuilder: (_, __) => SizedBox(width: s(8)),
+                    itemBuilder: (context, index) {
+                      final imageUrl = techImages[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          _openFullScreenImage(context, imageUrl);
+                        },
+                        child: _networkImage(imageUrl, s),
+                      );
+                    },
+                  ),
           ),
         ],
-      );
-    },
-  );
-}
+      ),
+    );
+  }
+
+  void _openFullScreenImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.9),
+      builder: (_) {
+        return Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                child: Image.network(imageUrl, fit: BoxFit.contain),
+              ),
+            ),
+
+            Positioned(
+              top: 40,
+              right: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.close, color: ColorPalette.textfiledin),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _placeholderBox(double Function(double) s) {
     return Container(
@@ -725,7 +734,7 @@ case "CANCELLED":
     );
   }
 
-  Widget _buttonn(IconData? icon, String text, double Function(double) s) {
+  Widget _buttonn( String text, double Function(double) s) {
     return Container(
       height: s(40),
       width: s(98),
@@ -736,8 +745,6 @@ case "CANCELLED":
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (icon != null) Icon(icon, size: s(17), color: Color(0xFF26A7DF)),
-          if (icon != null) SizedBox(width: s(6)),
           Text(
             text,
             style: GoogleFonts.poppins(
@@ -806,7 +813,7 @@ case "CANCELLED":
     return Container(
       height: s(28),
       width: s(90),
-      padding: EdgeInsets.symmetric(horizontal: s(10), vertical: s(6)),
+      padding: EdgeInsets.symmetric(horizontal: s(10), vertical: s(8)),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
@@ -815,7 +822,7 @@ case "CANCELLED":
         status,
         textAlign: TextAlign.center,
         style: GoogleFonts.lato(
-          fontSize: s(10),
+          fontSize: status == "RE_SCHEDULED" ? s(8.5) : s(10),
           fontWeight: FontWeight.w500,
           color: textColor,
         ),

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
+import 'package:space_solar_dealer/src/common/models/panel_model.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/repo/ticket_list_details_repositary.dart';
-import '../../../common/models/panel_model.dart';
 
 class PanelIdField extends StatefulWidget {
   final double scale;
   final Function(PanelModel) onSelected;
   final TicketListDetailsRepositary repository;
-  final String customerId; 
+  final String customerId;  
 
   const PanelIdField({
     super.key,
     required this.scale,
     required this.onSelected,
     required this.repository,
-     required this.customerId,  
+    required this.customerId,
   });
 
   @override
@@ -25,13 +25,18 @@ class PanelIdField extends StatefulWidget {
 class _PanelIdFieldState extends State<PanelIdField> {
   List<PanelModel> panels = [];
   PanelModel? selectedPanel;
-  bool isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
+  bool isLoading = true;
+  bool _showDropdown = false;
+
+ @override
+void didUpdateWidget(covariant PanelIdField oldWidget) {
+  super.didUpdateWidget(oldWidget);
+
+  if (oldWidget.customerId != widget.customerId) {
     fetchPanels();
   }
+}
 
   Future<void> fetchPanels() async {
     try {
@@ -43,7 +48,7 @@ class _PanelIdFieldState extends State<PanelIdField> {
       });
     } catch (e) {
       setState(() => isLoading = false);
-      print("❌ PANEL ERROR: $e");
+      debugPrint("❌ PANEL ERROR: $e");
     }
   }
 
@@ -51,50 +56,118 @@ class _PanelIdFieldState extends State<PanelIdField> {
   Widget build(BuildContext context) {
     double s(double v) => v * widget.scale;
 
-    return Container(
-      height: s(50),
-      padding: EdgeInsets.symmetric(horizontal: s(12)),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF6F6F6), // Match design background
-        borderRadius: BorderRadius.circular(s(10)),
-      ),
-      child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : DropdownButtonHideUnderline(
-        child: DropdownButton<PanelModel>(
-          value: panels.contains(selectedPanel) ? selectedPanel : null,
-          hint: Text(
-            panels.isEmpty ? "No Panels Found" : "Select Panel ID",
-             style: GoogleFonts.lato(
-                    color: const Color(0xCC484848),
-                    fontSize: s(16),
-                    fontWeight: FontWeight.w400,
-                  ),
-          ),
-          isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down),
-
-          items: panels.map((panel) {
-            return DropdownMenuItem<PanelModel>(
-              value: panel,
-              child: Text(
-                panel.serialNumber.toString(),
-                style: TextStyle(fontSize: s(14)),
-              ),
-            );
-          }).toList(),
-
-          onChanged: (value) {
-            if (value != null) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// FIELD
+        GestureDetector(
+          onTap: () {
+            if (!isLoading && panels.isNotEmpty) {
               setState(() {
-                selectedPanel = value;
+                _showDropdown = !_showDropdown;
               });
-
-              widget.onSelected(value);
             }
           },
+          child: Container(
+            height: s(52),
+            padding: EdgeInsets.symmetric(horizontal: s(16)),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(s(10)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: isLoading
+                      ? Text(
+                          "Select a customer first",
+                          style: GoogleFonts.lato(
+                            fontSize: s(16),
+                            fontWeight: FontWeight.w400,
+                            color: ColorPalette.textfiledin.withOpacity(0.8),
+                          ),
+                        )
+                      : Text(
+                          selectedPanel?.serialNumber ?? "Select Panel ID",
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.lato(
+                            fontSize: s(16),
+                            fontWeight: FontWeight.w400,
+                            color:  ColorPalette.textfiledin.withOpacity(0.80)
+                          ),
+                        ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: const Color(0xFF6D6D6D),
+                  size: s(20),
+                )
+              ],
+            ),
+          ),
         ),
-      ),
+
+        /// DROPDOWN (MATCH ISSUE UI EXACTLY)
+        if (_showDropdown) ...[
+          SizedBox(height: s(8)),
+
+          Container(
+            constraints: BoxConstraints(maxHeight: s(200)),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.96),
+              borderRadius: BorderRadius.circular(s(20)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: s(10),
+                  offset: Offset(0, s(4)),
+                )
+              ],
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: panels.length,
+              itemBuilder: (context, index) {
+                final panel = panels[index];
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedPanel = panel;
+                      _showDropdown = false;
+                    });
+
+                    widget.onSelected(panel);
+                  },
+                  child: Container(
+                    height: s(50),
+                    margin: EdgeInsets.symmetric(
+                      horizontal: s(10),
+                      vertical: s(6),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: s(16),
+                      vertical: s(12),
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F1F1),
+                      borderRadius: BorderRadius.circular(s(14)),
+                    ),
+                    child: Text(
+                      panel.serialNumber.toString(),
+                      style: GoogleFonts.lato(
+                        fontSize: s(16),
+                        fontWeight: FontWeight.w400,
+                        color: ColorPalette.textfiledin.withOpacity(0.80),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

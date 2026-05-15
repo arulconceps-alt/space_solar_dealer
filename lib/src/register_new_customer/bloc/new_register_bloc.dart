@@ -27,69 +27,77 @@ class NewRegisterBloc extends Bloc<NewRegisterEvent, NewRegisterState> {
   }
 
   Future<void> _onSelectExistingCustomer(
-      SelectExistingCustomer event,
-      Emitter<NewRegisterState> emit,
-      ) async {
+  SelectExistingCustomer event,
+  Emitter<NewRegisterState> emit,
+) async {
+  emit(state.copyWith(
+    selectedCustomerId: event.id,
+    isExistingCustomer: true,
+    selectedStateId: event.stateId,
+    selectedDistrictId: event.districtId,
+    selectedPincodeId: event.pincodeId,
+  ));
 
-    print("🟡 SELECT EXISTING CUSTOMER EVENT");
+  try {
+    final states = state.states.isNotEmpty
+        ? state.states
+        : await _repository.fetchStates(1);
+
+    final districts = await _repository.fetchDistricts(event.stateId);
+    final pincodes = await _repository.fetchPincodes(event.districtId);
+
+    final selectedStateObj = states.firstWhere(
+      (e) => e["id"].toString() == event.stateId.toString(),
+      orElse: () => {},
+    );
+
+    final selectedDistrict = districts.firstWhere(
+      (e) => e["id"].toString() == event.districtId.toString(),
+      orElse: () => {},
+    );
+
+    final selectedPincode = pincodes.firstWhere(
+      (e) => e["id"].toString() == event.pincodeId.toString(),
+      orElse: () => {},
+    );
 
     emit(state.copyWith(
-      selectedCustomerId: event.id,
-      isExistingCustomer: true,
-      selectedStateId: event.stateId,
-      selectedDistrictId: event.districtId,
-      selectedPincodeId: event.pincodeId,
+      states: states,
+      districts: districts,
+      pincodesList: pincodes,
+      selectedState: selectedStateObj["name"]?.toString(),
+      selectedDistrict: selectedDistrict["name"]?.toString(),
+      selectedPincode: selectedPincode["code"]?.toString(),
     ));
-
-    try {
-      final districts = await _repository.fetchDistricts(event.stateId);
-      print("✅ Districts: $districts");
-
-      final selectedDistrict = districts.firstWhere(
-            (e) => e["id"].toString() == event.districtId.toString(),
-        orElse: () => {},
-      );
-
-      final pincodes = await _repository.fetchPincodes(event.districtId);
-      print("✅ Pincodes: $pincodes");
-
-      final selectedPincode = pincodes.firstWhere(
-            (e) => e["id"].toString() == event.pincodeId.toString(),
-        orElse: () => {},
-      );
-
-      final selectedStateObj = state.states.firstWhere(
-            (e) => e["id"].toString() == event.stateId.toString(),
-        orElse: () => {},
-      );
-       print("✅ States: $selectedStateObj");
-
-      emit(state.copyWith(
-        districts: districts,
-        pincodesList: pincodes,
-
-        selectedState: selectedStateObj["name"]?.toString(),
-        selectedDistrict: selectedDistrict["name"]?.toString(),
-        selectedPincode: selectedPincode["code"]?.toString(),
-      ));
-
-      print("✅ LOCATION SET SUCCESS");
-
-    } catch (e, stack) {
-      print("❌ ERROR: $e");
-      print(stack);
-
-      emit(state.copyWith(
-        status: NewRegisterStatus.failure,
-        message: "Failed to load location for customer",
-      ));
-    }
+  } catch (e) {
+    emit(state.copyWith(
+      status: NewRegisterStatus.failure,
+      message: "Failed to load customer location",
+    ));
   }
+}
 
-  void _onReset(ResetRegisterState event, Emitter<NewRegisterState> emit) {
-    _allCustomers.clear();
-    emit(NewRegisterState.initial().copyWith(isExistingCustomer: false));
-  }
+ void _onReset(ResetRegisterState event, Emitter<NewRegisterState> emit) {
+  _allCustomers.clear();
+
+  emit(NewRegisterState(
+    status: NewRegisterStatus.initial,
+    message: '',
+    states: state.states,       
+    districts: const [], 
+    pincodesList: const [],
+    searchResults: const [],
+    allCustomers: const [],
+    selectedState: null,
+    selectedDistrict: null,
+    selectedPincode: null,
+    selectedStateId: null,
+    selectedDistrictId: null,
+    selectedPincodeId: null,
+    selectedCustomerId: null,
+    isExistingCustomer: false,
+  ));
+}
 
   Future<void> _onLoadLocationData(
       LoadLocationData event, Emitter<NewRegisterState> emit) async {
