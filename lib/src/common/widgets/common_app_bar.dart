@@ -103,7 +103,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                             child: Text(
                               unreadCount > 99 ? "99+" : unreadCount.toString(),
                               style: GoogleFonts.poppins(
-                                fontSize: s(8),
+                                fontSize: s(6),
                                 fontWeight: FontWeight.w500,
                                 height: 1,
                                 color: ColorPalette.whitetext,

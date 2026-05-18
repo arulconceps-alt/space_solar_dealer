@@ -16,9 +16,9 @@ class AppBackground extends StatelessWidget {
 
         /// 🌫️ BLUR CIRCLES (FIGMA MATCH)
         _buildBlurredCircle(150, 600, 383, Colors.white.withOpacity(0.30), scale, 40),
-        _buildBlurredCircle(-153, 575, 383, Colors.white.withOpacity(0.60), scale, 50),
+        _buildBlurredCircle(-153, 575, 383, Colors.white.withOpacity(0.30), scale, 50),
         _buildBlurredCircle(154, 108, 383, Colors.white.withOpacity(0.50), scale, 40),
-        _buildBlurredCircle(-146, -201, 383, Colors.white, scale, 60),
+        _buildBlurredCircle(-146, -201, 383, Colors.white.withOpacity(0.60), scale, 60),
         child,
       ],
     );

@@ -241,36 +241,31 @@ class _RaiseTicketDialogState extends State<RaiseTicketDialog> {
 
    return BlocListener<TicketListDetailsBloc, TicketListDetailsState>(
  listener: (context, state) {
-  if (state.status == TicketListDetailsStatus.create) {
-    final newTicket = state.selectedTicket;
+if (state.status == TicketListDetailsStatus.create) {
+  final newTicket = state.selectedTicket;
 
-    Navigator.pop(context);
+  Navigator.pop(context);
 
-    if (newTicket != null) {
-      context.read<TicketListDetailsBloc>().add(
-        LoadTicketByIdEvent(newTicket.ticketId),
+  if (newTicket != null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showGeneralDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: "Success",
+        barrierColor: Colors.black54,
+        transitionDuration: const Duration(milliseconds: 400),
+        pageBuilder: (_, __, ___) => TicketSuccessDialog(
+          parentContext: context,
+          ticket: newTicket,
+        ),
       );
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showGeneralDialog(
-          context: context, // ✅ FIXED
-          barrierDismissible: true,
-          barrierLabel: "Success",
-          barrierColor: Colors.black54,
-          transitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: (_, __, ___) => TicketSuccessDialog(
-            parentContext: context,
-            ticket: newTicket,
-          ),
-        );
-      });
-    }
-
-    context.read<TicketListDetailsBloc>().add(const LoadTicketsEvent());
-    _resetForm();
+    });
   }
 
+  context.read<TicketListDetailsBloc>().add(const LoadTicketsEvent());
 
+  _resetForm();
+}
     if (state.status == TicketListDetailsStatus.failure) {
       CustomSnackBar.show(
         context,

@@ -13,8 +13,8 @@ class TicketTimelineWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double s(double v) => v * scale;
 
-   final sortedItems = [...items]
-  ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
+    final sortedItems = [...items]
+      ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,11 +134,55 @@ class TicketTimelineWidget extends StatelessWidget {
                               ],
                             ),
                           ],
+                          // if (item.workedMinutes != null) ...[
+                          //   SizedBox(height: s(6)),
+                          //   Row(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.timer_outlined,
+                          //         size: s(14),
+                          //          color: Colors.grey,
+                          //       ),
+                          //       SizedBox(width: s(6)),
+                          //       Text(
+                          //         "Worked Time: ${item.workedMinutes} mins",
+                          //         style: GoogleFonts.lato(
+                          //           fontSize: s(13),
+                          //           color: Colors.black87,
+                          //           fontWeight: FontWeight.w500,
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
 
+                          if (item.revisitDate != null) ...[
+                            SizedBox(height: s(6)),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_outlined,
+                                  size: s(14),
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(width: s(6)),
+                                Expanded(
+                                  child: Text(
+                                    "Revisit Date: ${item.revisitDate}",
+                                    style: GoogleFonts.lato(
+                                      fontSize: s(13),
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                           if (item.fromName != null || item.toName != null) ...[
                             SizedBox(height: s(4)),
                             Text(
-                              "From: ${item.fromName ?? '-'} → To: ${item.toName ?? '-'}",
+                              "Technician: ${item.fromName ?? '-'} →  ${item.toName ?? '-'}",
                               style: GoogleFonts.lato(
                                 fontSize: s(13),
                                 color: Colors.black87,

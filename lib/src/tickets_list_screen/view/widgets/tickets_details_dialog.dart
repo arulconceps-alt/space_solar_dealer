@@ -45,108 +45,147 @@ class TicketDetailsDialog extends StatelessWidget {
         "${parsed.year}";
   }
 
-  List<TimelineItemModel> _buildTimeline() {
-    final List<TimelineItemModel> items = [];
+ List<TimelineItemModel> _buildTimeline() {
+  final List<TimelineItemModel> items = [];
 
-    DateTime parseDate(String date) =>
-        DateTime.tryParse(date)?.toLocal() ?? DateTime(2000);
-
-    // ---------------- STATUS HISTORY ----------------
-    for (final history in ticket.statusHistory) {
-      final toStatus = (history["toStatus"] ?? "").toString();
-      final changedAt = history["changedAt"] ?? "";
-
-      final dateTime = parseDate(changedAt);
-
-      String label = toStatus;
-      String title = "Status changed to";
-      Color color = Colors.grey;
-
-      switch (toStatus) {
-        case "OPEN":
-          title = "Ticket Created";
-          label = "Open";
-          color = Colors.grey;
-          break;
-
-        case "PENDING":
-          label = "Pending";
-          color = Colors.red;
-          break;
-
-        case "IN_PROGRESS":
-          label = "In Progress";
-          color = Colors.orange;
-          break;
-
-        case "RE_SCHEDULED":
-          label = "Re-Scheduled";
-          color = Colors.blue;
-          break;
-
-        case "RESOLVED":
-          label = "Resolved";
-          color = Colors.green;
-          break;
-
-        case "CLOSED":
-          label = "Closed";
-          color = Colors.green;
-          break;
-
-        default:
-          label = toStatus;
-          color = Colors.grey;
-      }
-
-      items.add(
-        TimelineItemModel(
-          title: title,
-          statusLabel: label,
-          value: _formatDateTime(changedAt),
-          dateTime: dateTime,
-          statusColor: color,
-
-          // ✅ IMPORTANT: ADD THIS
-          reason: history["reason"],
-
-          changedByName: history["changedByName"],
-        ),
-      );
-    }
-
-    // ---------------- ASSIGNMENT HISTORY ----------------
-    for (final history in ticket.assignmentHistory) {
-      final changedAt = history["changedAt"] ?? "";
-      final dateTime = parseDate(changedAt);
-
-      items.add(
-        TimelineItemModel(
-          title: "Technician Assigned",
-          statusLabel: null,
-          value: _formatDateTime(changedAt),
-          dateTime: dateTime,
-          statusColor: Colors.purple,
-
-          fromName: history["fromAssignedToName"],
-          toName: history["toAssignedToName"],
-
-          changedByName: history["changedByName"],
-          reason: history["reason"],
-        ),
-      );
-    }
-
-    // OLD → NEW
-    items.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-
-    return items;
+  DateTime parseDate(String date) {
+    return DateTime.tryParse(date)?.toLocal() ?? DateTime(2000);
   }
+
+
+  for (final history in ticket.statusHistory) {
+    final toStatus = (history["toStatus"] ?? "").toString();
+    final changedAt = history["changedAt"] ?? "";
+
+    final dateTime = parseDate(changedAt);
+
+    String label = toStatus;
+    String title = "Status Changed";
+    Color color = Colors.grey;
+
+    switch (toStatus) {
+      case "OPEN":
+        title = "Ticket Created";
+        label = "Open";
+        color = Colors.grey;
+        break;
+
+      case "PENDING":
+        title = "Ticket Pending";
+        label = "Pending";
+        color = Colors.red;
+        break;
+
+      case "IN_PROGRESS":
+        title = "Work Started";
+        label = "In Progress";
+        color = Colors.orange;
+        break;
+
+      case "RE_SCHEDULED":
+        title = "Ticket Re-Scheduled";
+        label = "Re-Scheduled";
+        color = Colors.blue;
+        break;
+
+      case "RESOLVED":
+        title = "Issue Resolved";
+        label = "Resolved";
+        color = Colors.green;
+        break;
+
+      case "CLOSED":
+        title = "Ticket Closed";
+        label = "Closed";
+        color = Colors.green;
+        break;
+    }
+
+    // technician name
+    String technicianName = "";
+
+    if (dateTime.isBefore(
+      ticket.assignmentHistory.isNotEmpty
+          ? parseDate(ticket.assignmentHistory.first["changedAt"])
+          : DateTime(2100),
+    )) {
+      technicianName = "";
+    } else {
+      technicianName = ticket.assignedToName;
+    }
+
+  items.add(
+  TimelineItemModel(
+    title: title,
+    statusLabel: label,
+    value: _formatDateTime(changedAt),
+    dateTime: dateTime,
+    statusColor: color,
+
+    reason: history["reason"],
+    changedByName: history["changedByName"],
+
+    // technician show
+    toName: technicianName,
+    workedMinutes:
+        toStatus == "IN_PROGRESS"
+            ? ticket.totalWorkedInMinutes
+            : null,
+
+    revisitDate:
+        toStatus == "RE_SCHEDULED" &&
+                ticket.revisitDate != null
+            ? _formatDateTime(ticket.revisitDate!)
+            : null,
+  ),
+);
+  }
+
+
+  for (final history in ticket.assignmentHistory) {
+
+  final fromName =
+      (history["fromAssignedToName"] ?? "").toString().trim();
+
+  final toName =
+      (history["toAssignedToName"] ?? "").toString().trim();
+
+  // SAME technician -> skip
+  if (fromName.toLowerCase() == toName.toLowerCase()) {
+    continue;
+  }
+
+  final changedAt = history["changedAt"] ?? "";
+
+  items.add(
+    TimelineItemModel(
+      title: "Technician Assigned",
+
+      value: _formatDateTime(changedAt),
+
+      dateTime: parseDate(changedAt),
+
+      statusColor: Colors.purple,
+
+      fromName: fromName,
+      toName: toName,
+
+      changedByName: history["changedByName"],
+      reason: history["reason"],
+    ),
+  );
+}
+
+
+  items.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+  return items;
+}
 
   String _formatDateTime(String dateStr) {
     final parsed = DateTime.tryParse(dateStr)?.toLocal();
     if (parsed == null) return "-";
-    final hour = parsed.hour > 12 ? parsed.hour - 12 : parsed.hour;
+    final hour = parsed.hour > 12 ? parsed.hour - 12 : parsed.hour;  
     final amPm = parsed.hour >= 12 ? "PM" : "AM";
     final monthNames = [
       "Jan",
@@ -322,56 +361,110 @@ class TicketDetailsDialog extends StatelessWidget {
     );
   }
 
-  Widget _issueSection(double Function(double) s) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Issue Details", style: _titleStyle(s)),
-            _priorityBadge(ticket.priority, s),
-          ],
-        ),
-        SizedBox(height: s(8)),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("• ", style: TextStyle(color: Colors.black)),
-            Expanded(
-              child: Text(
-                ticket.issue,
-                style: GoogleFonts.lato(
-                  fontSize: s(18),
-                  fontWeight: FontWeight.w500,
-                ),
+ Widget _issueSection(double Function(double) s) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("Issue Details", style: _titleStyle(s)),
+          _priorityBadge(ticket.priority, s),
+        ],
+      ),
+
+      SizedBox(height: s(8)),
+
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "• ",
+            style: TextStyle(color: Colors.black),
+          ),
+
+          Expanded(
+            child: Text(
+              ticket.issue,
+              style: GoogleFonts.lato(
+                fontSize: s(18),
+                fontWeight: FontWeight.w500,
               ),
             ),
-          ],
-        ),
-        SizedBox(height: s(6)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Text(
-            ticket.description,
-            style: GoogleFonts.lato(
-              fontSize: s(14),
-              color: Colors.grey,
-              fontWeight: FontWeight.w400,
-            ),
+          ),
+        ],
+      ),
+
+      SizedBox(height: s(6)),
+
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Text(
+          ticket.description,
+          style: GoogleFonts.lato(
+            fontSize: s(14),
+            color: Colors.grey,
+            fontWeight: FontWeight.w400,
           ),
         ),
-        SizedBox(height: s(12)),
-        Row(
-          children: [
-            Expanded(child: _button(Icons.call, "Call", s)),
-            SizedBox(width: s(10)),
-            Expanded(child: _button(Icons.location_on, "Direction", s)),
-          ],
-        ),
-      ],
+      ),
+
+      SizedBox(height: s(12)),
+
+      Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
+                final phone = ticket.phone;
+
+                if (phone.isNotEmpty) {
+                  await _makeCall(phone);
+                }
+              },
+              child: _button(Icons.call, "Call", s),
+            ),
+          ),
+
+          SizedBox(width: s(10)),
+
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
+                final address = ticket.addressLine1;
+
+                if (address.isNotEmpty) {
+                  await _openDirection(address);
+                }
+              },
+              child: _button(Icons.location_on, "Direction", s),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Future<void> _openDirection(String address) async {
+  final Uri googleMapUrl = Uri.https(
+    'www.google.com',
+    '/maps/search/',
+    {
+      'api': '1',
+      'query': address,
+    },
+  );
+
+  try {
+    await launchUrl(
+      googleMapUrl,
+      mode: LaunchMode.externalApplication,
     );
+  } catch (e) {
+    debugPrint("Cannot open maps: $e");
   }
+}
 
   Widget _imageSection(double Function(double) s, BuildContext context) {
     final displayImages = ticket.dealerAttachments;

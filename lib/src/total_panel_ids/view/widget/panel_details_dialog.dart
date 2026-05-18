@@ -216,9 +216,10 @@ class PanelDetailsDialog extends StatelessWidget {
                     ),
                     SizedBox(height: s(10)),
                   Container(
-                    width: s(360),
+                    height: s(70),
+                    width: double.infinity,
                     padding: EdgeInsets.symmetric(
-                      vertical: s(16),
+                      vertical: s(10),
                       horizontal: s(16),
                     ),
                     decoration: BoxDecoration(
@@ -228,7 +229,6 @@ class PanelDetailsDialog extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: s(8)),
                         Text(
                           _getCustomerAddress(),
                           style: GoogleFonts.lato(

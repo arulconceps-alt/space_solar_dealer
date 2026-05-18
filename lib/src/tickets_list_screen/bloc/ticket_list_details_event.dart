@@ -48,5 +48,5 @@ class CreateTicketEvent extends TicketListDetailsEvent {
 class LoadPanelsEvent extends TicketListDetailsEvent {
   final String customerId;
 
-  LoadPanelsEvent(this.customerId);
+  const LoadPanelsEvent(this.customerId);
 }

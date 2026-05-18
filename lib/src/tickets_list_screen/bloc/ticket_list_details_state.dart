@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:space_solar_dealer/src/common/models/ticket_model.dart';
-
 import '../../common/models/panel_model.dart';
 
 
 enum TicketListDetailsStatus { initial, loading, success, failure,create }
+
 class TicketListDetailsState extends Equatable {
   final TicketListDetailsStatus status;
   final List<TicketModel> tickets;

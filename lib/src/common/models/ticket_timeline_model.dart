@@ -5,13 +5,11 @@ class TimelineItemModel {
   final String? statusLabel;
   final String value;
   final DateTime dateTime;
-
+  final int? workedMinutes;
+final String? revisitDate;
   final String? reason;
   final Color? statusColor;
-
   final String? changedByName;
-
-  // 🔥 ADD THESE
   final String? fromName;
   final String? toName;
 
@@ -25,5 +23,7 @@ class TimelineItemModel {
     this.changedByName,
     this.fromName,
     this.toName,
+    this.workedMinutes,
+this.revisitDate,
   });
 }

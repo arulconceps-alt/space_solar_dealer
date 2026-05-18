@@ -8,17 +8,18 @@ class TicketListDetailsBloc
     extends Bloc<TicketListDetailsEvent, TicketListDetailsState> {
   final TicketListDetailsRepositary repository;
 
-  TicketListDetailsBloc(this.repository)
-      : super(const TicketListDetailsState()) {
-    on<LoadTicketsEvent>(_onLoadTickets);
-    on<RefreshTicketsEvent>(_onRefreshTickets);
-    on<CreateTicketEvent>(_onCreateTicket);
-    on<LoadPanelsEvent>((event, emit) async {
-      final data = await repository.getPanelIds(event.customerId);
-      emit(state.copyWith(panels: data));
-       on<LoadTicketByIdEvent>(_onLoadTicketById);
-    });
-  }
+ TicketListDetailsBloc(this.repository)
+    : super(const TicketListDetailsState()) {
+  on<LoadTicketsEvent>(_onLoadTickets);
+  on<RefreshTicketsEvent>(_onRefreshTickets);
+  on<CreateTicketEvent>(_onCreateTicket);
+  on<LoadPanelsEvent>((event, emit) async {
+    final data = await repository.getPanelIds(event.customerId);
+    emit(state.copyWith(panels: data));
+  });
+
+  on<LoadTicketByIdEvent>(_onLoadTicketById);
+}
 
  Future<void> _onCreateTicket(
   CreateTicketEvent event,
@@ -41,10 +42,11 @@ class TicketListDetailsBloc
     print("✅ CREATE SUCCESS RESPONSE: $response");
     final newTicket = TicketModel.fromJson(response);
     emit(state.copyWith(
-      status: TicketListDetailsStatus.create,
-      tickets: [newTicket],
-    ));
-    add(LoadTicketsEvent());
+  status: TicketListDetailsStatus.create,
+  tickets: [newTicket],
+  selectedTicket: newTicket,
+));
+   // add(LoadTicketsEvent());
   } catch (e, stackTrace) {
     print("❌ CREATE ERROR: $e");
     print(stackTrace);

@@ -152,122 +152,118 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
     );
   }
 
- Widget _buildUI(
-  BuildContext context,
-  List<TicketModel> tickets,
-  double scale,
-  double Function(double) s,
-) {
-  final filtered = tickets.where((t) {
-    final status = t.status.toLowerCase().replaceAll("_", " ");
+  Widget _buildUI(
+    BuildContext context,
+    List<TicketModel> tickets,
+    double scale,
+    double Function(double) s,
+  ) {
+    final filtered = tickets.where((t) {
+      final status = t.status.toLowerCase().replaceAll("_", " ");
 
-    bool tabMatch = false;
-    if (_selectedTab == "All Active") {
-      tabMatch = true;
-    } else if (_selectedTab == "In Progress") {
-      tabMatch = status == "in progress";
-    } else if (_selectedTab == "Assigned") {
-      tabMatch = status == "assigned";
-    } else if (_selectedTab == "Resolved") {
-      tabMatch = status == "resolved";
-    }
+      bool tabMatch = false;
+      if (_selectedTab == "All Active") {
+        tabMatch = true;
+      } else if (_selectedTab == "In Progress") {
+        tabMatch = status == "in progress";
+      } else if (_selectedTab == "Assigned") {
+        tabMatch = status == "assigned" || status == "pending";
+      } else if (_selectedTab == "Resolved") {
+        tabMatch = status == "resolved";
+      }
 
-    if (!tabMatch) return false;
+      if (!tabMatch) return false;
 
-    if (_searchQuery.isEmpty) return true;
+      if (_searchQuery.isEmpty) return true;
 
-    final ticketNumber = t.ticketNumber.toLowerCase();
-    final panelId = (t.panelId ?? "").toLowerCase();
-    final customerName = (t.customerName ?? "").toLowerCase();
+      final ticketNumber = t.ticketNumber.toLowerCase();
+      final panelId = (t.panelId ?? "").toLowerCase();
+      final customerName = (t.customerName ?? "").toLowerCase();
 
-    return ticketNumber.contains(_searchQuery) ||
-        panelId.contains(_searchQuery) ||
-        customerName.contains(_searchQuery);
-  }).toList();
+      return ticketNumber.contains(_searchQuery) ||
+          panelId.contains(_searchQuery) ||
+          customerName.contains(_searchQuery);
+    }).toList();
 
-  return RefreshIndicator(
-    onRefresh: _onRefresh,
-    color: ColorPalette.background,
-    child: CustomScrollView(
-      controller: _scrollController,
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: s(20)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: s(24)),
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: ColorPalette.background,
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: s(20)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: s(24)),
 
-                Text(
-                  'Tickets',
-                  style: GoogleFonts.poppins(
-                    fontSize: s(20),
-                    fontWeight: FontWeight.w600,
-                    color: ColorPalette.bottomtext,
+                  Text(
+                    'Tickets',
+                    style: GoogleFonts.poppins(
+                      fontSize: s(20),
+                      fontWeight: FontWeight.w600,
+                      color: ColorPalette.bottomtext,
+                    ),
                   ),
-                ),
 
-                SizedBox(height: s(4)),
+                  SizedBox(height: s(4)),
 
-                Text(
-                  'Track and manage customer issue',
-                  style: GoogleFonts.lato(
-                    color: ColorPalette.textfiledin.withOpacity(0.8),
-                    fontSize: s(14),
+                  Text(
+                    'Track and manage customer issue',
+                    style: GoogleFonts.lato(
+                      color: ColorPalette.textfiledin.withOpacity(0.8),
+                      fontSize: s(14),
+                    ),
                   ),
-                ),
 
-                SizedBox(height: s(20)),
+                  SizedBox(height: s(20)),
 
-                CustomSearchBar(
-                  scale: scale,
-                  onChanged: (val) {
-                    setState(() {
-                      _searchQuery = val.toLowerCase().trim();
-                    });
-                  },
-                ),
+                  CustomSearchBar(
+                    scale: scale,
+                    onChanged: (val) {
+                      setState(() {
+                        _searchQuery = val.toLowerCase().trim();
+                      });
+                    },
+                  ),
 
-                SizedBox(height: s(16)),
+                  SizedBox(height: s(16)),
 
-                CustomSegmentedTab(
-                  scale: scale,
-                  tabs: const [
-                    "All Active",
-                    "Assigned",
-                    "In Progress",
-                    "Resolved",
-                  ],
-                  selectedTab: _selectedTab,
-                  onTabChanged: (tab) {
-                    setState(() => _selectedTab = tab);
-                  },
-                ),
-                SizedBox(height: s(16)),
-              ],
-            ),
-          ),
-        ),
-
-        if (filtered.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: Text(
-                "No records found",
-                style: GoogleFonts.lato(
-                  fontSize: s(14),
-                  color: Colors.grey,
-                ),
+                  CustomSegmentedTab(
+                    scale: scale,
+                    tabs: const [
+                      "All Active",
+                      "Assigned",
+                      "In Progress",
+                      "Resolved",
+                    ],
+                    selectedTab: _selectedTab,
+                    onTabChanged: (tab) {
+                      setState(() => _selectedTab = tab);
+                    },
+                  ),
+                  SizedBox(height: s(16)),
+                ],
               ),
             ),
-          )
-        else
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
+          ),
+
+          if (filtered.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Text(
+                  "No records found",
+                  style: GoogleFonts.lato(fontSize: s(14), color: Colors.grey),
+                ),
+              ),
+            )
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
                 final ticket = filtered[index];
 
                 return Padding(
@@ -279,13 +275,12 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                     status: ticket.status,
                     issue: ticket.issue ?? "No Issue",
                     panelId: ticket.panelId ?? "N/A",
-                    date: DateFormat('yyyy-MM-dd')
-                        .format(ticket.createdAt),
-                    sla: getSla(
-                        ticket.createdAt, ticket.priority ?? "Low"),
+                    date: DateFormat('yyyy-MM-dd').format(ticket.createdAt),
+                    sla: getSla(ticket.createdAt, ticket.priority ?? "Low"),
                     statusColor: _getStatusTextColor(ticket.status),
-                    statusBgColor:
-                        _getStatusColor(ticket.status).withOpacity(0.15),
+                    statusBgColor: _getStatusColor(
+                      ticket.status,
+                    ).withOpacity(0.15),
                     onViewDetails: () async {
                       try {
                         final repo = TicketListDetailsRepositary(
@@ -325,33 +320,31 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
                     },
                   ),
                 );
+              }, childCount: filtered.length),
+            ),
+
+          SliverToBoxAdapter(
+            child: BlocBuilder<TicketListDetailsBloc, TicketListDetailsState>(
+              builder: (context, state) {
+                if (state.isLoadingMore) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: s(20)),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF26A7DF),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox(height: 80);
               },
-              childCount: filtered.length,
             ),
           ),
-
-        SliverToBoxAdapter(
-          child: BlocBuilder<TicketListDetailsBloc, TicketListDetailsState>(
-            builder: (context, state) {
-              if (state.isLoadingMore) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: s(20)),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF26A7DF),
-                      strokeWidth: 3,
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox(height: 80);
-            },
-          ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildFigmaFAB(double scale, double Function(double) s) {
     return GestureDetector(
