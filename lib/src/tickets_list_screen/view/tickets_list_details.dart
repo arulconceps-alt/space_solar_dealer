@@ -72,13 +72,13 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
       case 'assigned':
         return const Color(0xFF26A7DF);
 
-      case 'pending':
-        return const Color(0xFFF44336);
+      // case 'pending':
+      //   return const Color(0xFFF44336);
 
       case 'in_progress':
       case 'in progress':
         return const Color(0xFFFF9800);
-      case 'resolved':
+      case 'complete':
         return const Color(0xFF4CAF50);
 
       default:
@@ -91,14 +91,14 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
       case 'assigned':
         return const Color(0xFF26A7DF);
 
-      case 'pending':
-        return const Color(0xFFF44336);
+      // case 'accept':
+      //   return const Color(0xFFF44336);
 
       case 'in_progress':
       case 'in progress':
         return const Color(0xFFFF9800);
 
-      case 'resolved':
+      case 'complete':
         return const Color(0xFF4CAF50);
 
       default:
@@ -167,9 +167,9 @@ class _TicketsListDetailsState extends State<TicketsListDetails> {
       } else if (_selectedTab == "In Progress") {
         tabMatch = status == "in progress";
       } else if (_selectedTab == "Assigned") {
-        tabMatch = status == "assigned" || status == "pending";
+        tabMatch = status == "assigned" || status == "accept";
       } else if (_selectedTab == "Resolved") {
-        tabMatch = status == "resolved";
+        tabMatch = status == "complete";
       }
 
       if (!tabMatch) return false;

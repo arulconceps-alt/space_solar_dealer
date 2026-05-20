@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
 import 'package:space_solar_dealer/src/app/route_names.dart';
+import 'package:space_solar_dealer/src/common/constants/constansts.dart';
 import 'package:space_solar_dealer/src/common/widgets/common_app_bar.dart';
 import 'package:space_solar_dealer/src/common/widgets/custom_bottom_navigationbar.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
@@ -37,12 +40,185 @@ class _DashboardState extends State<Dashboard> {
   double iconSmall = 22.0;
   double iconMedium = 24.0;
   double iconLarge = 28.0;
+  String userName = "";
+  static bool _isOfferShown = false;
 
   @override
   void initState() {
     super.initState();
+    getUserData();
     context.read<TotalPanelBloc>().add(panel.LoadPanelsEvent());
     context.read<DashboardBloc>().add(LoadDashboardEvent());
+
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+  if (!_isOfferShown && mounted) {
+    _isOfferShown = true;
+
+    _showOfferPopup();
+  }
+});
+  }
+
+void _showOfferPopup() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            /// MAIN GLASS CONTAINER
+            Container(
+               width: MediaQuery.of(context).size.width * 0.72,
+
+        padding: const EdgeInsets.fromLTRB(20, 28, 20, 22),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                color: ColorPalette.whitetext.withValues(alpha: 0.7),
+
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: .35),
+                  width: 1.4,
+                ),
+              ),
+
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// LOGO CONTAINER
+                  Container(
+                    padding: const EdgeInsets.all(14),
+
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+
+                      gradient: LinearGradient(
+                        colors: [
+                          ColorPalette.background.withValues(alpha: .18),
+                          Colors.white.withValues(alpha: .06),
+                        ],
+                      ),
+
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: .25),
+                      ),
+                    ),
+
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        "assets/images/app_logo/logo.png",
+                        height: 110,
+                        width: 110,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  /// TITLE
+                  Text(
+                    "Special Offer",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: ColorPalette.pending,
+                      letterSpacing: .5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// DESCRIPTION
+                  Text(
+                    "Get 20% discount this month",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      height: 1.5,
+                      fontWeight: FontWeight.w500,
+                      color: ColorPalette.bottomtext,
+                    ),
+                  ),
+                 
+                ],
+              ),
+            ),
+
+            Positioned(
+              top: -20,
+              right: -1,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                },
+                child: Container(
+                  height: 35,
+                  width: 35,
+
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .5),
+                    ),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .18),
+                        blurRadius: 14,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 20,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+  Future<void> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final data = prefs.getString(Constants.store.USER_DATA);
+
+    if (data != null) {
+      final user = jsonDecode(data);
+
+      setState(() {
+        userName = user["name"] ?? "";
+      });
+    }
+  }
+
+  String getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 12) {
+      return "Good Morning";
+    } else if (hour >= 12 && hour < 17) {
+      return "Good Afternoon";
+    } else if (hour >= 17 && hour < 21) {
+      return "Good Evening";
+    } else {
+      return "Good Night";
+    }
   }
 
   String _formatTime(String dateTime) {
@@ -57,12 +233,16 @@ class _DashboardState extends State<Dashboard> {
 
   Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
-      case "RESOLVED":
+      case "COMPLETE":
         return Colors.green;
-      case "PENDING":
-        return const Color(0xFFEA1F27);
+      case "ASSIGNED":
+      case "ACCEPT":
+        return ColorPalette.background;
       case "IN_PROGRESS":
-        return ColorPalette.textfiledin;
+        return ColorPalette.alert;
+
+        case "RE_SCHEDULED":
+         return ColorPalette.bottomtext;
 
       default:
         return Colors.grey;
@@ -113,7 +293,7 @@ class _DashboardState extends State<Dashboard> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: s(20)),
                               child: Text(
-                                "Good morning, Dealer",
+                                "${getGreeting()}, $userName",
                                 style: GoogleFonts.poppins(
                                   fontSize: s(20),
                                   fontWeight: FontWeight.w600,
@@ -161,7 +341,8 @@ class _DashboardState extends State<Dashboard> {
                                       "icon":
                                           "assets/images/dashboard/people.png",
                                       "iconsize": iconMedium,
-                                      "route": RouteName.customer_list, // Add navigation route
+                                      "route": RouteName
+                                          .customer_list, // Add navigation route
                                     },
                                     {
                                       "title": "Active Warranties",
@@ -184,7 +365,8 @@ class _DashboardState extends State<Dashboard> {
                                       "icon":
                                           "assets/images/dashboard/tickets_notify_icon.png",
                                       "iconsize": iconMedium,
-                                      "route": RouteName.ticket_list, // Add navigation route
+                                      "route": RouteName
+                                          .ticket_list, // Add navigation route
                                     },
                                   ];
                                   final item = items[index];
@@ -192,17 +374,29 @@ class _DashboardState extends State<Dashboard> {
                                   return GestureDetector(
                                     onTap: () {
                                       // Navigate if route exists
-                                      if (item["route"] != null && item["route"]!.toString().isNotEmpty) {
-                                        final routeName = item["route"] as String;
-                                        
+                                      if (item["route"] != null &&
+                                          item["route"]!
+                                              .toString()
+                                              .isNotEmpty) {
+                                        final routeName =
+                                            item["route"] as String;
+
                                         // Navigate to the screen
                                         context.pushNamed(routeName).then((_) {
                                           // Refresh data when coming back
-                                          context.read<DashboardBloc>().add(LoadDashboardEvent());
-                                          if (routeName == RouteName.customer_list) {
-                                            context.read<CustomerListBloc>().add(LoadCustomers());
-                                          } else if (routeName == RouteName.ticket_list) {
-                                            context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
+                                          context.read<DashboardBloc>().add(
+                                            LoadDashboardEvent(),
+                                          );
+                                          if (routeName ==
+                                              RouteName.customer_list) {
+                                            context
+                                                .read<CustomerListBloc>()
+                                                .add(LoadCustomers());
+                                          } else if (routeName ==
+                                              RouteName.ticket_list) {
+                                            context
+                                                .read<TicketListDetailsBloc>()
+                                                .add(LoadTicketsEvent());
                                           }
                                         });
                                       }
@@ -266,14 +460,22 @@ class _DashboardState extends State<Dashboard> {
                                           arrowSvgPath:
                                               "assets/images/home/arrow_right.svg",
                                           onTap: () {
-                                            context.pushNamed(
-                                              RouteName.customer_register,
-                                            ).then((_) {
-                                              // Refresh customer list when returning
-                                              context.read<CustomerListBloc>().add(LoadCustomers());
-                                              // Refresh dashboard
-                                              context.read<DashboardBloc>().add(LoadDashboardEvent());
-                                            });
+                                            context
+                                                .pushNamed(
+                                                  RouteName.customer_register,
+                                                )
+                                                .then((_) {
+                                                  // Refresh customer list when returning
+                                                  context
+                                                      .read<CustomerListBloc>()
+                                                      .add(LoadCustomers());
+                                                  // Refresh dashboard
+                                                  context
+                                                      .read<DashboardBloc>()
+                                                      .add(
+                                                        LoadDashboardEvent(),
+                                                      );
+                                                });
                                           },
                                         ),
                                       ),
@@ -289,13 +491,24 @@ class _DashboardState extends State<Dashboard> {
                                               "assets/images/home/arrow_right.svg",
                                           onTap: () {
                                             // Navigate to raise ticket screen
-                                            context.pushNamed(
-                                              RouteName.ticket_list, // Make sure this route exists
-                                            ).then((_) {
-                                              // Refresh tickets when returning
-                                              context.read<TicketListDetailsBloc>().add(LoadTicketsEvent());
-                                              context.read<DashboardBloc>().add(LoadDashboardEvent());
-                                            });
+                                            context
+                                                .pushNamed(
+                                                  RouteName
+                                                      .ticket_list, // Make sure this route exists
+                                                )
+                                                .then((_) {
+                                                  // Refresh tickets when returning
+                                                  context
+                                                      .read<
+                                                        TicketListDetailsBloc
+                                                      >()
+                                                      .add(LoadTicketsEvent());
+                                                  context
+                                                      .read<DashboardBloc>()
+                                                      .add(
+                                                        LoadDashboardEvent(),
+                                                      );
+                                                });
                                           },
                                         ),
                                       ),

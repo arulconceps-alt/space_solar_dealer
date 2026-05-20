@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Standard import
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
@@ -14,7 +15,7 @@ import 'package:space_solar_dealer/src/otp_screen/bloc/otp_bloc.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
-  final String? initialOtp; // Add this
+  final String? initialOtp;
 
   const OtpScreen({super.key, required this.phoneNumber, this.initialOtp});
 
@@ -23,8 +24,9 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  final controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
   final FocusNode _otpFocusNode = FocusNode();
+
   int _secondsRemaining = 120;
   late Timer _timer;
 
@@ -32,8 +34,8 @@ class _OtpScreenState extends State<OtpScreen> {
   void initState() {
     super.initState();
 
-     _startTimer(); 
-  
+    _startTimer();
+
     if (widget.initialOtp != null && widget.initialOtp!.isNotEmpty) {
       controller.text = widget.initialOtp!;
     }
@@ -45,6 +47,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   void dispose() {
+    _timer.cancel();
     controller.dispose();
     _otpFocusNode.dispose();
     super.dispose();
@@ -72,14 +75,18 @@ class _OtpScreenState extends State<OtpScreen> {
 
   String get timerText {
     final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
+
     final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
+
     return "$minutes:$seconds";
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final scale = screenWidth / 375;
+
+    final scale = screenWidth / 440;
+
     double s(double v) => v * scale;
 
     final defaultPinTheme = PinTheme(
@@ -103,11 +110,12 @@ class _OtpScreenState extends State<OtpScreen> {
           context.go('/home');
         } else if (state.status == OtpStatus.resendSuccess) {
           final receivedOtp = state.message ?? '';
-          final otp = state.message ?? '';
+
           controller.text = receivedOtp;
+
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text("OTP received: $otp")));
+          ).showSnackBar(SnackBar(content: Text("OTP received: $receivedOtp")));
         } else if (state.status == OtpStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -124,84 +132,98 @@ class _OtpScreenState extends State<OtpScreen> {
           resizeToAvoidBottomInset: true,
           body: Stack(
             children: [
-              // Background
+              /// BACKGROUND
               Container(
                 decoration: BoxDecoration(
                   gradient: ColorPalette.scaffoldGradient,
                 ),
               ),
 
-              // Blur Elements
+              /// BLUR CIRCLES
               BlurCircle(left: s(-146), top: s(-191), size: s(383), opacity: 1),
+
               BlurCircle(left: s(399), top: s(44), size: s(383), opacity: 1),
+
               BlurCircle(left: s(-241), top: s(580), size: s(383), opacity: .4),
 
-              // UI Content
+              /// MAIN UI
               IgnorePointer(
-                ignoring: isLoading, // Disable interaction during loading
+                ignoring: isLoading,
                 child: SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: s(20),
-                      vertical: s(16),
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: s(24)),
                     child: Column(
                       children: [
                         SizedBox(height: s(40)),
+
                         Center(child: LogoWidget(scale: scale)),
-                        SizedBox(height: s(50)),
+
+                        SizedBox(height: s(40)),
+
                         Expanded(
                           child: SingleChildScrollView(
+                            keyboardDismissBehavior:
+                                ScrollViewKeyboardDismissBehavior.onDrag,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'OTP Verification',
                                   style: GoogleFonts.poppins(
-                                    fontSize: s(26),
+                                    fontSize: s(28),
                                     fontWeight: FontWeight.w600,
                                     color: ColorPalette.bottomtext,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+
+                                SizedBox(height: s(8)),
+
                                 Text(
                                   "Enter the OTP sent to ${widget.phoneNumber}",
                                   style: GoogleFonts.lato(
-                                    fontSize: s(15),
+                                    fontSize: s(16),
                                     fontWeight: FontWeight.w400,
                                     color: ColorPalette.textfiledin,
                                   ),
                                 ),
-                                SizedBox(height: s(40)),
+
+                                SizedBox(height: s(18)),
+
                                 Center(
-                                  child: Pinput(
-                                    length: 6,
-                                    controller: controller,
-                                    focusNode: _otpFocusNode,
-                                    keyboardType: TextInputType.number,
-                                    defaultPinTheme: defaultPinTheme,
-                                    separatorBuilder: (index) =>
-                                        SizedBox(width: s(6)),
-                                    hapticFeedbackType:
-                                        HapticFeedbackType.lightImpact,
-                                    //  onCompleted: _onVerify, // Auto-submit when done
-                                    focusedPinTheme: defaultPinTheme.copyWith(
-                                      decoration: defaultPinTheme.decoration!
-                                          .copyWith(
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 2,
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Pinput(
+                                      length: 6,
+                                      controller: controller,
+                                      focusNode: _otpFocusNode,
+                                      keyboardType: TextInputType.number,
+
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+
+                                      defaultPinTheme: defaultPinTheme,
+
+                                      hapticFeedbackType:
+                                          HapticFeedbackType.lightImpact,
+
+                                      focusedPinTheme: defaultPinTheme.copyWith(
+                                        decoration: defaultPinTheme.decoration!
+                                            .copyWith(
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
                                             ),
-                                          ),
+                                      ),
                                     ),
                                   ),
                                 ),
                                 SizedBox(height: s(24)),
+
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    /// LEFT SIDE TEXT
                                     Expanded(
                                       child: RichText(
                                         text: TextSpan(
@@ -217,15 +239,15 @@ class _OtpScreenState extends State<OtpScreen> {
                                             TextSpan(
                                               text: "Resend OTP",
                                               style: GoogleFonts.lato(
-                                                color:  Colors.red,
-                                                    // disabled color
+                                                color: Colors.red,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                               recognizer: TapGestureRecognizer()
                                                 ..onTap = () {
                                                   if (isLoading ||
-                                                      _secondsRemaining > 0)
+                                                      _secondsRemaining > 0) {
                                                     return;
+                                                  }
 
                                                   context.read<OtpBloc>().add(
                                                     ResendOtpRequested(
@@ -233,10 +255,10 @@ class _OtpScreenState extends State<OtpScreen> {
                                                     ),
                                                   );
 
-                                                  /// Restart timer
                                                   setState(() {
                                                     _secondsRemaining = 120;
                                                   });
+
                                                   _startTimer();
                                                 },
                                             ),
@@ -245,32 +267,35 @@ class _OtpScreenState extends State<OtpScreen> {
                                       ),
                                     ),
 
-                                    /// RIGHT SIDE TIMER
                                     Text(
                                       timerText,
                                       style: GoogleFonts.lato(
                                         fontSize: s(14),
                                         fontWeight: FontWeight.w600,
-                                        color:  Colors.blueGrey
+                                        color: Colors.blueGrey,
                                       ),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: s(40)),
+
+                                SizedBox(height: s(104)),
+
                                 ValueListenableBuilder(
                                   valueListenable: controller,
                                   builder: (context, value, child) {
-                                    // The button only works if 6 digits are entered AND we aren't currently loading
                                     final bool canClick =
                                         value.text.length == 6 &&
                                         state.status != OtpStatus.loading;
 
-                                    return PrimaryButton(
-                                      text: "Verify",
-                                      scale: scale,
-                                      onTap: canClick
-                                          ? () => _onVerify(value.text)
-                                          : null,
+                                    return SizedBox(
+                                      width: double.infinity,
+                                      child: PrimaryButton(
+                                        text: "Verify",
+                                        scale: scale,
+                                        onTap: canClick
+                                            ? () => _onVerify(value.text)
+                                            : null,
+                                      ),
                                     );
                                   },
                                 ),
@@ -284,7 +309,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
               ),
 
-              // Loading Overlay
+              /// LOADING
               if (isLoading)
                 Positioned.fill(
                   child: BackdropFilter(

@@ -7,6 +7,7 @@ import 'package:space_solar_dealer/src/common/models/customer_model.dart';
 import 'package:space_solar_dealer/src/common/models/profile_model.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
+import 'package:space_solar_dealer/src/common/widgets/global_navigator.dart';
 import 'package:space_solar_dealer/src/common/widgets/splashscreen.dart';
 import 'package:space_solar_dealer/src/customer_detail/bloc/customer_details_bloc.dart';
 import 'package:space_solar_dealer/src/customer_detail/repo/customer_details_repositary.dart';
@@ -39,6 +40,9 @@ import 'package:space_solar_dealer/src/total_panel_ids/view/total_panel_List.dar
 
 class Routes {
   GoRouter router = GoRouter(
+
+    navigatorKey: navigatorKey,
+    
     initialLocation: "/",
 
     routes: [

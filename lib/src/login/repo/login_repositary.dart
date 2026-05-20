@@ -1,4 +1,3 @@
-
 import 'package:space_solar_dealer/src/common/constants/constansts.dart';
 import 'package:space_solar_dealer/src/common/models/otp_response.dart';
 import 'package:space_solar_dealer/src/common/repos/api_exception.dart';
@@ -51,7 +50,8 @@ class LoginRepository {
     } finally {
       await _preferencesRepository.removePreference(Constants.store.AUTH_TOKEN);
       await _preferencesRepository.removePreference(Constants.store.USER_ID);
-      await _preferencesRepository.removePreference(Constants.store.REFRESH_TOKEN);
+      await _preferencesRepository.removePreference(Constants.store.REFRESH_TOKEN,);
+      await _preferencesRepository.removePreference(Constants.store.USER_DATA);
       _apiRepository.updateToken(null);
     }
   }

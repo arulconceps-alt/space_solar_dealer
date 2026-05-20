@@ -14,7 +14,6 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-
       // FIX 1: Global background color
       theme: ThemeData(scaffoldBackgroundColor: const Color(0xFF1C1B20)),
 

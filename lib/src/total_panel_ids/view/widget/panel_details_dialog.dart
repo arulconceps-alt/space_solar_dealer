@@ -125,8 +125,8 @@ class PanelDetailsDialog extends StatelessWidget {
                   onTap: () => Navigator.pop(context),
                   child: Image.asset(
                     "assets/images/ticket/cross_icon.png",
-                    width: s(12.73),
-                    height: s(12.73),
+                    width: s(15.73),
+                    height: s(15.73),
                   ),
                 )
               ],

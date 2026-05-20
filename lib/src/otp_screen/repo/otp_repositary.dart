@@ -1,7 +1,7 @@
+import 'dart:convert';
 
 import 'package:space_solar_dealer/src/common/constants/constansts.dart';
 import 'package:space_solar_dealer/src/common/models/login_response.dart';
-import 'package:space_solar_dealer/src/common/models/otp_response.dart';
 import 'package:space_solar_dealer/src/common/repos/api_exception.dart';
 import 'package:space_solar_dealer/src/common/repos/api_repository.dart';
 import 'package:space_solar_dealer/src/common/repos/prefences_repository.dart';
@@ -17,9 +17,9 @@ class OtpRepositary {
     required String otp,
   }) async {
     try {
-         final deviceToken = _preferencesRepository.getPreference(
-      Constants.store.DEVICE_TOKEN,
-    );
+      final deviceToken = _preferencesRepository.getPreference(
+        Constants.store.DEVICE_TOKEN,
+      );
 
       final responseData = await _apiRepository.postRequest(
         url: "auth/otp/verify",
@@ -30,7 +30,7 @@ class OtpRepositary {
         },
         includeRequester: false,
       );
- print("🚀 VERIFY OTP REQUEST => $responseData");
+      print(" VERIFY OTP REQUEST => $responseData");
 
       final loginResponse = LoginResponse.fromJson(responseData);
 
@@ -43,8 +43,10 @@ class OtpRepositary {
           Constants.store.AUTH_TOKEN,
           accessToken,
         );
-        final savedToken = _preferencesRepository.getPreference(Constants.store.AUTH_TOKEN);
-        print("📦 STORED TOKEN (after save) => $savedToken");
+        final savedToken = _preferencesRepository.getPreference(
+          Constants.store.AUTH_TOKEN,
+        );
+        print("STORED TOKEN (after save) => $savedToken");
         await _preferencesRepository.setPreference(
           Constants.store.REFRESH_TOKEN,
           refreshToken,
@@ -55,10 +57,21 @@ class OtpRepositary {
           userId,
         );
 
-        // ✅ UPDATE DIO HEADER
+        await _preferencesRepository.setPreference(
+          Constants.store.USER_DATA,
+          jsonEncode({
+            "id": loginResponse.data!.user.id,
+            "name": loginResponse.data!.user.name,
+            "email": loginResponse.data!.user.email,
+            "phone": loginResponse.data!.user.phone,
+            "roleType": loginResponse.data!.user.roleType,
+          }),
+        );
+
+        //  UPDATE DIO HEADER
         _apiRepository.updateToken(accessToken);
 
-        print("✅ ACCESS TOKEN SAVED => $accessToken");
+        print("ACCESS TOKEN SAVED => $accessToken");
 
         return loginResponse;
       } else {
@@ -84,7 +97,6 @@ class OtpRepositary {
       final match = regex.firstMatch(message);
 
       return match?.group(0);
-
     } catch (e) {
       rethrow;
     }

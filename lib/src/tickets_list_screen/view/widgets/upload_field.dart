@@ -74,7 +74,7 @@ class UploadField extends StatelessWidget {
 
                   /// TEXT
                   Text(
-                    'Click to Upload Invoice',
+                    'Click to Upload Images',
                     style: GoogleFonts.lato(
                       color: ColorPalette.textfiledin,
                       fontSize: s(14),

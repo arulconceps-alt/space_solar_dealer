@@ -37,7 +37,7 @@ class _TermsConditionViewState extends State<TermsConditionView> {
               children: [
                 /// TITLE
                 Text(
-                  "Terms & Condtion",
+                  "Terms & Condition",
                   style: GoogleFonts.poppins(
                     fontSize: s(20),
                     fontWeight: FontWeight.w600,

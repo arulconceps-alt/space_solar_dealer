@@ -19,17 +19,17 @@ class TicketListDetailsRepositary {
       "/dealer/tickets?page=$page&limit=10",
     );
 
-      print("📥 FETCH TICKETS RESPONSE: $response");
+      //print("📥 FETCH TICKETS RESPONSE: $response");
   
   // Print response status
-  print("Response Success: ${response["success"]}");
-  print("Response Message: ${response["message"]}");
+  //print("Response Success: ${response["success"]}");
+  //print("Response Message: ${response["message"]}");
   
   final List list = response["data"] ?? [];
   
   // Print data details
-  print("📊 Tickets count: ${list.length}");
-  print("📊 Tickets data: $list");
+  //print("📊 Tickets count: ${list.length}");
+  //print("📊 Tickets data: $list");
     return list.map((e) => TicketModel.fromJson(e)).toList();
   }
 
@@ -93,7 +93,7 @@ Future<TicketModel> getTicketDetails(String ticketId) async {
       "/dealer/tickets/$ticketId",
     );
 
-    print("✅ TICKET DETAILS API: $response");
+    print("TICKET DETAILS API: $response");
 
     final data = response["data"];
 

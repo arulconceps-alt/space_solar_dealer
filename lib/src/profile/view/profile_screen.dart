@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_solar_dealer/src/app/color_palette.dart';
-import 'package:space_solar_dealer/src/common/models/profile_model.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:space_solar_dealer/src/login/repo/login_repositary.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_bloc.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_event.dart';
 import 'package:space_solar_dealer/src/profile/bloc/profile_state.dart';
@@ -16,6 +17,22 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String appVersion = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+
+    setState(() {
+      appVersion = "${info.version}+${info.buildNumber}";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -289,10 +306,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(height: s(50)),
 
                   Text(
-                    "Version 0.21",
+                    "Version $appVersion",
                     style: GoogleFonts.lato(
                       fontSize: s(12),
-                      color: Colors.black54,
+                      fontWeight: FontWeight.w400,
+                      color: ColorPalette.textfiledin.withOpacity(0.80),
                     ),
                   ),
 
@@ -404,7 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showLogoutDialog(BuildContext context, double Function(double) s) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(s(16)),
@@ -422,21 +440,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("No", style: GoogleFonts.poppins(color: Colors.grey)),
+              child: Text(
+                "No",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  color: ColorPalette.bottomtext,
+                ),
+              ),
             ),
 
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: () async {
+                Navigator.pop(dialogContext);
 
-                context.go('/login');
+                try {
+                  final loginRepository = context.read<LoginRepository>();
+
+                  await loginRepository.logout();
+
+                  if (context.mounted) {
+                    context.go('/login');
+                  }
+                } catch (e) {
+                  debugPrint("Logout Error => $e");
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
               ),
               child: Text(
                 "Yes",
-                style: GoogleFonts.poppins(color: Colors.white),
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
               ),
             ),
           ],

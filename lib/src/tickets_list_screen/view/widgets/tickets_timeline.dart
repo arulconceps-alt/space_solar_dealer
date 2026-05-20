@@ -134,6 +134,7 @@ class TicketTimelineWidget extends StatelessWidget {
                               ],
                             ),
                           ],
+
                           // if (item.workedMinutes != null) ...[
                           //   SizedBox(height: s(6)),
                           //   Row(
@@ -155,7 +156,6 @@ class TicketTimelineWidget extends StatelessWidget {
                           //     ],
                           //   ),
                           // ],
-
                           if (item.revisitDate != null) ...[
                             SizedBox(height: s(6)),
                             Row(
@@ -179,10 +179,11 @@ class TicketTimelineWidget extends StatelessWidget {
                               ],
                             ),
                           ],
-                          if (item.fromName != null || item.toName != null) ...[
+                          if (item.toName != null &&
+                              item.toName!.isNotEmpty) ...[
                             SizedBox(height: s(4)),
                             Text(
-                              "Technician: ${item.fromName ?? '-'} →  ${item.toName ?? '-'}",
+                              "Technician: ${item.toName}",
                               style: GoogleFonts.lato(
                                 fontSize: s(13),
                                 color: Colors.black87,

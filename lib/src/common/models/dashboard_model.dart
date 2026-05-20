@@ -53,13 +53,15 @@ class TicketStats {
   }
 }
 class RecentActivity {
+  final String id; 
   final String title;
   final String ticketNumber;
   final String status;
   final String createdAt;
-  final String customerName; // ✅ ADD THIS
+  final String customerName;
 
   RecentActivity({
+    required this.id,
     required this.title,
     required this.ticketNumber,
     required this.status,
@@ -69,11 +71,12 @@ class RecentActivity {
 
   factory RecentActivity.fromJson(Map<String, dynamic> json) {
     return RecentActivity(
+      id: json['id'] ?? '', 
       title: json['title'] ?? '',
       ticketNumber: json['ticketNumber'] ?? '',
       status: json['status'] ?? '',
       createdAt: json['createdAt'] ?? '',
-      customerName: json['customer']?['name'] ?? '', // ✅ FIX HERE
+      customerName: json['customer']?['name'] ?? '',
     );
   }
 }

@@ -22,6 +22,7 @@ import 'package:space_solar_dealer/src/login/repo/login_repositary.dart';
 import 'package:space_solar_dealer/src/login/bloc/login_bloc.dart';
 import 'package:space_solar_dealer/src/customer_list/repo/customer_list_repositary.dart';
 import 'package:space_solar_dealer/src/customer_list/bloc/customer_list_bloc.dart';
+import 'package:space_solar_dealer/src/notifications/data/notification_popup_service.dart';
 import 'package:space_solar_dealer/src/notifications/data/notification_service.dart';
 import 'package:space_solar_dealer/src/notifications/data/notification_store.dart';
 import 'package:space_solar_dealer/src/tickets_list_screen/bloc/ticket_list_details_bloc.dart';
@@ -45,20 +46,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint("BACKGROUND MESSAGE => ${message.notification?.title}");
 }
 
+Future<String> downloadAndSaveFile(String url, String fileName) async {
+  final directory = await getApplicationDocumentsDirectory();
 
-Future<String> downloadAndSaveFile(
-  String url,
-  String fileName,
-) async {
+  final filePath = '${directory.path}/$fileName';
 
-  final directory =
-      await getApplicationDocumentsDirectory();
-
-  final filePath =
-      '${directory.path}/$fileName';
-
-  final response =
-      await http.get(Uri.parse(url));
+  final response = await http.get(Uri.parse(url));
 
   final file = File(filePath);
 
@@ -67,14 +60,9 @@ Future<String> downloadAndSaveFile(
   return filePath;
 }
 
-
 /// SHOW LOCAL NOTIFICATION
-Future<void> showFlutterNotification(
-  RemoteMessage message,
-) async {
-
-  final notification =
-      message.notification;
+Future<void> showFlutterNotification(RemoteMessage message) async {
+  final notification = message.notification;
 
   if (notification == null) return;
 
@@ -82,75 +70,51 @@ Future<void> showFlutterNotification(
 
   /// IMAGE URL FROM BACKEND
   final imageUrl =
-      notification.android?.imageUrl;
+      message.notification?.android?.imageUrl ??
+      message.notification?.apple?.imageUrl;
 
   /// DOWNLOAD IMAGE
-  if (imageUrl != null &&
-      imageUrl.isNotEmpty) {
-
+  if (imageUrl != null && imageUrl.isNotEmpty) {
     try {
-
-      bigPicturePath =
-          await downloadAndSaveFile(
+      bigPicturePath = await downloadAndSaveFile(
         imageUrl,
         'notification_image',
       );
-
     } catch (e) {
-
-      debugPrint(
-        "IMAGE DOWNLOAD ERROR => $e",
-      );
+      debugPrint("IMAGE DOWNLOAD ERROR => $e");
     }
   }
 
-  /// BIG PICTURE STYLE
-  final BigPictureStyleInformation
-      bigPictureStyle =
-      BigPictureStyleInformation(
-    FilePathAndroidBitmap(
-      bigPicturePath ?? '',
-    ),
+ final BigPictureStyleInformation bigPictureStyle =
+    BigPictureStyleInformation(
+  FilePathAndroidBitmap(bigPicturePath ?? ''),
 
-    largeIcon:
-        FilePathAndroidBitmap(
-      bigPicturePath ?? '',
-    ),
+  contentTitle: notification.title,
 
-    contentTitle:
-        notification.title,
+  summaryText: notification.body,
 
-    summaryText:
-        notification.body,
-  );
+  hideExpandedLargeIcon: true,
+);
 
   /// ANDROID DETAILS
-  final AndroidNotificationDetails
-      androidDetails =
-      AndroidNotificationDetails(
+  final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
     'high_importance_channel',
     'High Importance Notifications',
 
-    channelDescription:
-        'Important notifications',
+    channelDescription: 'Important notifications',
 
     importance: Importance.max,
     priority: Priority.high,
     playSound: true,
 
-    styleInformation:
-        bigPicturePath != null
-            ? bigPictureStyle
-            : null,
+    styleInformation: bigPicturePath != null ? bigPictureStyle : null,
   );
 
-  final NotificationDetails
-      notificationDetails =
-      NotificationDetails(
+  final NotificationDetails notificationDetails = NotificationDetails(
     android: androidDetails,
   );
 
-  /// SHOW NOTIFICATION
+ 
   await flutterLocalNotificationsPlugin.show(
     notification.hashCode,
 
@@ -160,9 +124,7 @@ Future<void> showFlutterNotification(
 
     notificationDetails,
 
-    payload: jsonEncode(
-      message.data,
-    ),
+    payload: jsonEncode(message.data),
   );
 }
 
@@ -171,10 +133,9 @@ Future<void> main() async {
 
   await Hive.initFlutter();
 
-await NotificationService.instance.init();
+  await NotificationService.instance.init();
 
-await NotificationStore.instance
-    .loadNotifications();
+  await NotificationStore.instance.loadNotifications();
 
   /// FIREBASE INIT
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -223,20 +184,28 @@ await NotificationStore.instance
 
     final body = message.notification?.body ?? '';
 
-   await NotificationStore.instance
-    .addNotification(
-  title: title,
-  body: body,
-  imageUrl:
-      message.notification
-          ?.android
-          ?.imageUrl,
-);
+    await NotificationStore.instance.addNotification(
+      title: title,
+      body: body,
+      imageUrl: message.notification?.android?.imageUrl,
+    );
 
     await showFlutterNotification(message);
-  });
 
-  /// BACKGROUND CLICK
+  final notificationBody =
+      body.toUpperCase();
+
+  /// POPUP HIDE FOR OPEN STATUS
+  if (!notificationBody.contains("OPEN")) {
+    showInAppNotification(
+      title: title,
+      body: body,
+      imageUrl:
+          message.notification?.android?.imageUrl,
+    );
+  }
+});
+
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     debugPrint("BACKGROUND NOTIFICATION CLICKED");
 
